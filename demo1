@@ -1,18 +1,8 @@
-{
-  "fios":[{
-    "1":"ok",
-    "2":"no Ok"
-  },
-  {
-    "time": "2022-10-26T17:30:00.000-04:00",
+dataRow : {
+    "dateTime": "2022-10-26T17:30:00.000-04:00",
     "type": "Ethernet",
-"dataRate": "1000Mbps",
-"ipv6Address": "64:CC:22:73:6B:AE",
-  }
-],
-  "wifi":{
-    "1":"ok",
-    "2":"no Ok"
-  },
-} 
-why bad string is coming at line no 11 could you fix this
+    "dataRate": "100000000",
+    "ipv6Address": "64:CC:22:73:6B:AE"
+}
+suppose i have this object now i need to extract the date and time from the dataTime and store it in a new object could you do this 
+please make sure to maintain the ISO 8061 considering the offsets and all
