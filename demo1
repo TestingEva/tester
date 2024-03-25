@@ -1,23 +1,29 @@
-const dataRow = {
-  "dateTime": "2022-10-26T17:30:00.000-04:00",
-  "type": "Ethernet",
-  "dataRate": "100000000",
-  "ipv6Address": "64:CC:22:73:6B:AE"
-};
+21:30:00.000Z i am getting the time in this format and i need to convert it in 12hr format could you do this 
 
-// Extract date and time
-const dateTime = new Date(dataRow.dateTime);
-const date = dateTime.toISOString().split('T')[0];
-const time = dateTime.toISOString().split('T')[1];
+here is the code in which you need to modifiy
 
-// Create a new object with extracted date and time
-const extractedDateTime = {
-  date: date,
-  time: time
-};
+import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
+import { bytesToSize } from '../../../utils/DataConversion'
 
-// Add date and time back to the dataRow object
-dataRow.date = extractedDateTime.date;
-dataRow.time = extractedDateTime.time;
+const BackhaulLoggingTableCell = ({ dataRow }) => {
+    const dateTime = new Date(dataRow.dateTime)
+    const date = dateTime.toISOString().split('T')[0]
+    const time = dateTime.toISOString().split('T')[1]
+    const extractedDateTime = {
+        date: date,
+        time: time,
+    }
+    const temp = dataRow?.dataRate
+    dataRow.date = extractedDateTime.date
+    dataRow.time = extractedDateTime.time
+    dataRow.dataRate=bytesToSize(Number(temp))
+    return (
+        <tr>
+            {BackhaulLoggingConstants.backhaulKeys.map((val,i) => (
+                <td key={i}>{dataRow[val]}</td>
+            ))}
+        </tr>
+    )
+}
 
-console.log(dataRow);
+export default BackhaulLoggingTableCell
