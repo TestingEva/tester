@@ -1,22 +1,27 @@
-21:30:00.000Z i am getting the time in this format and i need to convert it in 12hr format could you do this 
-
-here is the code in which you need to modifiy
-
 import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
 import { bytesToSize } from '../../../utils/DataConversion'
 
 const BackhaulLoggingTableCell = ({ dataRow }) => {
     const dateTime = new Date(dataRow.dateTime)
     const date = dateTime.toISOString().split('T')[0]
-    const time = dateTime.toISOString().split('T')[1]
+    
+    // Extracting time in 12-hour format
+    const hours = dateTime.getHours();
+    const minutes = dateTime.getMinutes();
+    const seconds = dateTime.getSeconds();
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const twelveHourFormat = `${hours % 12 || 12}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}.${dateTime.getMilliseconds()} ${ampm}`;
+    
     const extractedDateTime = {
         date: date,
-        time: time,
+        time: twelveHourFormat,
     }
+    
     const temp = dataRow?.dataRate
     dataRow.date = extractedDateTime.date
     dataRow.time = extractedDateTime.time
-    dataRow.dataRate=bytesToSize(Number(temp))
+    dataRow.dataRate = bytesToSize(Number(temp))
+    
     return (
         <tr>
             {BackhaulLoggingConstants.backhaulKeys.map((val,i) => (
