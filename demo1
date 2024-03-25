@@ -1,1 +1,18 @@
-Testing done 
+{
+  "fios":[{
+    "1":"ok",
+    "2":"no Ok"
+  },
+  {
+    "time": "2022-10-26T17:30:00.000-04:00",
+    "type": "Ethernet",
+"dataRate": "1000Mbps",
+"ipv6Address": "64:CC:22:73:6B:AE",
+  }
+],
+  "wifi":{
+    "1":"ok",
+    "2":"no Ok"
+  },
+} 
+why bad string is coming at line no 11 could you fix this
