@@ -1,72 +1,16 @@
-import { useEffect, useMemo, useState } from 'react';
-import './BackhaulLogging.css';
-import { Header } from '../../../common/header/Header';
-import FiosExtender from './FiosExtender';
-import WifiExtender from './WifiExtender';
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchBackhaulRequest } from './Action';
-import VZLoader from '../../../common/loader/Loader';
-
-const BackhaulLogging = () => {
-    const apiData = useSelector((state) => state?.backhaul?.data);
-    const [menuList, setMenuList] = useState(true);
-    const dispatch = useDispatch();
-    const [loadPage, setLoadPage] = useState(false);
-
-    const handleSelectMenu = (item) => {
-        item === BackhaulLoggingConstants?.fios ? setMenuList(true) : setMenuList(false);
-    }
-
-    const LoadPage = () => (
-        <>
-            <Header
-                title={BackhaulLoggingConstants?.title}
-                breadcrumbData={BackhaulLoggingConstants?.breadcrumbData}
-                underDevelopmentFlag={true}
-                extra={
-                    <div className="backhaul-menu">
-                        <div className={menuList ? 'backhaul-selectMenu b' : 'backhaul-unselectMenu b'} onClick={() => handleSelectMenu(BackhaulLoggingConstants?.fios)}>
-                            {BackhaulLoggingConstants?.fios}
-                        </div>
-                        <div className={!menuList ? 'backhaul-selectMenu b' : 'backhaul-unselectMenu b'} onClick={() => handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
-                            {BackhaulLoggingConstants?.wifi}
-                        </div>
-                    </div>
-                }
-                lineMargin="backhaul-linemargin"
-            />
-            {loadPage && (menuList ? <FiosExtender fiosData={fiosData} /> : <WifiExtender wifiData={wifiData} />)}
-        </>
-    );
-
-    useMemo(() => {
-        dispatch(fetchBackhaulRequest());
-        // eslint-disable-next-line
-    }, []);
-
-    useEffect(() => {
-        if (apiData && Object.keys(apiData)?.length) {
-            setLoadPage(true);
-        }
-        console.log("apiData", apiData);
-    }, [apiData]);
-
-    // Splitting the received object into fiosData and wifiData arrays
-    const fiosData = [];
-    const wifiData = [];
-    Object.values(apiData).forEach((value) => {
-        if (value && value.length > 1 && (value[1] === "0" || value[1] === "1")) {
-            const data = [value[0], value[1], value[2], value[3]];
-            if (value[1] === "0") {
-                fiosData.push(data);
-            } else if (value[1] === "1") {
-                wifiData.push(data);
-            }
-        }
-    });
-
-    return loadPage ? <LoadPage /> : <VZLoader />;
-}
-
-export default BackhaulLogging;
+it was a good logic but can we do like this as i recive the apidata we do the splitting there only 
+like apiData must look like the following 
+ apiData = {
+    "fiosData":[
+        [ '2024-02-19T07:29:43', '0', '1000', 'A8:A2:37:6B:EA:88' ],
+         [ '2024-02-19T07:29:43', '0', '1000', 'A8:A2:37:6B:EA:88' ],
+          [ '2024-02-19T07:29:43', '0', '1000', 'A8:A2:37:6B:EA:88' ],
+           [ '2024-02-19T07:29:43', '0', '1000', 'A8:A2:37:6B:EA:88' ]
+    ],
+    "wifiData":[
+        [ '2024-02-19T07:29:43', '1', '1000', 'A8:A2:37:6B:EA:88' ],
+        [ '2024-02-19T07:29:43', '1', '1000', 'A8:A2:37:6B:EA:88' ],
+        [ '2024-02-19T07:29:43', '1', '1000', 'A8:A2:37:6B:EA:88' ],
+        [ '2024-02-19T07:29:43', '1', '1000', 'A8:A2:37:6B:EA:88' ]
+    ]
+ }and so on is it possible
