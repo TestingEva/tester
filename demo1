@@ -1,125 +1,76 @@
-import { useEffect, useMemo, useState } from 'react'
-import './BackhaulLogging.css'
-import { Header } from '../../../common/header/Header'
-import FiosExtender from './FiosExtender'
-import WifiExtender from './WifiExtender'
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
-import { useDispatch, useSelector } from 'react-redux'
-import { clearBackhaulRequest, fetchBackhaulRequest } from './Action'
-import VZLoader from '../../../common/loader/Loader'
-import { fetchRequests } from '../../../utils/FetchRequest'
-import CONFIG from '../../../config/env.json'
-
-const BackhaulLogging = () => {
-    const apiData = useSelector((state) => state?.backhaul?.data)
-    const [menuList, setMenuList] = useState(true)
-    const dispatch = useDispatch()
-    const [loadPage, setLoadPage] = useState(false)
-    const handleSelectMenu = (item) => {item === BackhaulLoggingConstants?.fios? setMenuList(true): setMenuList(false)}
-    const refreshLog=(data)=>{
-        dispatch(fetchBackhaulRequest({body: { deviceType: data }}))
+{
+  "data": {
+    "0": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "1": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "2": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "3": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "4": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "5": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "6": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "7": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
+    },
+    "8": {
+      "date": "02/19/2024",
+      "time": "07:29:43 AM",
+      "type": "0",
+      "connectionRate": "1000",
+      "macAddress": "A8:A2:37:6B:EA:88"
     }
-    const clearLog=()=>{
-        dispatch(clearBackhaulRequest())
-    }
-    const saveLog = ()=>{
-        fetchRequests({ url: CONFIG?.BACKHAUL_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ deviceType:menuList?0:1  }) }).then(rData => { return rData?.blob() }).then(res => {
-            const blob = new Blob([res], { type: 'application/text' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `${BackhaulLoggingConstants?.logFileName?.[menuList?0:1]}_backhaul_log.log`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        })
-    }
-    
-    const LoadPage = () => (
-        <>
-            <Header
-                title={BackhaulLoggingConstants?.title}
-                breadcrumbData={BackhaulLoggingConstants?.breadcrumbData}
-                underDevelopmentFlag={true}
-                extra={
-                    <div className="backhaul-menu">
-                        <div className={menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.fios)} >
-                            {BackhaulLoggingConstants?.fios}
-                        </div>
-                        <div className={!menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
-                            {BackhaulLoggingConstants?.wifi}
-                        </div>
-                    </div>
-                }
-                lineMargin="backhaul-linemargin"
-            />
-            <>{menuList ? <FiosExtender fiosData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/> : <WifiExtender wifiData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/>}</>
-        </>
-    )
-    useMemo(() => {
-        dispatch(fetchBackhaulRequest({body: { deviceType: menuList?0:1 }}))
-    }, [menuList,dispatch])
-    useEffect(() => {
-        if (apiData && Object.keys(apiData)?.length) {
-            setLoadPage(true)
-        }
-    }, [apiData])
-    return loadPage ? LoadPage() : <VZLoader />
+  },
+  "loading": false,
+  "error": null
 }
+this was in the state
 
-export default BackhaulLogging
+i want to store the data as apiData but i am getting error 
+const {apiData:data,loading} = useSelector((state) => state?.backhaul)
+console.log(apiData)
 
-export const FETCH_BACKHAUL_REQUEST = 'FETCH_BACKHAUL_REQUEST'
-export const FETCH_BACKHAUL_SUCCESS = 'FETCH_BACKHAUL_SUCCESS'
-export const FETCH_BACKHAUL_FAILURE = 'FETCH_BANDWIDTH_FAILURE'
-export const CLEAR_BACKHAUL_REQUEST="CLEAR_BACKHAUL_REQUEST"
-
-export const fetchBackhaulRequest = (payload) => ({
-    type: FETCH_BACKHAUL_REQUEST,
-    payload:payload
-})
-export const fetchBackhaulSuccess = (data) => ({
-    type: FETCH_BACKHAUL_SUCCESS,
-    payload: data,
-})
-export const fetchBackhaulFailure = (error) => ({
-    type: FETCH_BACKHAUL_FAILURE,
-    payload: error,
-})
-export const clearBackhaulRequest = ()=>({
-    type:CLEAR_BACKHAUL_REQUEST,
-})
-
-import {put,takeLatest,call} from "redux-saga/effects"
-import { CLEAR_BACKHAUL_REQUEST, FETCH_BACKHAUL_REQUEST,fetchBackhaulFailure,fetchBackhaulSuccess } from "./Action"
-import CONFIG from '../../../config/env.json'
-import { fetchRequests } from "../../../utils/FetchRequest"
-import { modifyString } from "../../../utils/LogsSplitter";
-
-const fetchApiData = (body)=>fetchRequests({url:CONFIG?.BACKHAUL_GET_URL,body:JSON.stringify(body)});
-const clearBackhaulLogData = ()=>fetchRequests({url:CONFIG?.BACKHAUL_CLEAR_URL})
-
-function* fetchBackhaulData({payload}){
-    try{
-        const responseData = yield call(fetchApiData,payload?.body);
-        const result= modifyString(responseData?.logs)
-        yield put(fetchBackhaulSuccess(result));
-    }
-    catch(error){
-        yield put(fetchBackhaulFailure())
-    }
-}
-function* clearBackhaulLog(){
-    try{
-        yield call(clearBackhaulLogData)
-    }
-    catch(error){
-        yield put(fetchBackhaulFailure(error.message))
-    }
-}
-
-function* backhaulSaga(){
-    yield takeLatest(FETCH_BACKHAUL_REQUEST,fetchBackhaulData);
-    yield takeLatest(CLEAR_BACKHAUL_REQUEST,clearBackhaulLog)
-}
-export default backhaulSaga;
-
-see now i have send my whole file now fix it
+could you help me
