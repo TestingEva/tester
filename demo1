@@ -1,109 +1,15 @@
-wifiData object is {
-    "0": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "1",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "1": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1001",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "2": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "3": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "1",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "4": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "5": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "6": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "7": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "1",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "8": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "9": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "1",
-        "connectionRate": "2000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "10": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "1",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "11": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "12": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "13": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1000",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    },
-    "14": {
-        "dateTime": "2024-02-19T07:29:43",
-        "type": "0",
-        "connectionRate": "1020",
-        "macAddress": "A8:A2:37:6B:EA:88"
-    }
-}
-
-now i need to map it 
-import { Table } from 'react-bootstrap'
-import Footer from '../../../common/footer/Footer'
-import './BackhaulLogging.css'
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
-import BackhaulLoggingTableCell from './BackhaulLoggingTableCell'
-import React from 'react'
+import { Table } from 'react-bootstrap';
+import Footer from '../../../common/footer/Footer';
+import './BackhaulLogging.css';
+import { BackhaulLoggingConstants } from '../../../constants/Diagnostics';
+import BackhaulLoggingTableCell from './BackhaulLoggingTableCell';
+import React from 'react';
 
 const WifiExtender = ({ wifiData }) => {
-    const refreshLog = () => {}
-    const clearLog = () => {}
-    const saveLog = () => {}
-    console.log(wifiData)
+    const refreshLog = () => {};
+    const clearLog = () => {};
+    const saveLog = () => {};
+
     return (
         <>
             <div className="backhaul-font-size">
@@ -114,26 +20,20 @@ const WifiExtender = ({ wifiData }) => {
                         </tr>
                     </thead>
                     <tbody>
-                        {/* {wifiData.map((val, i) => {
-                            return (
-                                <React.Fragment key={i}>
-                                    <BackhaulLoggingTableCell key={i} dataRow={val}/>
-                                </React.Fragment>
-                            )
-                        })} */}
+                        {Object.entries(wifiData).map(([key, val]) => (
+                            <BackhaulLoggingTableCell key={key} dataRow={val}/>
+                        ))}
                     </tbody>
                 </Table>
                 <div className="backhaul-menu-button b">
-                    <button className="backhaul-menu-button-1 b" onClick={refreshLog} >{BackhaulLoggingConstants?.refresh}</button>
-                    <button className="backhaul-menu-button-1 b" onClick={clearLog} >{BackhaulLoggingConstants?.clear}</button>
-                    <button className="backhaul-menu-button-2 b" onClick={saveLog} >{BackhaulLoggingConstants?.save}</button>
+                    <button className="backhaul-menu-button-1 b" onClick={refreshLog}>{BackhaulLoggingConstants?.refresh}</button>
+                    <button className="backhaul-menu-button-1 b" onClick={clearLog}>{BackhaulLoggingConstants?.clear}</button>
+                    <button className="backhaul-menu-button-2 b" onClick={saveLog}>{BackhaulLoggingConstants?.save}</button>
                 </div>
             </div>
             <Footer />
         </>
-    )
-}
+    );
+};
 
-export default WifiExtender
-
-could you help it 
+export default WifiExtender;
