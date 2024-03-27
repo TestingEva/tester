@@ -1,6 +1,4 @@
-this is doing a great job i just need few more modifications like 
 export const modifyString = (data) => {
-
     const lineSeparator = '\u2551';
     const valueSeparator = '\u2588';
 
@@ -9,20 +7,27 @@ export const modifyString = (data) => {
     const splitList = trimmedData?.split(lineSeparator)?.slice(0, trimmedData?.[trimmedData?.length - 1] === lineSeparator ? -1 : undefined);
     return splitList.map(val => {
         const splitVal = val?.split(valueSeparator);
+        const dateTime = new Date(splitVal?.[0]?.trim());
+
+        const date = dateTime.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+
+        const time = dateTime.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: true
+        });
+
         return {
-            dateTime: splitVal?.[0]?.trim(),
+            date: date,
+            time: time,
             type: splitVal?.[1]?.trim(),
             connectionRate: splitVal?.[2]?.trim(),
             macAddress: splitVal?.[3]?.trim()
-        }
+        };
     });
-}
-its sending me dateTime i need date and time(in 12 hr format) instead of dateTime
-
-here is an sample object it was responding 
-{
-    "dateTime": "2024-02-19T07:29:43",
-    "type": "1",
-    "connectionRate": "1000",
-    "macAddress": "A8:A2:37:6B:EA:88"
-}
+};
