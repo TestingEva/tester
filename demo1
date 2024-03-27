@@ -7,7 +7,15 @@ export const modifyString = (data) => {
     const splitList = trimmedData?.split(lineSeparator)?.slice(0, trimmedData?.[trimmedData?.length - 1] === lineSeparator ? -1 : undefined);
     return splitList.map(val => {
         const splitVal = val?.split(valueSeparator);
-        const dateTime = new Date(splitVal?.[0]?.trim());
+        const dateTimeString = splitVal?.[0]?.trim();
+
+        // Validate dateTimeString
+        if (!dateTimeString || isNaN(Date.parse(dateTimeString))) {
+            console.error(`Invalid dateTime value: ${dateTimeString}`);
+            return null; // Skip this entry
+        }
+
+        const dateTime = new Date(dateTimeString);
 
         const date = dateTime.toLocaleDateString('en-US', {
             year: 'numeric',
@@ -29,5 +37,5 @@ export const modifyString = (data) => {
             connectionRate: splitVal?.[2]?.trim(),
             macAddress: splitVal?.[3]?.trim()
         };
-    });
+    }).filter(entry => entry !== null); // Remove null entries
 };
