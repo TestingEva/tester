@@ -1,60 +1,7 @@
-[
-    {
-        "time": "2022-10-26T17:30:00.000-04:00",
-        "type": "Ethernet",
-        "dataRate": "1000000",
-        "ipv6Address": "64:CC:22:73:6B:AE"
-    },
-    {
-        "time": "2022-10-26T17:30:00.000-04:00",
-        "type": "Ethernet",
-        "dataRate": "10000000",
-        "ipv6Address": "64:CC:22:73:6B:AE"
-    }
+Hi 
+
+I want you to modify "2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║"
+and i want to split the data like [
+    [2024-02-19T07:29:43,0,1000,A8:A2:37:6B:EA:88],[2024-02-19T07:29:43,0,1000,A8:A2:37:6B:EA:88],[2024-02-19T07:29:43,0,1000,A8:A2:37:6B:EA:88]
 ]
-This is the data which i am passing to my below component 
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
-import { bytesToSize } from '../../../utils/DataConversion'
-
-const BackhaulLoggingTableCell = ({ dataRow }) => {
-    const dateTime = new Date(dataRow?.dateTime)
-    const date = dateTime?.toISOString().split('T')[0]
-    const hours = dateTime.getHours();
-    const minutes = dateTime.getMinutes();
-    const seconds = dateTime.getSeconds();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const twelveHourFormat = `${hours % 12 || 12}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds} ${ampm}`;
-    const extractedDateTime = {
-        date: date,
-        time: twelveHourFormat,
-    }
-    const temp = dataRow?.dataRate
-    dataRow.date = extractedDateTime.date
-    dataRow.time = extractedDateTime.time
-    dataRow.dataRate = !(isNaN(temp))? bytesToSize(temp):temp
-    return (
-        <tr>
-            {BackhaulLoggingConstants.backhaulKeys.map((val,i) => (
-                <td key={i}>{dataRow[val]?dataRow[val]:""}</td>
-            ))}
-        </tr>
-    )
-}
-
-export default BackhaulLoggingTableCell
-
-but now i am facing the following 
-Invalid time value
-RangeError: Invalid time value
-    at Date.toISOString (<anonymous>)
-    at BackhaulLoggingTableCell (http://localhost:3000/static/js/src_pages_diagnostics-monitoring_backhaul-logging_BackhaulLogging_js.chunk.js:255:77)
-    at renderWithHooks (http://localhost:3000/static/js/bundle.js:43938:22)
-    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:47222:17)
-    at beginWork (http://localhost:3000/static/js/bundle.js:48518:20)
-    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:33534:18)
-    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:33578:20)
-    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:33635:35)
-    at beginWork$1 (http://localhost:3000/static/js/bundle.js:53499:11)
-    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:52747:16)
-
-could you fix this and also fix any bug exist which you notice
+could you write a JavaScript function to do this 
