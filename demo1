@@ -14,3 +14,23 @@ like apiData must look like the following
         [ '2024-02-19T07:29:43', '1', '1000', 'A8:A2:37:6B:EA:88' ]
     ]
  }and so on is it possible
+
+const apiData = {
+    "fiosData": [],
+    "wifiData": []
+};
+
+// Assuming receivedData is the array of data received from the API
+receivedData.forEach(item => {
+    if (item && item.length > 1 && (item[1] === "0" || item[1] === "1")) {
+        const data = [item[0], item[1], item[2], item[3]];
+        if (item[1] === "0") {
+            apiData.fiosData.push(data);
+        } else if (item[1] === "1") {
+            apiData.wifiData.push(data);
+        }
+    }
+});
+
+console.log(apiData);
+
