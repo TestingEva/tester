@@ -1,41 +1,72 @@
-export const modifyString = (data) => {
-    const lineSeparator = '\u2551';
-    const valueSeparator = '\u2588';
+import { useEffect, useMemo, useState } from 'react'
+import './BackhaulLogging.css'
+import { Header } from '../../../common/header/Header'
+import FiosExtender from './FiosExtender'
+import WifiExtender from './WifiExtender'
+import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
+import { useDispatch, useSelector } from 'react-redux'
+import { clearBackhaulRequest, fetchBackhaulRequest } from './Action'
+import VZLoader from '../../../common/loader/Loader'
+import { fetchRequests } from '../../../utils/FetchRequest'
+import CONFIG from '../../../config/env.json'
 
-    const trimmedData = data?.trim();
-
-    const splitList = trimmedData?.split(lineSeparator)?.slice(0, trimmedData?.[trimmedData?.length - 1] === lineSeparator ? -1 : undefined);
-    return splitList.map(val => {
-        const splitVal = val?.split(valueSeparator);
-        const dateTimeString = splitVal?.[0]?.trim();
-
-        // Validate dateTimeString
-        if (!dateTimeString || isNaN(Date.parse(dateTimeString))) {
-            console.error(`Invalid dateTime value: ${dateTimeString}`);
-            return null; // Skip this entry
+const BackhaulLogging = () => {
+    const apiData = useSelector((state) => state?.backhaul?.data)
+    const [menuList, setMenuList] = useState(true)
+    const dispatch = useDispatch()
+    const [loadPage, setLoadPage] = useState(false)
+    const handleSelectMenu = (item) => {item === BackhaulLoggingConstants?.fios? setMenuList(true): setMenuList(false)}
+    const refreshLog=(data)=>{
+        dispatch(fetchBackhaulRequest({body: { deviceType: data }}))
+    }
+    const clearLog=()=>{
+        dispatch(clearBackhaulRequest())
+        refreshLog(menuList?0:1)
+    }
+    const saveLog = ()=>{
+        fetchRequests({ url: CONFIG?.BACKHAUL_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ deviceType:menuList?0:1  }) }).then(rData => { return rData?.blob() }).then(res => {
+            const blob = new Blob([res], { type: 'application/text' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${BackhaulLoggingConstants?.logFileName?.[menuList?0:1]}_backhaul_log.log`;
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+        })
+    }
+    const LoadPage = () => (
+        <>
+            <Header
+                title={BackhaulLoggingConstants?.title}
+                breadcrumbData={BackhaulLoggingConstants?.breadcrumbData}
+                underDevelopmentFlag={true}
+                extra={
+                    <div className="backhaul-menu">
+                        <div className={menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.fios)} >
+                            {BackhaulLoggingConstants?.fios}
+                        </div>
+                        <div className={!menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
+                            {BackhaulLoggingConstants?.wifi}
+                        </div>
+                    </div>
+                }
+                lineMargin="backhaul-linemargin"
+            />
+            <>{menuList ? <FiosExtender fiosData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/> : <WifiExtender wifiData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/>}</>
+        </>
+    )
+    useMemo(() => {
+        dispatch(fetchBackhaulRequest({body: { deviceType: menuList?0:1 }}))
+    }, [menuList,dispatch])
+    useEffect(() => {
+        if (apiData && Object.keys(apiData)?.length) {
+            setLoadPage(true)
         }
+    }, [apiData])
+    return loadPage ? LoadPage() : <VZLoader />
+}
 
-        const dateTime = new Date(dateTimeString);
+export default BackhaulLogging
 
-        const date = dateTime.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
 
-        const time = dateTime.toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: true
-        });
-
-        return {
-            date: date,
-            time: time,
-            type: splitVal?.[1]?.trim(),
-            connectionRate: splitVal?.[2]?.trim(),
-            macAddress: splitVal?.[3]?.trim()
-        };
-    }).filter(entry => entry !== null); // Remove null entries
-};
+i am associated with a bug like when i click on the clear button the fetchBackhaulRequest is called first then the clearBackhaulRequest is called
+how to fix this 
