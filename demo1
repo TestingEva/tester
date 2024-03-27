@@ -1,7 +1,19 @@
-Hi 
+function modifyString(inputString) {
+    // Split the inputString by '║' to get individual data segments
+    const segments = inputString.split('║');
 
-I want you to modify "2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║"
-and i want to split the data like [
-    [2024-02-19T07:29:43,0,1000,A8:A2:37:6B:EA:88],[2024-02-19T07:29:43,0,1000,A8:A2:37:6B:EA:88],[2024-02-19T07:29:43,0,1000,A8:A2:37:6B:EA:88]
-]
-could you write a JavaScript function to do this 
+    // Map over the segments array to split each segment by '█' and create the desired array format
+    const result = segments.map(segment => {
+        // Split the segment by '█'
+        const values = segment.split('█');
+        // Return an array with values
+        return values;
+    });
+
+    return result;
+}
+
+// Example usage
+const inputString = "2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║2024-02-19T07:29:43█0█1000█A8:A2:37:6B:EA:88║";
+const resultArray = modifyString(inputString);
+console.log(resultArray);
