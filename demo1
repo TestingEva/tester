@@ -1,39 +1,28 @@
-import { Table } from 'react-bootstrap';
-import Footer from '../../../common/footer/Footer';
-import './BackhaulLogging.css';
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics';
-import BackhaulLoggingTableCell from './BackhaulLoggingTableCell';
-import React from 'react';
+this is doing a great job i just need few more modifications like 
+export const modifyString = (data) => {
 
-const WifiExtender = ({ wifiData }) => {
-    const refreshLog = () => {};
-    const clearLog = () => {};
-    const saveLog = () => {};
+    const lineSeparator = '\u2551';
+    const valueSeparator = '\u2588';
 
-    return (
-        <>
-            <div className="backhaul-font-size">
-                <Table className="backhaul-table ">
-                    <thead>
-                        <tr className="b">
-                            {BackhaulLoggingConstants.backhaulTableHeader.map((val, index) => (<th key={index}>{val}</th>))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {Object.entries(wifiData).map(([key, val]) => (
-                            <BackhaulLoggingTableCell key={key} dataRow={val}/>
-                        ))}
-                    </tbody>
-                </Table>
-                <div className="backhaul-menu-button b">
-                    <button className="backhaul-menu-button-1 b" onClick={refreshLog}>{BackhaulLoggingConstants?.refresh}</button>
-                    <button className="backhaul-menu-button-1 b" onClick={clearLog}>{BackhaulLoggingConstants?.clear}</button>
-                    <button className="backhaul-menu-button-2 b" onClick={saveLog}>{BackhaulLoggingConstants?.save}</button>
-                </div>
-            </div>
-            <Footer />
-        </>
-    );
-};
+    const trimmedData = data?.trim();
 
-export default WifiExtender;
+    const splitList = trimmedData?.split(lineSeparator)?.slice(0, trimmedData?.[trimmedData?.length - 1] === lineSeparator ? -1 : undefined);
+    return splitList.map(val => {
+        const splitVal = val?.split(valueSeparator);
+        return {
+            dateTime: splitVal?.[0]?.trim(),
+            type: splitVal?.[1]?.trim(),
+            connectionRate: splitVal?.[2]?.trim(),
+            macAddress: splitVal?.[3]?.trim()
+        }
+    });
+}
+its sending me dateTime i need date and time(in 12 hr format) instead of dateTime
+
+here is an sample object it was responding 
+{
+    "dateTime": "2024-02-19T07:29:43",
+    "type": "1",
+    "connectionRate": "1000",
+    "macAddress": "A8:A2:37:6B:EA:88"
+}
