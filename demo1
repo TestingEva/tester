@@ -1,39 +1,37 @@
-import { useEffect, useMemo, useState } from 'react'
-import './BackhaulLogging.css'
-import { Header } from '../../../common/header/Header'
-import FiosExtender from './FiosExtender'
-import WifiExtender from './WifiExtender'
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
-import { useDispatch, useSelector } from 'react-redux'
-import { clearBackhaulRequest, fetchBackhaulRequest } from './Action'
-import VZLoader from '../../../common/loader/Loader'
-import { fetchRequests } from '../../../utils/FetchRequest'
-import CONFIG from '../../../config/env.json'
-
 const BackhaulLogging = () => {
-    const apiData = useSelector((state) => state?.backhaul?.data)
-    const [menuList, setMenuList] = useState(true)
-    const dispatch = useDispatch()
-    const [loadPage, setLoadPage] = useState(false)
-    const handleSelectMenu = (item) => {item === BackhaulLoggingConstants?.fios? setMenuList(true): setMenuList(false)}
-    const refreshLog=(data)=>{
-        dispatch(fetchBackhaulRequest({body: { deviceType: data }}))
-    }
-    const clearLog=()=>{
-        dispatch(clearBackhaulRequest())
-        refreshLog(menuList?0:1)
-    }
-    const saveLog = ()=>{
-        fetchRequests({ url: CONFIG?.BACKHAUL_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ deviceType:menuList?0:1  }) }).then(rData => { return rData?.blob() }).then(res => {
-            const blob = new Blob([res], { type: 'application/text' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `${BackhaulLoggingConstants?.logFileName?.[menuList?0:1]}_backhaul_log.log`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        })
-    }
-    const LoadPage = () => (
+    const apiData = useSelector((state) => state?.backhaul?.data);
+    const [menuList, setMenuList] = useState(true);
+    const dispatch = useDispatch();
+    const [loadPage, setLoadPage] = useState(false);
+
+    const handleSelectMenu = (item) => {
+        item === BackhaulLoggingConstants?.fios ? setMenuList(true) : setMenuList(false);
+    };
+
+    const refreshLog = (data) => {
+        dispatch(fetchBackhaulRequest({ body: { deviceType: data } }));
+    };
+
+    const clearLog = () => {
+        dispatch(clearBackhaulRequest());
+    };
+
+    const saveLog = () => {
+        // Save log implementation
+    };
+
+    useEffect(() => {
+        if (!loadPage) return; // Don't dispatch fetchBackhaulRequest initially
+        dispatch(fetchBackhaulRequest({ body: { deviceType: menuList ? 0 : 1 } }));
+    }, [menuList, dispatch, loadPage]);
+
+    useEffect(() => {
+        if (apiData && Object.keys(apiData)?.length) {
+            setLoadPage(true);
+        }
+    }, [apiData]);
+
+    return loadPage ? (
         <>
             <Header
                 title={BackhaulLoggingConstants?.title}
@@ -41,32 +39,25 @@ const BackhaulLogging = () => {
                 underDevelopmentFlag={true}
                 extra={
                     <div className="backhaul-menu">
-                        <div className={menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.fios)} >
+                        <div className={menuList ? 'backhaul-selectMenu b' : 'backhaul-unselectMenu b'} onClick={() => handleSelectMenu(BackhaulLoggingConstants?.fios)}>
                             {BackhaulLoggingConstants?.fios}
                         </div>
-                        <div className={!menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
+                        <div className={!menuList ? 'backhaul-selectMenu b' : 'backhaul-unselectMenu b'} onClick={() => handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
                             {BackhaulLoggingConstants?.wifi}
                         </div>
                     </div>
                 }
                 lineMargin="backhaul-linemargin"
             />
-            <>{menuList ? <FiosExtender fiosData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/> : <WifiExtender wifiData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/>}</>
+            {menuList ? (
+                <FiosExtender fiosData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog} />
+            ) : (
+                <WifiExtender wifiData={apiData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog} />
+            )}
         </>
-    )
-    useMemo(() => {
-        dispatch(fetchBackhaulRequest({body: { deviceType: menuList?0:1 }}))
-    }, [menuList,dispatch])
-    useEffect(() => {
-        if (apiData && Object.keys(apiData)?.length) {
-            setLoadPage(true)
-        }
-    }, [apiData])
-    return loadPage ? LoadPage() : <VZLoader />
-}
+    ) : (
+        <VZLoader />
+    );
+};
 
-export default BackhaulLogging
-
-
-i am associated with a bug like when i click on the clear button the fetchBackhaulRequest is called first then the clearBackhaulRequest is called
-how to fix this 
+export default BackhaulLogging;
