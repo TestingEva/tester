@@ -1,104 +1,31 @@
-import { useEffect, useMemo, useState } from 'react'
-import './BackhaulLogging.css'
-import { Header } from '../../../common/header/Header'
-import FiosExtender from './FiosExtender'
-import WifiExtender from './WifiExtender'
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
-import { useDispatch, useSelector } from 'react-redux'
-import { clearBackhaulRequest, fetchBackhaulRequest } from './Action'
-import VZLoader from '../../../common/loader/Loader'
-import { fetchRequests } from '../../../utils/FetchRequest'
-import CONFIG from '../../../config/env.json'
+Like for how we can check the input feilds are protected Cross-Site Scripting (XSS)
 
-const BackhaulLogging = () => {
-    const apiData = useSelector((state) => state?.backhaul?.data)
-    const [menuList, setMenuList] = useState(true)
-    const dispatch = useDispatch()
-    const [loadPage, setLoadPage] = useState(false)
-    const [currentData,setCurrentData]=useState([])
-    const handleSelectMenu = (item) => {item === BackhaulLoggingConstants?.fios? setMenuList(true): setMenuList(false)}
-    const refreshLog=(data)=>{
-        dispatch(fetchBackhaulRequest({body: { deviceType: data }}))
-    }
-    const clearLog=()=>{
-        dispatch(clearBackhaulRequest())
-        setCurrentData([])
-        setTimeout(()=>{
-            refreshLog(menuList?0:1)
-        },1000)
-    }
-    const saveLog = ()=>{
-        fetchRequests({ url: CONFIG?.BACKHAUL_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ deviceType:menuList?0:1  }) }).then(rData => { return rData?.blob() }).then(res => {
-            const blob = new Blob([res], { type: 'application/text' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `${BackhaulLoggingConstants?.logFileName?.[menuList?0:1]}_backhaul_log.log`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        })
-    }
-    
-    const LoadPage = () => (
-        <>
-            <Header
-                title={BackhaulLoggingConstants?.title}
-                breadcrumbData={BackhaulLoggingConstants?.breadcrumbData}
-                underDevelopmentFlag={true}
-                extra={
-                    <div className="backhaul-menu">
-                        <div className={menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.fios)} >
-                            {BackhaulLoggingConstants?.fios}
-                        </div>
-                        <div className={!menuList? 'backhaul-selectMenu b': 'backhaul-unselectMenu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
-                            {BackhaulLoggingConstants?.wifi}
-                        </div>
-                    </div>
-                }
-                lineMargin="backhaul-linemargin"
+This was the common input which i have used throughout my page
+
+import React from "react";
+import "./VZInput.css";
+
+export const VZInputs = ({
+    className,
+    type = "text",
+    value,
+    onChange,
+    disable = false,
+    maxLength,
+    placeHolder = "",
+}) => {
+    return (
+        <div>
+            <input
+                maxLength={maxLength}
+                className={` h ${className}  ${disable ? "disabled_input" : "input_field"
+                    }`}
+                type={type}
+                value={value}
+                onChange={onChange}
+                disabled={disable}
+                placeholder={placeHolder}
             />
-            <>{menuList ? <FiosExtender fiosData={currentData||{}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/> : <WifiExtender wifiData={currentData || {}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/>}</>
-        </>
-    )
-    useMemo(() => {
-        dispatch(fetchBackhaulRequest({body: { deviceType: menuList?0:1 }}))
-        return () => {
-            setCurrentData([])
-        }
-    }, [menuList,dispatch])
-    useEffect(() => {
-        if (apiData) {
-            setLoadPage(true)
-            setCurrentData(apiData)
-        }
-        else{
-            setCurrentData([])
-        }
-    }, [apiData])
-    return loadPage ? LoadPage() : <VZLoader />
-}
-
-export default BackhaulLogging
-BackhaulLogging.js:63 Warning: Cannot update a component (`FiosExtender`) while rendering a different component (`BackhaulLogging`). To locate the bad setState() call inside `BackhaulLogging`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render
-    at BackhaulLogging (http://localhost:3000/static/js/src_pages_diagnostics-monitoring_backhaul-logging_BackhaulLogging_js.chunk.js:117:75)
-    at Suspense
-    at RenderedRoute (http://localhost:3000/static/js/bundle.js:60310:5)
-    at Outlet (http://localhost:3000/static/js/bundle.js:60914:26)
-    at div
-    at div
-    at div
-    at div
-    at Body (http://localhost:3000/static/js/src_pages_landing-page_LandingPage_js.chunk.js:598:3)
-    at div
-    at LandingPage (http://localhost:3000/static/js/src_pages_landing-page_LandingPage_js.chunk.js:246:3)
-    at Suspense
-    at RenderedRoute (http://localhost:3000/static/js/bundle.js:60310:5)
-    at Routes (http://localhost:3000/static/js/bundle.js:61001:5)
-    at div
-    at Router (http://localhost:3000/static/js/bundle.js:298:81)
-    at App
-    at Provider (http://localhost:3000/static/js/bundle.js:55790:3)
-    at Router (http://localhost:3000/static/js/bundle.js:60935:15)
-    at HashRouter (http://localhost:3000/static/js/bundle.js:58950:5)
-﻿
-
-could you help me in fixing this like when i change from FiosExtender to wifi Extender it happens
+        </div>
+    );
+};
