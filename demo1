@@ -1,174 +1,26 @@
-import { useEffect, useState } from 'react'
-import './BackhaulLogging.css'
-import { Header } from '../../../common/header/Header'
-import { BackhaulLoggingConstants } from '../../../constants/Diagnostics'
-import { useDispatch, useSelector } from 'react-redux'
-import { clearBackhaulRequest, fetchBackhaulRequest } from './Action'
-import VZLoader from '../../../common/loader/Loader'
-import { fetchRequests } from '../../../utils/FetchRequest'
-import CONFIG from '../../../config/env.json'
-import BackhaulDataTable from './BackhaulDataTable'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>XSS Example</title>
+</head>
+<body>
+  <h1>User Profile</h1>
+  <form>
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username">
+    <button type="button" onclick="handleSubmit()">Submit</button>
+  </form>
 
-const BackhaulLogging = () => {
-    const [menuList, setMenuList] = useState(true)
-    const [currentData,setCurrentData]=useState([])
-    const [loadPage, setLoadPage] = useState(true)
-    const dispatch = useDispatch()
-    const apiData = useSelector((state) => state?.backhaul?.data)
-    const apiDataLoader = useSelector((state) => state?.backhaul?.loading)
-    const handleSelectMenu = (item) => {item === BackhaulLoggingConstants?.fios? setMenuList(true): setMenuList(false)}
-    const refreshLog=()=>{
-        setCurrentData([])
-        dispatch(fetchBackhaulRequest({body: { deviceType: menuList ? 0 : 1 }}))
+  <div id="welcomeMessage"></div>
+
+  <script>
+    function handleSubmit() {
+      var username = document.getElementById('username').value;
+      // Vulnerable code: Rendering user input without proper escaping
+      document.getElementById('welcomeMessage').innerHTML = '<div>Welcome, ' + username + '!</div>';
     }
-    useEffect(() => {
-        setLoadPage(apiDataLoader)
-    },[apiDataLoader])
-    const clearLog=()=>{
-        dispatch(clearBackhaulRequest())
-        setTimeout(()=>{
-            setCurrentData([])
-            refreshLog()
-        },1000)
-    }
-    const saveLog = ()=>{
-        fetchRequests({ url: CONFIG?.BACKHAUL_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ deviceType:menuList ? 0 : 1  }) }).then(rData => { return rData?.blob() }).then(res => {
-            const blob = new Blob([res], { type: 'application/text' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `${BackhaulLoggingConstants?.logFileName?.[menuList ? 0 : 1]}_backhaul_log.txt`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        })
-    }
-
-    const LoadPage = () => (
-        <>
-            <BackhaulDataTable data={currentData||{}} refreshLog={refreshLog} clearLog={clearLog} saveLog={saveLog}/> 
-        </>
-    )
-    useEffect(() => {
-        const fetchData = ()=>{
-            dispatch(fetchBackhaulRequest({body: { deviceType: menuList ? 0 : 1 }}))
-            setCurrentData([])
-        }
-        fetchData();
-    }, [menuList,dispatch])
-    useEffect(() => {
-        if (apiData &&  apiData?.isLogList ) {
-            setLoadPage(false)
-            setCurrentData(apiData?.result)
-        }
-        }, [apiData])
-    return (
-        <>
-            <Header
-                title={BackhaulLoggingConstants?.title}
-                breadcrumbData={BackhaulLoggingConstants?.breadcrumbData}
-                underDevelopmentFlag={true}
-                extra={
-                    <div className="backhaul-menu">
-                        <div className={menuList? 'backhaul-select-menu b': 'backhaul-unselect-menu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.fios)} >
-                            {BackhaulLoggingConstants?.fios}
-                        </div>
-                        <div className={!menuList? 'backhaul-select-menu b': 'backhaul-unselect-menu b'} onClick={() =>handleSelectMenu(BackhaulLoggingConstants?.wifi)}>
-                            {BackhaulLoggingConstants?.wifi}
-                        </div>
-                    </div>
-                }
-                lineMargin="backhaul-linemargin"
-            />
-            {loadPage ? <VZLoader />:  LoadPage()}
-        </>
-    )
-}
-
-export default BackhaulLogging
-import {put,takeLatest,call} from "redux-saga/effects"
-import { CLEAR_BACKHAUL_REQUEST, FETCH_BACKHAUL_REQUEST,fetchBackhaulFailure,fetchBackhaulSuccess } from "./Action"
-import CONFIG from '../../../config/env.json'
-import { fetchRequests } from "../../../utils/FetchRequest"
-import { modifyString } from "../../../utils/LogsSplitter";
-
-const fetchApiData = (body)=>fetchRequests({url:CONFIG?.BACKHAUL_GET_URL,body:JSON.stringify(body)});
-const clearBackhaulLogData = ()=>fetchRequests({url:CONFIG?.BACKHAUL_CLEAR_URL})
-
-function* fetchBackhaulData({payload}){
-    try{
-        const responseData = yield call(fetchApiData,payload?.body);
-        if(responseData?.logs){
-            const result= modifyString(responseData?.logs)
-            yield put(fetchBackhaulSuccess({result,isLogList: true}));
-        }
-        if (responseData === "No Content"||responseData===undefined){
-            yield put(fetchBackhaulSuccess({result:[],isLogList: true}));
-        }
-    }
-    catch(error){
-        yield put(fetchBackhaulFailure(error.message))
-    }
-}
-function* clearBackhaulLog(){
-    try{
-        yield call(clearBackhaulLogData())
-    }
-    catch(error){
-        yield put(fetchBackhaulFailure(error.message))
-    }
-}
-
-function* backhaulSaga(){
-    yield takeLatest(FETCH_BACKHAUL_REQUEST,fetchBackhaulData);
-    yield takeLatest(CLEAR_BACKHAUL_REQUEST,clearBackhaulLog)
-}
-export default backhaulSaga;
-
-I have given the saga and Backhaul logging Component and the problem which i am facing is an edge case issue like when the 
-api response is 200 and 204 its showing the loader and data as expected but when the response is 400 like the api 
-the VZLoader must show the Something went wrong 
-import React, { useState } from 'react';
-import loader from '../../images/VZLoader.svg';
-import "./Loader.css";
-import { loadPageError } from '../../constants/General';
-import { RouterButton } from '../button/RouterButton';
-
-const LoadingSpinner = () => <img aria-label="This is loading image" src={loader} className="img-loader"></img>;
-const ErrorSpinner = () => {
-
-    const reloadPage = () => {
-        window.location.reload();
-    }
-
-    return (
-        <div className='page-load-error-container'>
-            <i className='icon icon-warning page-load-error-img' />
-            <div className='page-load-error-msg hb'>{loadPageError?.message}</div>
-            <RouterButton label={loadPageError?.retry} onEvent={reloadPage} className={'eds-button'} />
-        </div>
-    )
-}
-
-const VZLoader = ({ showWarning = true }) => {
-
-    const [currentState, setCurrentState] = useState(0);
-
-    const timeout = setTimeout(() => {
-        if (showWarning)
-            setCurrentState(1);
-        //Stores timeout ID to clear on navigation to prevent bleeding to the next page
-        if (window.mynetworksettingsTimeouts === undefined)
-            window.mynetworksettingsTimeouts = [timeout]
-        else
-            window.mynetworksettingsTimeouts.push(timeout)
-    }, loadPageError?.timeLimit);
-
-    return (
-        <div className="vz-spinner">
-            {
-                currentState ? <ErrorSpinner /> : <LoadingSpinner />
-            }
-        </div>
-    )
-}
-
-export default VZLoader;
+  </script>
+</body>
+</html>
