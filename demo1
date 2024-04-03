@@ -24,3 +24,14 @@
   </script>
 </body>
 </html>
+In the HTML example provided, the lack of an alert occurring when entering a script like `<script>alert('XSS attack!')</script>` can be due to several reasons:
+
+1. **Browser Security**: Modern web browsers have built-in security mechanisms to prevent XSS attacks. They may automatically sanitize or block scripts that are detected in user input, especially when rendered directly into the HTML document.
+
+2. **Content Security Policy (CSP)**: If a Content Security Policy is implemented on the HTML page, it can restrict the execution of inline scripts, inline event handlers, or external script resources, which can mitigate XSS attacks.
+
+3. **Script Execution Context**: The script executed from user input may not have access to certain properties or methods required to perform actions like displaying alerts. For example, if the script is executed within a `<div>` element, it may not trigger an alert due to the limited context.
+
+4. **Console Errors**: It's possible that the script is executed but fails silently due to errors or exceptions in the script code. Check the browser console for any error messages or warnings that could provide insights into the script execution.
+
+To properly test for XSS vulnerabilities in an HTML page, consider trying variations of the payload, using different contexts (e.g., attributes, event handlers, script tags), and observing the behavior in various browsers. Additionally, reviewing the browser's developer tools console for any warnings or errors can help in understanding how the browser handles the injected script.
