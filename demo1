@@ -1,29 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Cookies from 'universal-cookie';
 
-import "./LoginPage.css";
-import { ReactComponent as VZLogo } from "../../images/VZLogo.svg";
-import RouterLogin from "../../images/cr1000a/VZRouterLogin.png";
-import RouterFront from "../../images/cr1000a/RouterFront.png";
+import "./LoginPage.css"
+import { ReactComponent as VZLogo } from "../../images/VZLogo.svg"
+import RouterLogin from "../../images/cr1000a/VZRouterLogin.png"
+import RouterFront from "../../images/cr1000a/RouterFront.png"
 import Tooltip from '../../common/tooltip/Tooltip';
 import getMenuListData from '../../constants/SideBarData';
 import { HelpComponent } from '../../common/help/HelpComponent';
-import Footer from '../../common/footer/Footer';
-import TooltipContent from './TooltipContent';
+import Footer from '../../common/footer/Footer'
+import TooltipContent from './TooltipContent'
 import { prplStdHash, fieldRouterHash, userNameHash } from './LoginUtils';
-import CONFIG from '../../config/env.json';
-import { VZCheckbox } from '../../common/checkbox/VZCheckbox';
+import CONFIG from '../../config/env.json'
+import { VZCheckbox } from '../../common/checkbox/VZCheckbox'
 import { fetchRequests } from "../../utils/FetchRequest";
 import { QSWFlowpage } from '../system/quick-setup-wizard/qsw-flow-page/QSWFlowPage';
 
 const LoginPage = () => {
-    const [rememberMe, setRememberMe] = useState(false);
-    const [password, setPassword] = useState('');
-    const [showModal, setShowModal] = useState(false);
-    const [timeRemaining, setTimeRemaining] = useState(0);
-    const [showPassword, setShowPassword] = useState(false);
-    const [hideLoginWarning, setHideLoginWarning] = useState(true);
+
+    const [rememberMe, setRememberMe] = useState(false)
+    const [password, setPassword] = useState('')
+    const [showModal, setShowModal] = useState(false)
+    const [timeRemaining, setTimeRemaining] = useState(0)
+    const [showPassword, setShowPassword] = useState(false)
+    const [hideLoginWarning, setHideLoginWarning] = useState(true)
     const [disableLoginButton, setDisableLoginButton] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
     const navigate = useNavigate();
@@ -41,22 +42,174 @@ const LoginPage = () => {
         // eslint-disable-next-line
     }, []);
 
+    const handlePassword = event => {
+        setPassword(event.target.value);
+    }
+
+    const getTimeRemainingStr = () => {
+        if (timeRemaining < 60) {
+            return timeRemaining + " seconds"
+        } else {
+            const h = Math.floor(timeRemaining / 3600);
+            const m = Math.floor(timeRemaining % 3600 / 60);
+            const s = Math.floor(timeRemaining % 3600 % 60);
+
+            const hDisplay = h > 0 ? h + (h === 1 ? " hour " : " hours ") : "";
+            const mDisplay = m > 0 ? m + (m === 1 ? " minute " : " minutes ") : "";
+            const sDisplay = s > 0 ? s + (s === 1 ? " second" : " seconds") : "";
+
+            return hDisplay + mDisplay + sDisplay;
+        }
+    }
+
+    const loadQswPage = () => setCurrentPage(1);
+
+    const goBack = () => setCurrentPage(e => --e);
+
     useEffect(() => {
-        const handleUnload = () => {
-            if (!rememberMe) {
-                const cookies = new Cookies();
-                cookies.remove('MyNetworkSettingsAuth');
+        const onKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                authenticate()
             }
-        };
+        }
+        window.addEventListener('keydown', onKeyDown)
+        return () => window.removeEventListener('keydown', onKeyDown)
+        // eslint-disable-next-line
+    }, [password]);
 
-        window.addEventListener('beforeunload', handleUnload);
+    const setAuthCookie = (response) => {
+        setHideLoginWarning(true);
+        const cookies = new Cookies();
 
-        return () => {
-            window.removeEventListener('beforeunload', handleUnload);
-        };
-    }, [rememberMe]);
+        if (response?.cookie) {
+            cookies.set('MyNetworkSettingsAuth', response?.cookie);
+        }
+        else {
+            setCookieError(true);
+        }
+    }
 
-    // Remaining code remains the same
-};
+    const login = (token) => {
+        const username = userNameHash('admin', token?.salt)
+        const pass = token?.md5Hashed ? fieldRouterHash(password, token?.salt) : prplStdHash(password, token?.salt);
+
+        fetchRequests({
+            url: CONFIG.LOGIN_URL, body: JSON.stringify({ keepMeSignIn: rememberMe }),
+            headers: loginNeeded ? { 'USERNAME': username, 'PASSWORD': pass } : {}
+        }).then((response) => {
+            window.attempts = token?.failedCount;
+            if (response?.responseCode === "200 OK") {
+                setAuthCookie(response)
+                if (response?.QSWPerformed === 0) {
+                    loadQswPage();
+                } else {
+                    navigate(getMenuListData('Basic')[0]['path']);
+                }
+            } else {
+                setHideLoginWarning(false)
+                setDisableLoginButton(false);
+            }
+
+        }).catch((e) => { throw (e) })
+    }
+
+    const authenticate = async () => {
+        if (currentPage === 0) {
+            setDisableLoginButton(true);
+
+            fetchRequests({ url: CONFIG.LOGIN_TOKEN_URL }).then((token) => {
+                let allowLogin = true;
+
+                if (token?.failedCount > token?.banTime) {
+                    const loginTimeRemaining = token?.failedCount < 50 ? 60 : 86400;
+
+                    if (token?.timeRemaining < loginTimeRemaining && token?.timeRemaining !== 0) {
+                        allowLogin = false;
+                        setHideLoginWarning(false);
+                        setTimeRemaining(loginTimeRemaining - token?.timeRemaining);
+                    }
+                }
+                if (allowLogin) {
+                    if (token?.md5Hashed !== undefined) {
+                        login(token)
+                    } else {
+                        setCookieError(true);
+                    }
+                }
+            })
+            setDisableLoginButton(false);
+        }
+    }
+
+    const handleHelpModal = () => {
+        setShowModal(!showModal)
+    }
+
+    return (
+        <div className='vz-full-page'>
+            <div className='row custom_topbar'>
+                <div className='div_heading'>
+                    <div><VZLogo className='vz_logo_login' /></div>
+                    <div className='custom_help' onClick={() => setShowModal(true)}>Help</div>
+                </div>
+            </div>
+            <div className='login-container'>
+                {currentPage === 0 &&
+                    <div className='login-box'>
+                        <div className={`qsw-flow-page-side-col qsw-flow-left-col login-img-container`}>
+                            <img className={isCustomPassword ? "login-img-custom" : "login-img-default"} src={isCustomPassword ? RouterFront : RouterLogin} alt='' />
+                        </div>
+                        <div className='login-right-container'>
+                            <div className='login-right-info'>
+                                <div className='hb login_header'>Log in to Network Settings</div>
+                                {
+                                    loginNeeded && <>
+                                        <div className='login-desc t'>Enter the Network Settings Password located on the information sticker on your router.</div>
+                                        <div className='pass t'>Network Settings Password</div>
+                                        <div className='password-box'>
+                                            <input type={showPassword ? 'text' : 'password'} className={`login-password-field h ${!hideLoginWarning ? "warning_field" : ""}`} onChange={handlePassword} />
+                                            <span onClick={() => setShowPassword(!showPassword)} className='icon-passwords' tabIndex="0">
+                                                <i className="icon icon-accessibility"></i>
+                                            </span>
+                                        </div></>
+                                }
+                                <label className='warning' hidden={hideLoginWarning}>
+                                    {
+                                        timeRemaining > 0 ? "Login has been disabled for " + getTimeRemainingStr() + ". If you have not changed your password, you can find it on the router's sticker." :
+                                            "Your password has an error, please try again. If you need to reset your password, you will need to reset the device to factory default by pressing the reset button on the back of the device for 15 seconds. To login use the password on the device."
+                                    }
+                                </label>
+
+                                <label className='warning red-text' hidden={!cookieError}>
+                                    {
+                                        "Something went wrong. Please re-try"
+                                    }
+                                </label>
+                                <div className='remember_section'>
+                                    <VZCheckbox
+                                        checked={rememberMe}
+                                        onChange={() => setRememberMe(!rememberMe)}
+                                        className="remember_button"
+                                    />
+                                    <div className='hb checkbox_label'>Keep Me Signed In </div>
+                                    <Tooltip content={<TooltipContent />}><i tabIndex="0" className='icon icon-tooltip'></i></Tooltip>
+                                </div>
+                                <div>
+                                    <button className={`hb login_button ${disableLoginButton ? "disabled-login-button" : ""}`} onClick={authenticate} disabled={disableLoginButton} >Log In</button>
+                                </div>
+                            </div>
+                            <Footer />
+                        </div>
+                    </div>
+                }
+                {currentPage === 1 && <QSWFlowpage backFunctionality={goBack} endFlow={() => navigate(getMenuListData('Basic')[0]['path'])} />}
+            </div>
+            <HelpComponent showHelpModel={showModal} onClick={handleHelpModal} />
+        </div>
+    )
+
+}
 
 export default LoginPage;
+Like i want to access the rememberme state in the different component like in the homepage 
+how can i do this 
