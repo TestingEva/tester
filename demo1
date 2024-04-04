@@ -16,10 +16,11 @@ import CONFIG from '../../config/env.json'
 import { VZCheckbox } from '../../common/checkbox/VZCheckbox'
 import { fetchRequests } from "../../utils/FetchRequest";
 import { QSWFlowpage } from '../system/quick-setup-wizard/qsw-flow-page/QSWFlowPage';
+import { useDispatch, useSelector } from 'react-redux';
+import { setRememberMeAction } from './Action';
 
 const LoginPage = () => {
 
-    const [rememberMe, setRememberMe] = useState(false)
     const [password, setPassword] = useState('')
     const [showModal, setShowModal] = useState(false)
     const [timeRemaining, setTimeRemaining] = useState(0)
@@ -31,6 +32,8 @@ const LoginPage = () => {
     const [isCustomPassword, setIsCustomPassword] = useState(false);
     const [loginNeeded, setLoginNeeded] = useState(true);
     const [cookieError, setCookieError] = useState(false);
+        const rememberMe = useSelector(state=>state?.rememberMe?.rememberMe)
+    const dispatch = useDispatch();
 
     useEffect(() => {
         fetchRequests({ url: CONFIG?.LOGIN_META_DATA_URL }).then(metaData => {
@@ -41,6 +44,9 @@ const LoginPage = () => {
         })
         // eslint-disable-next-line
     }, []);
+    const handleRememberMeChange = ()=>{
+        dispatch(setRememberMeAction(!rememberMe))
+    }
 
     const handlePassword = event => {
         setPassword(event.target.value);
@@ -188,7 +194,8 @@ const LoginPage = () => {
                                 <div className='remember_section'>
                                     <VZCheckbox
                                         checked={rememberMe}
-                                        onChange={() => setRememberMe(!rememberMe)}
+                                        // onChange={() => setRememberMe(!rememberMe)}//changes
+                                        onChange={handleRememberMeChange}
                                         className="remember_button"
                                     />
                                     <div className='hb checkbox_label'>Keep Me Signed In </div>
@@ -211,5 +218,274 @@ const LoginPage = () => {
 }
 
 export default LoginPage;
-Did you see remember me state , i want you to make that state accessed globally 
-create action and reducer 
+import React, { useEffect } from "react";
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+
+import "./css/App.css";
+import { getCookie } from "./utils/common"
+import lazyLoadingSpinner from './common/lazy-loading-spinner/LazyLoadingSpinner';
+import Cookies from "universal-cookie";
+import { useSelector } from "react-redux";
+
+//Please Replace the '/pages/placeholder-page/Placeholder' with respective Page is developed path
+const LandingPage = lazyLoadingSpinner(() => import('./pages/landing-page/LandingPage'))
+const FirmwarePage = lazyLoadingSpinner(() => import('./pages/firmware-page/FirmwarePage'))
+const LoginPage = lazyLoadingSpinner(() => import('./pages/login-page/LoginPage'))
+const DeveloperModePage = lazyLoadingSpinner(() => import('./pages/developer-mode-page/DeveloperModePage'))
+//Home-pages
+const HomePage = lazyLoadingSpinner(() => import('./pages/home/HomePage'))
+const Notifications = lazyLoadingSpinner(() => import('./pages/placeholder-page/Placeholder'))  //under development-page
+//Wi-if-pages
+const BasicPrimaryNetwork = lazyLoadingSpinner(() => import('./pages/wifi/primary-network-page/basic/BasicPrimaryNetwork'))
+const AdvancedPrimaryNetwork = lazyLoadingSpinner(() => import('./pages/wifi/primary-network-page/adv/AdvancedPrimaryNetwork'))
+const GuestIotNetwork = lazyLoadingSpinner(() => import('./pages/wifi/guest-iot-network-page/GuestIoTNetwork'));
+const WPSPage = lazyLoadingSpinner(() => import('./pages/wifi/wps-page/WPSPage'))
+const RadioManagement = lazyLoadingSpinner(() => import('./pages/wifi/radio-management/RadioManagement'))
+//Device-pages
+const DevicePage = lazyLoadingSpinner(() => import('./pages/device-page/device/DevicePage'))
+const DeviceOptimization = lazyLoadingSpinner(() => import('./pages/placeholder-page/Placeholder'))  //under development-page
+const DeviceInformationPage = lazyLoadingSpinner(() => import('./pages/device-page/device/device-information/DeviceInformationPage'))
+const ParentControlsPage = lazyLoadingSpinner(() => import('./pages/device-page/parental/ParentalControlsPage'))
+const ParentalEditPage = lazyLoadingSpinner(() => import('./pages/device-page/parental/parental-edit-page/ParentalEditPage'))
+//service-pages
+/* uncomment this once requirement comes */
+// const HomwNetworkProtection = lazyLoadingSpinner(() => import('./pages/placeholder-page/Placeholder'))   //under development-page
+// const ServiceOptimization = lazyLoadingSpinner(() => import('./pages/placeholder-page/Placeholder'))    //under development-page
+// const WifiSensing = lazyLoadingSpinner(() => import('./pages/placeholder-page/Placeholder'))            //under development-page
+//security&Firewall-pages
+const SecurityFirewall = lazyLoadingSpinner(() => import('./pages/security-firewall/general/General'))
+const AccessControl = lazyLoadingSpinner(() => import('./pages/security-firewall/access-control/AccessControl'))
+const DMZHost = lazyLoadingSpinner(() => import('./pages/security-firewall/DMZ-host/DMZHost'))
+const IPv6Pinholes = lazyLoadingSpinner(() => import('./pages/security-firewall/ipv6-pinhole/IPv6Pinhole'))
+const PortForwarding = lazyLoadingSpinner(() => import('./pages/security-firewall/port-forwarding/PortForwarding'))
+const PortForwardingRules = lazyLoadingSpinner(() => import('./pages/security-firewall/port-forwarding-rules/PortForwardingRules'))
+const PortTriggering = lazyLoadingSpinner(() => import('./pages/security-firewall/port-triggering/PortTriggering'))
+const SchedulerRules = lazyLoadingSpinner(() => import('./pages/security-firewall/scheduler-rules/SchedulerRules'))
+const RuleScheduler = lazyLoadingSpinner(() => import('./pages/security-firewall/scheduler-rules/rule-scheduler/RuleScheduler'))
+const SipAlg = lazyLoadingSpinner(() => import('./pages/security-firewall/sip-alg/SipAlg'))
+//network-pages
+const ARPPage = lazyLoadingSpinner(() => import('./pages/network/arp-page/ARPPage'))
+const DNSServer = lazyLoadingSpinner(() => import('./pages/network/dns-server/DNSServer'))
+const DynamicDNS = lazyLoadingSpinner(() => import('./pages/network/dynamic-dns/DynamicDNS'))
+const IPv4AddressDistributionPage = lazyLoadingSpinner(() => import('./pages/network/ipv4-address-distribution/IPv4AddressDistributionPage'))
+const IPv4DHCPPage = lazyLoadingSpinner(() => import('./pages/network/ipv4-address-distribution/IPv4DHCPPage'))
+const IPv4DHCPSettingsPage = lazyLoadingSpinner(() => import('./pages/network/ipv4-address-distribution/IPv4DHCPSettingsPage'))
+const IPv4DHCPConnectionPage = lazyLoadingSpinner(() => import('./pages/network/ipv4-address-distribution/IPv4DHCPConnectionPage'))
+const IPv6 = lazyLoadingSpinner(() => import('./pages/network/ipv6-configuration/IPv6Config'))
+const IPv6AddressDistribution = lazyLoadingSpinner(() => import('./pages/network/ipv6-address-distribution/IPv6AddressDistribution'))
+const IPv6AddressConnections = lazyLoadingSpinner(() => import('./pages/network/ipv6-address-distribution/IPv6AddressConnections'))
+const IPv6DHCPSettings = lazyLoadingSpinner(() => import('./pages/network/ipv6-address-distribution/IPv6DHCPSettings'))
+const NDPPage = lazyLoadingSpinner(() => import('./pages/network/ndp-page/NDPPage'))
+const NetworkConnections = lazyLoadingSpinner(() => import('./pages/network/network-connections/main-page/NetworkConnectionsMainPage'))
+const NetworkStatus = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-status-page/NetworkStatusPage'))
+const ConnectionStatusPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-status-page/ConnectionStatusPage'))
+const WiFiConnectionSettingsPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-settings-page/WiFiConnectionSettingsPage'))
+const EthernetSettingsPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-settings-page/EthernetSettingsPage'))
+const CoaxSettingsPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-settings-page/CoaxSettingsPage'))
+const CoaxLanPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/coax-lan-page/CoaxLanPage'))
+const BroadbandSettingsPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-settings-page/BroadbandSettingsPage'))
+const HomeNetworkSettingsPage = lazyLoadingSpinner(() => import('./pages/network/network-connections/network-settings-page/HomeNetworkSettingsPage'))
+const NetworkObjects = lazyLoadingSpinner(() => import('./pages/network/network-objects/NetworkObjects'))
+const PortConfiguration = lazyLoadingSpinner(() => import('./pages/network/port-configuration/PortConfiguration'))
+const Routing = lazyLoadingSpinner(() => import('./pages/network/routing/Routing'))
+const StaticNAT = lazyLoadingSpinner(() => import('./pages/network/static-nat/StaticNat'))
+//Diagnotic-pages
+const Bandwidth = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/bandwidth/Bandwidth'))
+const Diagnostics = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/diagnostics/Diagnostics'))
+//TODO: uncomment this once requirement comes
+// const SpeedTest = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/speed-test/SpeedTest'))
+const SystemLogging = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/system-logging/SystemLogging'))
+const SystemWideConnections = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/system-wide-connections/SystemWideConnections'))
+//System-pages
+const SystemStatus = lazyLoadingSpinner(() => import('./pages/system/system-status/SystemStatus'))
+const DateTimePage = lazyLoadingSpinner(() => import('./pages/system/date-time/DateTime'))
+const FactoryReset = lazyLoadingSpinner(() => import('./pages/system/factory-reset/FactoryReset'))
+const LEDPage = lazyLoadingSpinner(() => import('./pages/system/led/LEDBrightness'))
+const OpenSourcePage = lazyLoadingSpinner(() => import('./pages/system/open-source/OpenSource'))
+const Wizard = lazyLoadingSpinner(() => import('./pages/system/quick-setup-wizard/always-qsw-page/AlwaysQSW'))                       //under development-page
+const RebootRouter = lazyLoadingSpinner(() => import('./pages/system/reboot-router/RebootRouter'))
+const RemoteAdmin = lazyLoadingSpinner(() => import('./pages/system/remote-administration/RemoteAdministration'))
+const SystemSettings = lazyLoadingSpinner(() => import('./pages/system/system-settings/SystemSettings'))
+const EditService = lazyLoadingSpinner(() => import('./pages/security-firewall/port-forwarding-rules/edit-services/EditService'))
+
+function Router() {
+  const pathName = useLocation().pathname;
+  const cookie = getCookie("MyNetworkSettingsAuth");
+
+  const navigate = useNavigate();
+  const rememberMe = useSelector(state=>state?.rememberMe?.rememberMe)
+  console.log(rememberMe,"test")
+
+  //Clears all stored timeouts
+  const clearAllTimeoutsIntervals = () => {
+    const timeouts = window.mynetworksettingsTimeouts;
+    if (timeouts !== undefined)
+      timeouts.forEach(val => clearTimeout(val))
+    window.mynetworksettingsTimeouts = undefined
+
+    const intervals = window.mynetworksettingsIntervals;
+    if (intervals !== undefined)
+      intervals.forEach(val => clearInterval(val))
+    window.mynetworksettingsIntervals = undefined
+  }
+
+  const checkCookie = () => {
+    if (pathName !== "/" && pathName !== "/login") {
+      const cookie = getCookie("MyNetworkSettingsAuth");
+
+      if (cookie === undefined || cookie === "") {
+        navigate("/login");
+      }
+    }
+    setTimeout(() => {
+      checkCookie()
+    }, 1000);
+  }
+
+  useEffect(() => { 
+    checkCookie();
+    const temp = ()=>{
+      if(!rememberMe){
+        const cookies = new Cookies();
+        cookies.remove('MyNetworkSettingsAuth');
+      }
+    }
+    window.addEventListener('beforeunload', temp);
+    return ()=>{
+      window.removeEventListener('beforeunload', temp);
+    }
+    // eslint-disable-next-line
+  }, [])
+
+  clearAllTimeoutsIntervals();
+
+  if (pathName === "/") {
+    return <Navigate to={{ pathname: "/login" }} />
+  }
+
+  if ((cookie === undefined || cookie === "") && (pathName !== "/" && pathName !== "/login")) {
+    navigate("/login");
+  }
+
+  if (cookie && cookie !== "" && (pathName === "/" || pathName === "/login")) {
+    navigate("/basic/home");
+  }
+
+  return (
+    <div>
+      <Routes>
+        <Route path='/login' element={<LoginPage />} />
+        <Route path='/basic' element={<LandingPage />}>
+          { /* Home-pages*/}
+          <Route path='/basic/home' element={<HomePage />} />
+          { /* Wifi-pages*/}
+          <Route path='/basic/wifi/primary' element={<BasicPrimaryNetwork />} />
+          <Route path='/basic/wifi/guest' element={<GuestIotNetwork />} />
+          <Route path='/basic/wifi/iot' element={<GuestIotNetwork />} />
+          <Route path='/basic/wifi/wps' element={<WPSPage />} />
+          { /* Devices-pages*/}
+          <Route path='/basic/devices/list' element={<DevicePage />} />
+          <Route path='/basic/devices/list/settings/:id' element={<DeviceInformationPage />} />
+          <Route path='/basic/devices/parental' element={<ParentControlsPage />} />
+          <Route path="/basic/devices/parental/:type" element={<ParentalEditPage />} />
+          <Route path="/basic/devices/parental/:type/:id" element={<ParentalEditPage />} />
+          { /* System-pages*/}
+          <Route path='/basic/system/status' element={<SystemStatus />} />
+          <Route path='/basic/system/opensource' element={<OpenSourcePage />} />
+        </Route>
+        <Route path='/adv' element={<LandingPage />}>
+          { /* Home-pages*/}
+          <Route path='/adv/home' element={<HomePage />} />
+          <Route path='/adv/home/notifications' element={<Notifications />} />
+          { /* Wifi-pages*/}
+          <Route path='/adv/wifi/primary' element={<AdvancedPrimaryNetwork />} />
+          <Route path='/adv/wifi/guest' element={<GuestIotNetwork />} />
+          <Route path='/adv/wifi/iot' element={<GuestIotNetwork />} />
+          <Route path='/adv/wifi/wps' element={<WPSPage />} />
+          <Route path='/adv/wifi/channel/settings' element={<RadioManagement />} />
+          <Route path='/adv/wifi/channel/history' element={<RadioManagement />} />
+          { /* Devices-pages*/}
+          <Route path='/adv/devices/list' element={<DevicePage />} />
+          <Route path='/adv/devices/list/settings/:id' element={<DeviceInformationPage />} />
+          <Route path='/adv/devices/optimization' element={<DeviceOptimization />} />
+          <Route path='/adv/devices/parental' element={<ParentControlsPage />} />
+          <Route path="/adv/devices/parental/:type/" element={<ParentalEditPage />} />
+          <Route path="/adv/devices/parental/:type/:id" element={<ParentalEditPage />} />
+          { /* Services-pages*/}
+          {/* uncomment this once requirement comes */}
+          {/* <Route path='/adv/services/homenetworkprotection' element={<HomwNetworkProtection />} />
+            <Route path='/adv/devices/serviceoptimization' element={<ServiceOptimization />} />
+            <Route path='/adv/devices/wifisensing' element={<WifiSensing />} /> */}
+          { /* Firewall-pages*/}
+          <Route path='/adv/firewall/general' element={<SecurityFirewall />} />
+          <Route path='/adv/firewall/acl' element={<AccessControl />} />
+          <Route path='/adv/firewall/dmzhost' element={<DMZHost />} />
+          <Route path='/adv/firewall/pinholes' element={<IPv6Pinholes />} />
+          <Route path='/adv/firewall/portforward' element={<PortForwarding />} />
+          <Route path='/adv/firewall/portrules' element={<PortForwardingRules />} />
+          <Route path='/adv/firewall/portrules/editservice' element={<EditService />} />
+          <Route path='/adv/firewall/porttrigger' element={<PortTriggering />} />
+          <Route path='/adv/firewall/schedules' element={<SchedulerRules />} />
+          <Route path='/adv/firewall/schedules/create' element={<RuleScheduler />} />
+          <Route path='/adv/firewall/sipalg' element={<SipAlg />} />
+          { /* NetworkSetting-pages*/}
+          <Route path='/adv/network/arp' element={<ARPPage />} />
+          <Route path='/adv/network/dnsserver' element={<DNSServer />} />
+          <Route path='/adv/network/ddns' element={<DynamicDNS />} />
+          <Route path='/adv/network/ipv4distribution' element={<IPv4AddressDistributionPage />} />
+          <Route path='/adv/network/ipv4distribution/dhcp_settings' element={<IPv4DHCPSettingsPage />} />
+          <Route path='/adv/network/ipv4distribution/connection' element={<IPv4DHCPPage />} />
+          <Route path='/adv/network/ipv4distribution/connection_edit/:id' element={<IPv4DHCPConnectionPage />} />
+          <Route path='/adv/network/ipv6' element={<IPv6 />} />
+          <Route path='/adv/network/ipv6distribution' element={<IPv6AddressDistribution />} />
+          <Route path='/adv/network/ipv6distribution/connection' element={<IPv6AddressConnections />} />
+          <Route path='/adv/network/ipv6distribution/dhcp_settings' element={<IPv6DHCPSettings />} />
+          <Route path='/adv/network/ndp' element={<NDPPage />} />
+          <Route path='/adv/network/networkconnections' element={<NetworkConnections />} />
+          <Route path='/adv/network/networkconnections/networkstatus' element={<NetworkStatus />} />
+          <Route path='/adv/network/networkconnections/networksettings' element={<HomeNetworkSettingsPage />} />
+          <Route path='/adv/network/networkconnections/broadsettings' element={<BroadbandSettingsPage />} />
+          <Route path='/adv/network/networkconnections/ethsettings' element={<EthernetSettingsPage />} />
+          <Route path='/adv/network/networkconnections/coaxsettings' element={<CoaxSettingsPage />} />
+          <Route path='/adv/network/networkconnections/lancoax' element={<CoaxLanPage />} />
+          <Route path='/adv/network/networkconnections/wlsettings/:id' element={<WiFiConnectionSettingsPage />} />
+          <Route path='/adv/network/networkconnections/:type' element={<ConnectionStatusPage />} />
+          <Route path='/adv/network/networkconnections/:type/:id' element={<ConnectionStatusPage />} />
+          <Route path='/adv/network/networkobjects' element={<NetworkObjects />} />
+          <Route path='/adv/network/portconf' element={<PortConfiguration />} />
+          <Route path='/adv/network/routing' element={<Routing />} />
+          <Route path='/adv/network/staticnat' element={<StaticNAT />} />
+          { /* Monitoring-pages*/}
+          <Route path='/adv/monitoring/bandwidth' element={<Bandwidth />} />
+          <Route path='/adv/monitoring/diagnostics' element={<Diagnostics />} />
+          {/* Uncomment if requirement is brought back */}
+          {/* <Route path='/adv/monitoring/speedtest' element={<SpeedTest />} /> */}
+          <Route path='/adv/monitoring/log/:id' element={<SystemLogging />} />
+          <Route path='/adv/monitoring/fullstatus' element={<SystemWideConnections />} />
+          { /* System-pages*/}
+          <Route path='/adv/system/status' element={<SystemStatus />} />
+          <Route path='/adv/system/datetime' element={<DateTimePage />} />
+          <Route path='/adv/system/saverestore' element={<FactoryReset />} />
+          <Route path='/adv/system/brightness' element={<LEDPage />} />
+          <Route path='/adv/system/opensource' element={<OpenSourcePage />} />
+          <Route path='/adv/system/setup' element={<Wizard />} />
+          <Route path='/adv/system/reboot' element={<RebootRouter />} />
+          <Route path='/adv/system/remoteadmin' element={<RemoteAdmin />} />
+          <Route path='/adv/system/system' element={<SystemSettings />} />
+        </Route >
+        {/* Hidden GUI Pages */}
+        <Route path='/' element={<LandingPage isHidden={true} />}>
+          <Route path='/firmware_upgrade/' element={<FirmwarePage />} />
+          <Route path='/developer_mode/' element={<DeveloperModePage />} />
+        </Route>
+      </Routes >
+    </div >
+  );
+}
+
+export default Router;
+
+this is working fine when the remember me is false but the main issue when the rememberme is true 
+we are closing the tab and opening a new tab with the same URL we are logout because remeber me is false as the inital state is false 
+how we can fix this bug 
+Also there is a loginNeeded which tells us that do we need to login or not 
