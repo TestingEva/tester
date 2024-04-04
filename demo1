@@ -16,11 +16,10 @@ import CONFIG from '../../config/env.json'
 import { VZCheckbox } from '../../common/checkbox/VZCheckbox'
 import { fetchRequests } from "../../utils/FetchRequest";
 import { QSWFlowpage } from '../system/quick-setup-wizard/qsw-flow-page/QSWFlowPage';
-import { useDispatch, useSelector } from 'react-redux';
-import { setRememberMeAction } from './Action';
 
 const LoginPage = () => {
 
+    const [rememberMe, setRememberMe] = useState(false)
     const [password, setPassword] = useState('')
     const [showModal, setShowModal] = useState(false)
     const [timeRemaining, setTimeRemaining] = useState(0)
@@ -32,8 +31,6 @@ const LoginPage = () => {
     const [isCustomPassword, setIsCustomPassword] = useState(false);
     const [loginNeeded, setLoginNeeded] = useState(true);
     const [cookieError, setCookieError] = useState(false);
-        const rememberMe = useSelector(state=>state?.rememberMe?.rememberMe)
-    const dispatch = useDispatch();
 
     useEffect(() => {
         fetchRequests({ url: CONFIG?.LOGIN_META_DATA_URL }).then(metaData => {
@@ -45,7 +42,7 @@ const LoginPage = () => {
         // eslint-disable-next-line
     }, []);
     const handleRememberMeChange = ()=>{
-        dispatch(setRememberMeAction(!rememberMe))
+        setRememberMe(!rememberMe)
     }
 
     const handlePassword = event => {
@@ -194,7 +191,6 @@ const LoginPage = () => {
                                 <div className='remember_section'>
                                     <VZCheckbox
                                         checked={rememberMe}
-                                        // onChange={() => setRememberMe(!rememberMe)}//changes
                                         onChange={handleRememberMeChange}
                                         className="remember_button"
                                     />
@@ -218,6 +214,7 @@ const LoginPage = () => {
 }
 
 export default LoginPage;
+
 import React, { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
@@ -225,7 +222,6 @@ import "./css/App.css";
 import { getCookie } from "./utils/common"
 import lazyLoadingSpinner from './common/lazy-loading-spinner/LazyLoadingSpinner';
 import Cookies from "universal-cookie";
-import { useSelector } from "react-redux";
 
 //Please Replace the '/pages/placeholder-page/Placeholder' with respective Page is developed path
 const LandingPage = lazyLoadingSpinner(() => import('./pages/landing-page/LandingPage'))
@@ -313,8 +309,6 @@ function Router() {
   const cookie = getCookie("MyNetworkSettingsAuth");
 
   const navigate = useNavigate();
-  const rememberMe = useSelector(state=>state?.rememberMe?.rememberMe)
-  console.log(rememberMe,"test")
 
   //Clears all stored timeouts
   const clearAllTimeoutsIntervals = () => {
@@ -345,10 +339,8 @@ function Router() {
   useEffect(() => { 
     checkCookie();
     const temp = ()=>{
-      if(!rememberMe){
         const cookies = new Cookies();
         cookies.remove('MyNetworkSettingsAuth');
-      }
     }
     window.addEventListener('beforeunload', temp);
     return ()=>{
@@ -485,7 +477,4 @@ function Router() {
 
 export default Router;
 
-this is working fine when the remember me is false but the main issue when the rememberme is true 
-we are closing the tab and opening a new tab with the same URL we are logout because remeber me is false as the inital state is false 
-how we can fix this bug 
-Also there is a loginNeeded which tells us that do we need to login or not 
+I want to set the remember me as cookie and get it in the Router page 
