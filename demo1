@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import "./css/App.css";
@@ -105,10 +105,13 @@ function Router() {
       intervals.forEach(val => clearInterval(val))
     window.mynetworksettingsIntervals = undefined
   }
-
+  const [flag,setFlag]= useState()
   const checkCookie = () => {
     if (pathName !== "/" && pathName !== "/login") {
       const cookie = getCookie("MyNetworkSettingsAuth");
+      const demo = getCookie("rememberMe")
+      demo?setFlag(true):setFlag(false)
+
       if (cookie === undefined || cookie === "") {
         navigate("/login");
       }
@@ -117,16 +120,26 @@ function Router() {
       checkCookie()
     }, 1000);
   }
+  useEffect(()=>{
+    console.log("flag",flag)
+  },[flag])
   useEffect(() => { 
     checkCookie();
 
-    const temp = ()=>{
-        logout()
+
+    const temp = (data)=>{
+      console.log(data,"t")
+      if(!data){
+        // const cookies = new Cookies();
+        // cookies.remove('MyNetworkSettingsAuth');
+        // logout()
+      }
     }
+    // const data = getCookie("rememberMe")
     window.addEventListener('beforeunload', temp());
     return ()=>{
       const data = getCookie("rememberMe")
-      !data && window.removeEventListener('beforeunload', temp());
+      window.removeEventListener('beforeunload', temp(data));
     }
     // eslint-disable-next-line
   }, [])
@@ -258,5 +271,5 @@ function Router() {
 }
 
 export default Router;
-
-here i want to fetch data of the cookie Remeberme when we are closing the tab and if the data is false then logout else donot logout
+why my flag is undefined
+it should have true or false
