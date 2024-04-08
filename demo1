@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
+I am giving you the full code have a look 
+
+import React, { useEffect } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 
 import "./css/App.css";
 import { getCookie } from "./utils/common"
 import lazyLoadingSpinner from './common/lazy-loading-spinner/LazyLoadingSpinner';
 import Cookies from "universal-cookie";
-import { logout } from "./utils/Logout";
 
 //Please Replace the '/pages/placeholder-page/Placeholder' with respective Page is developed path
 const LandingPage = lazyLoadingSpinner(() => import('./pages/landing-page/LandingPage'))
@@ -27,6 +28,7 @@ const DeviceOptimization = lazyLoadingSpinner(() => import('./pages/placeholder-
 const DeviceInformationPage = lazyLoadingSpinner(() => import('./pages/device-page/device/device-information/DeviceInformationPage'))
 const ParentControlsPage = lazyLoadingSpinner(() => import('./pages/device-page/parental/ParentalControlsPage'))
 const ParentalEditPage = lazyLoadingSpinner(() => import('./pages/device-page/parental/parental-edit-page/ParentalEditPage'))
+const UniversalPnPPage = lazyLoadingSpinner(()=>import('./pages/device-page/universalPnP/UniversalPnp'))
 //service-pages
 /* uncomment this once requirement comes */
 // const HomwNetworkProtection = lazyLoadingSpinner(() => import('./pages/placeholder-page/Placeholder'))   //under development-page
@@ -76,6 +78,7 @@ const Diagnostics = lazyLoadingSpinner(() => import('./pages/diagnostics-monitor
 // const SpeedTest = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/speed-test/SpeedTest'))
 const SystemLogging = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/system-logging/SystemLogging'))
 const SystemWideConnections = lazyLoadingSpinner(() => import('./pages/diagnostics-monitoring/system-wide-connections/SystemWideConnections'))
+const BackhaulLogging = lazyLoadingSpinner(()=>import('./pages/diagnostics-monitoring/backhaul-logging/BackhaulLogging'))
 //System-pages
 const SystemStatus = lazyLoadingSpinner(() => import('./pages/system/system-status/SystemStatus'))
 const DateTimePage = lazyLoadingSpinner(() => import('./pages/system/date-time/DateTime'))
@@ -90,7 +93,9 @@ const EditService = lazyLoadingSpinner(() => import('./pages/security-firewall/p
 
 function Router() {
   const pathName = useLocation().pathname;
-  const cookie = getCookie("MyNetworkSettingsAuth");
+  const autoTokenCookie = getCookie("MyNetworkSettingsAuth");
+  const keepSignedInCookie = getCookie("rememberMe");
+
   const navigate = useNavigate();
 
   //Clears all stored timeouts
@@ -105,14 +110,20 @@ function Router() {
       intervals.forEach(val => clearInterval(val))
     window.mynetworksettingsIntervals = undefined
   }
-  const [flag,setFlag]= useState()
+  function testRememberMe(){
+    const cookies = new Cookies();
+    if(keepSignedInCookie!=="true"){
+      cookies.remove('MyNetworkSettingsAuth',{ path: '/' });
+      cookies.remove('rememberMe',{ path: '/' });
+      window.location.reload();
+    }
+  }
+
   const checkCookie = () => {
     if (pathName !== "/" && pathName !== "/login") {
-      const cookie = getCookie("MyNetworkSettingsAuth");
-      const demo = getCookie("rememberMe")
-      demo?setFlag(true):setFlag(false)
+      const autoTokenCookie = getCookie("MyNetworkSettingsAuth");
 
-      if (cookie === undefined || cookie === "") {
+      if (autoTokenCookie === undefined || autoTokenCookie === "") {
         navigate("/login");
       }
     }
@@ -120,29 +131,14 @@ function Router() {
       checkCookie()
     }, 1000);
   }
-  useEffect(()=>{
-    console.log("flag",flag)
-  },[flag])
-  useEffect(() => { 
+
+  useEffect(() => {
     checkCookie();
-
-
-    const temp = (data)=>{
-      console.log(data,"t")
-      if(!data){
-        // const cookies = new Cookies();
-        // cookies.remove('MyNetworkSettingsAuth');
-        // logout()
-      }
-    }
-    // const data = getCookie("rememberMe")
-    window.addEventListener('beforeunload', temp());
+    window.addEventListener('beforeunload', testRememberMe);
     return ()=>{
-      const data = getCookie("rememberMe")
-      window.removeEventListener('beforeunload', temp(data));
+      window.removeEventListener('beforeunload', testRememberMe);
     }
-    // eslint-disable-next-line
-  }, [])
+  })
 
   clearAllTimeoutsIntervals();
 
@@ -150,11 +146,11 @@ function Router() {
     return <Navigate to={{ pathname: "/login" }} />
   }
 
-  if ((cookie === undefined || cookie === "") && (pathName !== "/" && pathName !== "/login")) {
+  if ((autoTokenCookie === undefined || autoTokenCookie === "") && (pathName !== "/" && pathName !== "/login")) {
     navigate("/login");
   }
 
-  if (cookie && cookie !== "" && (pathName === "/" || pathName === "/login")) {
+  if (autoTokenCookie && autoTokenCookie !== "" && (pathName === "/" || pathName === "/login")) {
     navigate("/basic/home");
   }
 
@@ -198,6 +194,7 @@ function Router() {
           <Route path='/adv/devices/parental' element={<ParentControlsPage />} />
           <Route path="/adv/devices/parental/:type/" element={<ParentalEditPage />} />
           <Route path="/adv/devices/parental/:type/:id" element={<ParentalEditPage />} />
+          <Route path="/adv/devices/upnp" element={<UniversalPnPPage/>}/>
           { /* Services-pages*/}
           {/* uncomment this once requirement comes */}
           {/* <Route path='/adv/services/homenetworkprotection' element={<HomwNetworkProtection />} />
@@ -249,6 +246,7 @@ function Router() {
           {/* <Route path='/adv/monitoring/speedtest' element={<SpeedTest />} /> */}
           <Route path='/adv/monitoring/log/:id' element={<SystemLogging />} />
           <Route path='/adv/monitoring/fullstatus' element={<SystemWideConnections />} />
+          <Route path="/adv/monitoring/bhlog" element={<BackhaulLogging/>}/>
           { /* System-pages*/}
           <Route path='/adv/system/status' element={<SystemStatus />} />
           <Route path='/adv/system/datetime' element={<DateTimePage />} />
@@ -271,5 +269,5 @@ function Router() {
 }
 
 export default Router;
-why my flag is undefined
-it should have true or false
+
+when the user REfreshes and if the rememberme is false it logouts the user 
