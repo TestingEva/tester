@@ -1,16 +1,35 @@
-can winston-react is suitable for the following requirements
-The router GUI application should support logging of application events.
+Like for the logging I have new requirements 
+Like we what i was told is to create a seperate file in which i will be having a array and the it would be having 
+the following format 
+[
+    info:{
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+    },
+    Debug:{
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+    },
+    warn:{
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+    },
+    error:{
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+        [timestamp, level, tag , message],
+    }
+]
 
-Acceptance Criteria:
-
-1. The logger should support the following levels of logs:
-
-Debug
-Info
-Warn
-Error
-2. The said logger should also support logging of user interaction events (Analytics) with data about the event. 
-
-3. The collected logs should be readily available for viewing via Splunk / Candor
-
-4. Every log message should have a timestamp, level, tag & message. Where tags are custom strings used for grouping similar log events. 
+there will be a function which will be used to update the array from throughout the application 
+it will accept level,tag,message  Where tags are custom strings used for grouping similar log events and level is {info,debug,warn,error}
+and it will append the logs inside the apporpriate group 
+and when the info Logs length is equal to 10 it will call an API using fetch and it will send the Logs 
+Could you design the above function 
