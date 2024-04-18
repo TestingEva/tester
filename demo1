@@ -1,51 +1,93 @@
-let logs = {
-  info: [],
-  debug: [],
-  warn: [],
-  error: []
-};
+import './UniversalPnp.css'
+import { useEffect, useState } from 'react'
+import { RouterButton } from '../../../common/button/RouterButton'
+import { VZCheckbox } from '../../../common/checkbox/VZCheckbox'
+import Footer from '../../../common/footer/Footer'
+import { HeaderWithBody } from '../../../common/header/Header'
+import { UpnpConstants } from '../../../constants/DevicesData'
+import { useDispatch, useSelector } from 'react-redux'
+import { fetchUpnpRequest, updateUpnpRequest } from './Action'
+import VZLoader from '../../../common/loader/Loader'
+import ApplyModal from '../../../common/modal/apply-modal/ApplyModal'
 
-const MAX_LOGS = 10;
-
-// Function to update logs array
-const updateLogs = (level, tag, message) => {
-  const timestamp = new Date().toISOString();
-
-  // Add log entry to the appropriate log level
-  logs[level].push([timestamp, level, tag, message]);
-
-  // Check if the length of info logs array is equal to MAX_LOGS
-  if (logs.info.length === MAX_LOGS) {
-    // Call an API to send logs
-    sendLogsToAPI(logs.info);
-    // Clear the info logs array
-    logs.info = [];
-  }
-};
-
-// Function to send logs to API
-const sendLogsToAPI = async (logArray) => {
-  try {
-    const response = await fetch('YOUR_API_ENDPOINT', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(logArray)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to send logs to API');
+const UniversalPnpPage = () => {
+    const apiData = useSelector((state) => state?.universalpnp?.data)
+    const dispatch = useDispatch();
+    const [loadPage, setLoadPage] = useState(false);
+    const [initialValue, setInitialValue] = useState({});
+    const [currentValue, setCurrentValue] = useState({});
+    const [disableApplyButton, setDisableApplyButton] = useState(true);
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const handleChange = (value, id) => {
+        setCurrentValue({ ...currentValue, [id]: value });
     }
+    const updateUpnp = () => {
+        setShowApplyModal(true)
+        dispatch(updateUpnpRequest({ body: currentValue }))
+    }
+    useEffect(() => {
+        setDisableApplyButton(JSON.stringify(currentValue) === JSON.stringify(initialValue));
+    }, [currentValue, initialValue])
+    const LoadPage = () => (
+        <>
+            <HeaderWithBody
+                title={UpnpConstants?.title}
+                breadcrumbData={UpnpConstants?.breadcrumbData}
+                body={
+                    <RouterButton label={UpnpConstants?.apply} onEvent={updateUpnp} disable={disableApplyButton} />
+                }
+            />
+            <div className="upnp-body">
+                <div className='flex-1'>
+                    <div className="upnp-content">
+                        <div className="heading-body">{UpnpConstants?.body}</div>
+                        {UpnpConstants?.enabledKeyValues?.map((val, index) => (
+                            <div className="upnp-checkbox b" key={index}>
+                                <VZCheckbox checked={currentValue?.[val?.key]} onChange={e => handleChange(e?.target?.checked, val?.key)} />
+                                {val?.label}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <Footer />
+            </div>
+            <ApplyModal show={showApplyModal} setShowModal={setShowApplyModal} time={5000} />
+        </>
+    )
+    useEffect(() => {
+        dispatch(fetchUpnpRequest())
+    }, [dispatch])
+    useEffect(() => {
+        if (apiData && Object?.keys(apiData)?.length !== 0) {
+            setLoadPage(true);
+            setCurrentValue(apiData?.data);
+            setInitialValue(apiData?.data);
+        }
+    }, [apiData])
+    return (
+        <>
+            {LoadPage()}
+            {!loadPage && <VZLoader />}
+        </>
+    )
+}
 
-    console.log('Logs successfully sent to API');
-  } catch (error) {
-    console.error('Error sending logs to API:', error);
-  }
-};
+export default UniversalPnpPage
 
-// Example usage:
-updateLogs('info', 'PageLoad', 'Page loaded successfully');
-updateLogs('debug', 'NetworkRequest', 'API request sent');
-updateLogs('warn', 'Validation', 'Invalid input detected');
-updateLogs('error', 'ServerResponse', 'Failed to fetch data from server');
+like currently i am sending 
+{
+    "autoCleanEnabled": true,
+    "enabled": true
+}
+when the Apply changes have clicked but there is an change in the schema of the API it wants to have the payload of 
+the parameters which have been changed 
+like suppose 
+{
+    "autoCleanEnabled": false,
+    "enabled": true
+} was the initialValue and user changed only the autoCleanEnabled parameter so the payload must be 
+{
+    "autoCleanEnabled": true,
+}
+it must not have the enabled parameter since it doesnot got updated 
+could you help me in achieving this functionality
