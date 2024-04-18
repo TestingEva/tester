@@ -1,35 +1,51 @@
-Like for the logging I have new requirements 
-Like we what i was told is to create a seperate file in which i will be having a array and the it would be having 
-the following format 
-[
-    info:{
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-    },
-    Debug:{
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-    },
-    warn:{
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-    },
-    error:{
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-        [timestamp, level, tag , message],
-    }
-]
+let logs = {
+  info: [],
+  debug: [],
+  warn: [],
+  error: []
+};
 
-there will be a function which will be used to update the array from throughout the application 
-it will accept level,tag,message  Where tags are custom strings used for grouping similar log events and level is {info,debug,warn,error}
-and it will append the logs inside the apporpriate group 
-and when the info Logs length is equal to 10 it will call an API using fetch and it will send the Logs 
-Could you design the above function 
+const MAX_LOGS = 10;
+
+// Function to update logs array
+const updateLogs = (level, tag, message) => {
+  const timestamp = new Date().toISOString();
+
+  // Add log entry to the appropriate log level
+  logs[level].push([timestamp, level, tag, message]);
+
+  // Check if the length of info logs array is equal to MAX_LOGS
+  if (logs.info.length === MAX_LOGS) {
+    // Call an API to send logs
+    sendLogsToAPI(logs.info);
+    // Clear the info logs array
+    logs.info = [];
+  }
+};
+
+// Function to send logs to API
+const sendLogsToAPI = async (logArray) => {
+  try {
+    const response = await fetch('YOUR_API_ENDPOINT', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(logArray)
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to send logs to API');
+    }
+
+    console.log('Logs successfully sent to API');
+  } catch (error) {
+    console.error('Error sending logs to API:', error);
+  }
+};
+
+// Example usage:
+updateLogs('info', 'PageLoad', 'Page loaded successfully');
+updateLogs('debug', 'NetworkRequest', 'API request sent');
+updateLogs('warn', 'Validation', 'Invalid input detected');
+updateLogs('error', 'ServerResponse', 'Failed to fetch data from server');
