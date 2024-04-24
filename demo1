@@ -1,93 +1,67 @@
-import './UniversalPnp.css'
-import { useEffect, useState } from 'react'
-import { RouterButton } from '../../../common/button/RouterButton'
-import { VZCheckbox } from '../../../common/checkbox/VZCheckbox'
-import Footer from '../../../common/footer/Footer'
-import { HeaderWithBody } from '../../../common/header/Header'
-import { UpnpConstants } from '../../../constants/DevicesData'
-import { useDispatch, useSelector } from 'react-redux'
-import { fetchUpnpRequest, updateUpnpRequest } from './Action'
-import VZLoader from '../../../common/loader/Loader'
-import ApplyModal from '../../../common/modal/apply-modal/ApplyModal'
+react-dom.development.js:86 Warning: A component is changing an uncontrolled input to be controlled. This is likely caused by the value changing from undefined to a defined value, which should not happen. Decide between using a controlled or uncontrolled input element for the lifetime of the component. More info: https://reactjs.org/link/controlled-components
+    at input
+    at div
+    at div
+    at div
+    at MainWifi (http://localhost:3000/static/js/src_pages_wifi_primary-network-page_MainWifi_js-src_pages_wifi_primary-network-page_MoreOptio-f63d00.chunk.js:519:3)
+    at div
+    at div
+    at div
+    at BasicPrimaryNetwork (http://localhost:3000/static/js/src_pages_wifi_primary-network-page_basic_BasicPrimaryNetwork_js.chunk.js:67:75)
+    at Suspense
+    at RenderedRoute (http://localhost:3000/static/js/bundle.js:62565:5)
+    at Outlet (http://localhost:3000/static/js/bundle.js:63169:26)
+    at div
+    at div
+    at div
+    at div
+    at Body (http://localhost:3000/static/js/src_pages_landing-page_LandingPage_js.chunk.js:603:3)
+    at div
+    at LandingPage (http://localhost:3000/static/js/src_pages_landing-page_LandingPage_js.chunk.js:246:3)
+    at Suspense
+    at RenderedRoute (http://localhost:3000/static/js/bundle.js:62565:5)
+    at Routes (http://localhost:3000/static/js/bundle.js:63256:5)
+    at div
+    at Router (http://localhost:3000/static/js/bundle.js:302:81)
+    at App
+    at Provider (http://localhost:3000/static/js/bundle.js:58045:3)
+    at Router (http://localhost:3000/static/js/bundle.js:63190:15)
+    at HashRouter (http://localhost:3000/static/js/bundle.js:61205:5)
 
-const UniversalPnpPage = () => {
-    const apiData = useSelector((state) => state?.universalpnp?.data)
-    const dispatch = useDispatch();
-    const [loadPage, setLoadPage] = useState(false);
-    const [initialValue, setInitialValue] = useState({});
-    const [currentValue, setCurrentValue] = useState({});
-    const [disableApplyButton, setDisableApplyButton] = useState(true);
-    const [showApplyModal, setShowApplyModal] = useState(false);
-    const handleChange = (value, id) => {
-        setCurrentValue({ ...currentValue, [id]: value });
+    this are the errors/warnings which come on the console i want to store them in my
+    own created logger 
+
+    export const warnLogs = async (tag = "warnLogs", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['warn'].push(`${timestamp} warn ${tag} ${message}`)
+    if (logs.warn.length === threshold.warn) {
+        await sendLogsToAPI(logs.warn);
+        logs.warn = [];
     }
-    const updateUpnp = () => {
-        setShowApplyModal(true)
-        dispatch(updateUpnpRequest({ body: currentValue }))
-    }
-    useEffect(() => {
-        setDisableApplyButton(JSON.stringify(currentValue) === JSON.stringify(initialValue));
-    }, [currentValue, initialValue])
-    const LoadPage = () => (
-        <>
-            <HeaderWithBody
-                title={UpnpConstants?.title}
-                breadcrumbData={UpnpConstants?.breadcrumbData}
-                body={
-                    <RouterButton label={UpnpConstants?.apply} onEvent={updateUpnp} disable={disableApplyButton} />
-                }
-            />
-            <div className="upnp-body">
-                <div className='flex-1'>
-                    <div className="upnp-content">
-                        <div className="heading-body">{UpnpConstants?.body}</div>
-                        {UpnpConstants?.enabledKeyValues?.map((val, index) => (
-                            <div className="upnp-checkbox b" key={index}>
-                                <VZCheckbox checked={currentValue?.[val?.key]} onChange={e => handleChange(e?.target?.checked, val?.key)} />
-                                {val?.label}
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <Footer />
-            </div>
-            <ApplyModal show={showApplyModal} setShowModal={setShowApplyModal} time={5000} />
-        </>
-    )
-    useEffect(() => {
-        dispatch(fetchUpnpRequest())
-    }, [dispatch])
-    useEffect(() => {
-        if (apiData && Object?.keys(apiData)?.length !== 0) {
-            setLoadPage(true);
-            setCurrentValue(apiData?.data);
-            setInitialValue(apiData?.data);
-        }
-    }, [apiData])
-    return (
-        <>
-            {LoadPage()}
-            {!loadPage && <VZLoader />}
-        </>
-    )
+    !isProduction && console.log("logs", logs)
 }
+this is the function at the react-dom-development.js 
+function printWarning(level, format, args) {
+  // When changing this logic, you might want to also
+  // update consoleWithStackDev.www.js as well.
+  {
+    var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
+    var stack = ReactDebugCurrentFrame.getStackAddendum();
 
-export default UniversalPnpPage
+    if (stack !== '') {
+      format += '%s';
+      args = args.concat([stack]);
+    } // eslint-disable-next-line react-internal/safe-string-coercion
 
-like currently i am sending 
-{
-    "autoCleanEnabled": true,
-    "enabled": true
+
+    var argsWithFormat = args.map(function (item) {
+      return String(item);
+    }); // Careful: RN currently depends on this prefix
+
+    argsWithFormat.unshift('Warning: ' + format); // We intentionally don't use spread (or .apply) directly because it
+    // breaks IE9: https://github.com/facebook/react/issues/13610
+    // eslint-disable-next-line react-internal/no-production-logging
+
+    Function.prototype.apply.call(console[level], console, argsWithFormat);//from here that message is thrown
+  }
 }
-when the Apply changes have clicked but there is an change in the schema of the API it wants to have the payload of 
-the parameters which have been changed 
-like suppose 
-{
-    "autoCleanEnabled": false,
-    "enabled": true
-} was the initialValue and user changed only the autoCleanEnabled parameter so the payload must be 
-{
-    "autoCleanEnabled": true,
-}
-it must not have the enabled parameter since it doesnot got updated 
-could you help me in achieving this functionality
