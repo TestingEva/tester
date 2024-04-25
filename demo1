@@ -1,61 +1,87 @@
-import CONFIG from '../config/env.json'
-import { logout } from './Logout'
-import { getCookie } from "./common"
-import { errorLogs, infoLogs } from './logger';
+let logs = {
+    info: [],
+    debug: [],
+    warn: [],
+    error: [],
+    events: []
+};
+const threshold = {
+    info: 50,
+    debug: 50,
+    warn: 10,
+    error: 5,
+    events: 50
+}
+const isConsole = true;
 
-export async function fetchRequests({ mainURL = CONFIG?.ROUTER_IP, url = "", method = "POST", body = "", conType = "application/json", timeoutValue = 10000, headers = {}, needJson = true, onError }) {
-
-    const controller = new AbortController();
-
-    const timerId = setTimeout(() => {
-        controller.abort()
-    }, timeoutValue);
-    infoLogs('NetworkRequest', `API request sent ${url}`);
-    const response = await fetch(mainURL + url, {
-        mode: "cors",
-        method: method,
-        headers: { ...headers, 'content-type': conType, "sessionAuth": getCookie("MyNetworkSettingsAuth") },
-        body: body,
-        signal: controller?.signal,
-    }).then(response => {
-        if (response.status === 200) {
-            return needJson ? response.json() : response;
-        } else if (response.status === 204) {
-            return "No Content"
-        }
-        else if (response.status === 401) {
-            const cookie = getCookie("MyNetworkSettingsAuth");
-
-            if (cookie !== undefined && cookie !== "") {
-                logout();
-            }
-
-            return response;
-        } else {
-            if (!response.ok) {
-                // This is logged to let it call other APIs rather than stopping it
-                // console.log('Network Response was not ok')
-                errorLogs('ServerResponse', `Network Response was not ok for ${url} `, `status:${response.status}`);
-            }
-        }
-    }).catch(error => {
-        errorLogs('FetchError', `${error.stack}`)
-        if (onError && typeof onError === 'function')
-            onError()
-    })
-    // This is logged to let it call other APIs rather than stopping it
-    clearTimeout(timerId);
-
-    return response;
+export const logInfo = async (tag = "infoLogs", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['info'].push(`${timestamp} info ${tag} ${message}`)
+    if (logs.info.length === threshold.info) {
+        await sendLogsToAPI(logs.info);
+        logs.info = [];
+    }
+    isConsole && console.log("logs", logs)
 }
 
-export function dynamicURL(url, sn) {
-    const splitUrl = url.split('/');
-    return (`${splitUrl[1]}/${sn}/${splitUrl[2]}/`)
+export const logDebug = async (tag = "debugLogs", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['debug'].push(`${timestamp} debug ${tag} ${message}`)
+    if (logs.debug.length === threshold.debug) {
+        await sendLogsToAPI(logs.debug);
+        logs.info = [];
+    }
+    isConsole && console.log("logs", logs)
 }
 
+export const logWarn = async (tag = "warnLogs", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['warn'].push(`${timestamp} warn ${tag} ${message}`)
+    if (logs.warn.length === threshold.warn) {
+        await sendLogsToAPI(logs.warn);
+        logs.warn = [];
+    }
+    isConsole && console.log("logs", logs)
+}
 
-the main error with the page is i am unable to catch the error like errorLogs in the catch block is never getting executed 
-but in the console i am finding that the error is being thrown from the following line  "const response = await fetch(mainURL + url, {"
-how could i handle this situation
+export const logError = async (tag = "errorLogs", message = "", stackTrace = "") => {
+    const timestamp = new Date().toISOString();
+    logs['error'].push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
+    if (logs.error.length === threshold.error) {
+        await sendLogsToAPI(logs.error);
+        logs.error = [];
+    }
+    isConsole && console.log("logs", logs)
+}
 
+export const logEvent = async (tag = "eventsLogs", message = "", context = "") => {
+    const timestamp = new Date().toISOString();
+    logs['events'].push(`${timestamp} events ${tag} ${message} ${context}`)
+    if (logs.events.length === threshold.events) {
+        await sendLogsToAPI(logs.events);
+        logs.events = [];
+    }
+    isConsole && console.log("logs", logs)
+}
+
+const sendLogsToAPI = async (logArray) => {
+    try {
+        const response = await fetch('test', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(logArray)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send logs to API');
+        }
+    } catch (error) {
+        logError('FetchError', `Error sending logs to API:${error}`);
+    }
+};
+
+currently we are using application memory to store the logs but i want to use local Storage for 
+this is it possible to do so 
