@@ -1,10 +1,8 @@
-//Enums
 enum Color{
     Red,Green,Blue
 }
 
-let demo:Color = Color.Blue;
+let demo:Color =Red ;
 
 console.log(demo)
-
-here demo is 2 but i want it to be blue how to do this 
+Why it is giving error
