@@ -1,3 +1,21 @@
+let logs = JSON?.parse(localStorage?.getItem('logs'))||{
+    info: [],
+    debug: [],
+    warn: [],
+    error: [],
+    events: []
+};
+const threshold = {
+    info: 50,
+    debug: 50,
+    warn: 10,
+    error: 5,
+    events: 50
+}
+const isConsole = false;
+
+
+
 export const logInfo = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
     logs['info'].push(`${timestamp} info ${tag} ${message}`)
@@ -8,5 +26,74 @@ export const logInfo = async (tag = "WebUi", message = "") => {
     isConsole && console.log("logs", logs)
     localStorage.setItem('logs',JSON.stringify(logs));
 }
-I want to make a new function which will be replaced for the code from line 4 to line 9
-please name the function properly and make it asynchronos
+
+export const logDebug = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['debug'].push(`${timestamp} debug ${tag} ${message}`)
+    if (logs.debug.length === threshold.debug) {
+        await sendLogsToAPI(logs.debug);
+        logs.info = [];
+    }
+    isConsole && console.log("logs", logs)
+}
+
+export const logWarn = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['warn'].push(`${timestamp} warn ${tag} ${message}`)
+    if (logs.warn.length === threshold.warn) {
+        await sendLogsToAPI(logs.warn);
+        logs.warn = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs',JSON.stringify(logs));
+}
+
+export const logError = async (tag = "WebUi", message = "", stackTrace = "") => {
+    const timestamp = new Date().toISOString();
+    logs['error'].push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
+    if (logs.error.length === threshold.error) {
+        await sendLogsToAPI(logs.error);
+        logs.error = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs',JSON.stringify(logs));
+}
+
+export const logEvent = async (tag = "WebUi", message = "", context = "") => {
+    const timestamp = new Date().toISOString();
+
+    logs['events'].push(`${timestamp} events ${tag} ${message} ${JSON?.stringify(context)}`)
+    if (logs.events.length === threshold.events) {
+        await sendLogsToAPI(logs.events);
+        logs.events = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs',JSON.stringify(logs));
+}
+
+const sendLogsToAPI = async (logArray) => {
+    try {
+        const response = await fetch('test', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(logArray)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send logs to API');
+        }
+    } catch (error) {
+        logError('FetchError', `Error sending logs to API:${error}`);
+    }
+};
+see in the logs function above the following lines are common 
+if (logs.events.length === threshold.events) {
+        await sendLogsToAPI(logs.events);
+        logs.events = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs',JSON.stringify(logs));
+and i want to make a function which will have them and it will improve the clarity of the code
