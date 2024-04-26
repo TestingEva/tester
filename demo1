@@ -12,19 +12,22 @@ const threshold = {
     error: 5,
     events: 50
 }
-const isConsole = false;
+const isConsole = true;
 
-
+async function storeLogs(level){
+    console.log(threshold.level,logs?.level?.length)
+    if (logs?.level?.length === threshold?.level) {
+        await sendLogsToAPI(logs?.level);
+        logs.level = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs',JSON.stringify(logs));
+}
 
 export const logInfo = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
     logs['info'].push(`${timestamp} info ${tag} ${message}`)
-    if (logs.info.length === threshold.info) {
-        await sendLogsToAPI(logs.info);
-        logs.info = [];
-    }
-    isConsole && console.log("logs", logs)
-    localStorage.setItem('logs',JSON.stringify(logs));
+    storeLogs('info');
 }
 
 export const logDebug = async (tag = "WebUi", message = "") => {
@@ -89,11 +92,4 @@ const sendLogsToAPI = async (logArray) => {
         logError('FetchError', `Error sending logs to API:${error}`);
     }
 };
-see in the logs function above the following lines are common 
-if (logs.events.length === threshold.events) {
-        await sendLogsToAPI(logs.events);
-        logs.events = [];
-    }
-    isConsole && console.log("logs", logs)
-    localStorage.setItem('logs',JSON.stringify(logs));
-and i want to make a function which will have them and it will improve the clarity of the code
+why the console is giving undefined 0 for the console at line 18 how can we fix this 
