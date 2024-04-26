@@ -5,6 +5,7 @@ let logs = JSON?.parse(localStorage?.getItem('logs')) || {
     error: [],
     events: []
 };
+
 const threshold = {
     info: 50,
     debug: 50,
@@ -25,31 +26,31 @@ async function storeLogs(level) {
 
 export const logInfo = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
-    logs['info'].push(`${timestamp} info ${tag} ${message}`)
+    logs['info']?.push(`${timestamp} info ${tag} ${message}`)
     storeLogs('info');
 }
 
 export const logDebug = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
-    logs['debug'].push(`${timestamp} debug ${tag} ${message}`)
+    logs['debug']?.push(`${timestamp} debug ${tag} ${message}`)
     storeLogs('debug');
 }
 
 export const logWarn = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
-    logs['warn'].push(`${timestamp} warn ${tag} ${message}`)
+    logs['warn']?.push(`${timestamp} warn ${tag} ${message}`)
     storeLogs('warn');
 }
 
 export const logError = async (tag = "WebUi", message = "", stackTrace = "") => {
     const timestamp = new Date().toISOString();
-    logs['error'].push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
+    logs['error']?.push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
     storeLogs('error');
 }
 
 export const logEvent = async (tag = "WebUi", message = "", context = "") => {
     const timestamp = new Date().toISOString();
-    logs['events'].push(`${timestamp} events ${tag} ${message} ${JSON?.stringify(context)}`)
+    logs['events']?.push(`${timestamp} events ${tag} ${message} ${JSON?.stringify(context)}`)
     storeLogs('events');
 }
 
@@ -70,15 +71,7 @@ const sendLogsToAPI = async (logArray) => {
         logError('FetchError', `Error sending logs to API:${error.stack}`);
     }
 };
-like do you see the intialization of logs (from line 1 to 7) i want it to initalize it when the page is loaded that is from 
-the app.js 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import "./css/App.css";
-import Router from './Routers';
-
-function App() {
-  return <Router></Router>
-}
-
-export default App;
-can we do the initalization in the App.js and use it the logger.js file 
+okay so my senior is asking a question that if we are not initalizing the logs varible using a function how it gets initalized when the page is loaded is there
+any logic behind that
+more explanation regarding the question : He was saying that like to intialize we must keep them in a function and use useEffect with empty dependency in the App.js and 
+when our component gets loaded we need to call the function to intialize the logs 
