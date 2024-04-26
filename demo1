@@ -1,3 +1,4 @@
+this is Api.ts 
 import { mapAndThrowError } from "../api_error";
 import { HOME_DETAILS_URL } from "../endpoints";
 import { httpRequest } from "../http_client";
@@ -20,6 +21,15 @@ export async function getHomePageDetailsApi(
   }
 }
 
+and i need write test cases for this 
+
+i am giving all the imports below 
+export const HOME_DETAILS_URL = `${BASE_URL}/CRSP/getHomePageDetails`;
+
+
+export function httpRequest(url: string): ClientWrapper {
+  return new ClientWrapper(WRETCH_INSTANCE.options({ mode: "cors" }).url(url));
+}
 
 export type HomPageDetailsResponse = {
   deviceList: Array<DeviceData>;
@@ -30,4 +40,14 @@ export type HomPageDetailsResponse = {
   timestamp: number;
 };
 
-Like how can i write test cases for this 
+export const HomePageDetailsResponseSchema = z.object({
+  deviceList: z.array(DeviceListSchema),
+  meshEnabledStatus: z.boolean(),
+  parentalControlList: z.array(ParentalDataSchema),
+  routerStatus: z.enum(["Up", "Down"]),
+  wifiList: z.array(WifiDataSchema).min(1),
+  timestamp: z.number(),
+});
+
+i have create a file named api.test.ts now i want you to give me the steps how can i write the unit testcases with the help 
+of jest
