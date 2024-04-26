@@ -1,4 +1,4 @@
-let logs = JSON?.parse(localStorage?.getItem('logs'))||{
+let logs = JSON?.parse(localStorage?.getItem('logs')) || {
     info: [],
     debug: [],
     warn: [],
@@ -12,16 +12,15 @@ const threshold = {
     error: 5,
     events: 50
 }
-const isConsole = true;
+const isConsole = false;
 
-async function storeLogs(level){
-    console.log(threshold.level,logs?.level?.length)
-    if (logs?.level?.length === threshold?.level) {
-        await sendLogsToAPI(logs?.level);
-        logs.level = [];
+async function storeLogs(level) {
+    if (logs[level]?.length === threshold[level]) {
+        await sendLogsToAPI(logs[level]);
+        logs[level] = [];
     }
     isConsole && console.log("logs", logs)
-    localStorage.setItem('logs',JSON.stringify(logs));
+    localStorage.setItem('logs', JSON.stringify(logs));
 }
 
 export const logInfo = async (tag = "WebUi", message = "") => {
@@ -33,45 +32,25 @@ export const logInfo = async (tag = "WebUi", message = "") => {
 export const logDebug = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
     logs['debug'].push(`${timestamp} debug ${tag} ${message}`)
-    if (logs.debug.length === threshold.debug) {
-        await sendLogsToAPI(logs.debug);
-        logs.info = [];
-    }
-    isConsole && console.log("logs", logs)
+    storeLogs('debug');
 }
 
 export const logWarn = async (tag = "WebUi", message = "") => {
     const timestamp = new Date().toISOString();
     logs['warn'].push(`${timestamp} warn ${tag} ${message}`)
-    if (logs.warn.length === threshold.warn) {
-        await sendLogsToAPI(logs.warn);
-        logs.warn = [];
-    }
-    isConsole && console.log("logs", logs)
-    localStorage.setItem('logs',JSON.stringify(logs));
+    storeLogs('warn');
 }
 
 export const logError = async (tag = "WebUi", message = "", stackTrace = "") => {
     const timestamp = new Date().toISOString();
     logs['error'].push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
-    if (logs.error.length === threshold.error) {
-        await sendLogsToAPI(logs.error);
-        logs.error = [];
-    }
-    isConsole && console.log("logs", logs)
-    localStorage.setItem('logs',JSON.stringify(logs));
+    storeLogs('error');
 }
 
 export const logEvent = async (tag = "WebUi", message = "", context = "") => {
     const timestamp = new Date().toISOString();
-
     logs['events'].push(`${timestamp} events ${tag} ${message} ${JSON?.stringify(context)}`)
-    if (logs.events.length === threshold.events) {
-        await sendLogsToAPI(logs.events);
-        logs.events = [];
-    }
-    isConsole && console.log("logs", logs)
-    localStorage.setItem('logs',JSON.stringify(logs));
+    storeLogs('events');
 }
 
 const sendLogsToAPI = async (logArray) => {
@@ -84,12 +63,22 @@ const sendLogsToAPI = async (logArray) => {
             },
             body: JSON.stringify(logArray)
         });
-
         if (!response.ok) {
             throw new Error('Failed to send logs to API');
         }
     } catch (error) {
-        logError('FetchError', `Error sending logs to API:${error}`);
+        logError('FetchError', `Error sending logs to API:${error.stack}`);
     }
 };
-why the console is giving undefined 0 for the console at line 18 how can we fix this 
+like do you see the intialization of logs (from line 1 to 7) i want it to initalize it when the page is loaded that is from 
+the app.js 
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "./css/App.css";
+import Router from './Routers';
+
+function App() {
+  return <Router></Router>
+}
+
+export default App;
+can we do the initalization in the App.js and use it the logger.js file 
