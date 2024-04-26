@@ -1,174 +1,33 @@
-import { DMResponse } from "./dm_response";
+import { mapAndThrowError } from "../api_error";
+import { HOME_DETAILS_URL } from "../endpoints";
+import { httpRequest } from "../http_client";
+import { HomPageDetailsResponse } from "./models";
+import { HomePageDetailsResponseSchema } from "./schemas";
 
-function response(report: any): DMResponse {
-  return new DMResponse(report);
+export async function getHomePageDetailsApi(
+  authToken: string
+): Promise<HomPageDetailsResponse> {
+  try {
+    const response = await httpRequest(HOME_DETAILS_URL)
+      .authToken(authToken)
+      .post()
+      .readAsJson();
+    return HomePageDetailsResponseSchema.parse(
+      response
+    ) as HomPageDetailsResponse;
+  } catch (e) {
+    mapAndThrowError(e);
+  }
 }
 
-//readString
-test("readString - valid string", () => {
-  const key = "Device.WiFi.Radio.3.OperatingStandards";
 
-  expect(response({ [key]: "ax" }).readString(key)).toBe("ax");
-  expect(response({ [key]: "" }).readString(key)).toBe("");
-});
+export type HomPageDetailsResponse = {
+  deviceList: Array<DeviceData>;
+  meshEnabledStatus: boolean;
+  parentalControlList: Array<ParentalData>;
+  routerStatus: string;
+  wifiList: Array<WifiData>;
+  timestamp: number;
+};
 
-test("readString - type is not a string", () => {
-  const key = "Device.WiFi.Radio.3.OperatingStandards";
-  //number
-  expect(() => response({ [key]: 3 }).readString(key)).toThrowError;
-  //boolean
-  expect(() => response({ [key]: true }).readString(key)).toThrowError;
-  //floating number
-  expect(() => response({ [key]: 1.0 }).readString(key)).toThrowError;
-  //string array
-  expect(() => response({ [key]: ["string"] }).readString(key)).toThrowError;
-});
-
-//readBoolean
-
-test("readBoolean - valid boolean", () => {
-  const key = "Device.WiFi.Radio.Enable";
-  //booleans are atcually numbers 0 or 1 in DM
-  expect(response({ [key]: 1 }).readBoolean(key)).toBe(true);
-  expect(response({ [key]: 0 }).readBoolean(key)).toBe(false);
-});
-
-test("readBoolean - type is not a boolean", () => {
-  const key = "Device.WiFi.Radio.3.OperatingStandards";
-  //number
-  expect(() => response({ [key]: 3 }).readBoolean(key)).toThrowError;
-  expect(() => response({ [key]: -1 }).readBoolean(key)).toThrowError;
-  //boolean
-  expect(() => response({ [key]: true }).readBoolean(key)).toThrowError;
-  expect(() => response({ [key]: false }).readBoolean(key)).toThrowError;
-  //floating number
-  expect(() => response({ [key]: 1.0 }).readBoolean(key)).toThrowError;
-  //string array
-  expect(() => response({ [key]: ["string"] }).readBoolean(key)).toThrowError;
-  //string
-  expect(() => response({ [key]: "bad" }).readBoolean(key)).toThrowError;
-});
-
-//readDate
-test("readDate - valid date", () => {
-  const key =
-    "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.9.TargetChangeTime";
-  const value = "2024-04-13T00:11:33Z";
-  expect(response({ [key]: value }).readDate(key)).toEqual(new Date(value));
-});
-
-test("readDate - not a valid date", () => {
-  const key = "Device.WiFi.Radio.3.OperatingStandards";
-  //number
-  expect(() => response({ [key]: 3 }).readDate(key)).toThrowError;
-  expect(() => response({ [key]: -1 }).readDate(key)).toThrowError;
-  //boolean
-  expect(() => response({ [key]: true }).readDate(key)).toThrowError;
-  expect(() => response({ [key]: false }).readDate(key)).toThrowError;
-  //floating number
-  expect(() => response({ [key]: 1.0 }).readDate(key)).toThrowError;
-  //string array
-  expect(() => response({ [key]: ["string"] }).readDate(key)).toThrowError;
-  //string
-  expect(() => response({ [key]: "bad" }).readDate(key)).toThrowError;
-  //bad dates
-  expect(() => response({ [key]: "2024-04-13T00:11:33" }).readDate(key))
-    .toThrowError;
-  expect(() => response({ [key]: "2024-04-13 00:11:33Z" }).readDate(key))
-    .toThrowError;
-});
-
-//readNumber
-test("readNumber - valid number", () => {
-  const key =
-    "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.8.NewChannel";
-  expect(response({ [key]: 11 }).readNumber(key)).toBe(11);
-  expect(response({ [key]: 1.1 }).readNumber(key)).toBe(1.1);
-  expect(response({ [key]: -121 }).readNumber(key)).toBe(-121);
-});
-
-test("readNumber - not a number", () => {
-  const key =
-    "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.8.NewChannel";
-  //boolean
-  expect(() => response({ [key]: true }).readDate(key)).toThrowError;
-  expect(() => response({ [key]: false }).readDate(key)).toThrowError;
-  //string array
-  expect(() => response({ [key]: ["string"] }).readDate(key)).toThrowError;
-  //string
-  expect(() => response({ [key]: "bad" }).readDate(key)).toThrowError;
-});
-
-//readCommaNumArray
-test("readCommaNumArray test", () => {
-  const key = "Device.WiFi.Radio.3.PossibleChannels";
-  const val = "33,37,41,45,49,53,57,61,65,69,73";
-  expect(response({ [key]: val }).readCommaNumArray(key)).toEqual([
-    33, 37, 41, 45, 49, 53, 57, 61, 65, 69, 73,
-  ]);
-  expect(response({ [key]: "-1,-2,4" }).readCommaNumArray(key)).toEqual([
-    -1, -2, 4,
-  ]);
-});
-
-test("readCommaNumArray - not valid", () => {
-  const key = "Device.WiFi.Radio.3.PossibleChannels";
-  //number
-  expect(() => response({ [key]: 3 }).readDate(key)).toThrowError;
-  expect(() => response({ [key]: -1 }).readDate(key)).toThrowError;
-  //boolean
-  expect(() => response({ [key]: true }).readCommaNumArray(key)).toThrowError;
-  expect(() => response({ [key]: false }).readCommaNumArray(key)).toThrowError;
-  //string array
-  expect(() => response({ [key]: ["string"] }).readCommaNumArray(key))
-    .toThrowError;
-  //string
-  expect(() => response({ [key]: "bad" }).readCommaNumArray(key)).toThrowError;
-  //invalid
-  expect(() => response({ [key]: "1,2,3," }).readCommaNumArray(key))
-    .toThrowError;
-  expect(() => response({ [key]: "1,2,3a" }).readCommaNumArray(key))
-    .toThrowError;
-});
-
-//getArrayLength
-test("getArrayLength test", () => {
-  const res = response({
-    "Device.WiFi.Radio.1.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.2.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.3.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.4.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.5.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.6.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.7.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.8.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.9.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.10.Alias": "WLAN_24G",
-  });
-  expect(res.getArrayLength("Device.WiFi.Radio.*.Alias")).toBe(10);
-  expect(res.getArrayLength("Device.WiFi.Radio.*.Alias", 18)).toBe(10);
-  expect(res.getArrayLength("NonExistentKey.*.idk")).toBe(0);
-});
-
-test("getArrayLength invalid key", () => {
-  const res = response({
-    "Device.WiFi.Radio.1.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.2.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.3.Alias": "WLAN_24G",
-  });
-  expect(() => res.getArrayLength("Device.WiFi.Radio.1.Alias")).toThrowError;
-});
-
-test("getArrayLength invalid key", () => {
-  const res = response({
-    "Device.WiFi.Radio.1.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.2.Alias": "WLAN_24G",
-    "Device.WiFi.Radio.3.Alias": "WLAN_24G",
-  });
-  expect(() => res.getArrayLength("Device.WiFi.Radio.1.Alias")).toThrowError;
-});
-
-// ----------------
-
-My senior wants me to learn how to write test cases so he gave me the above file from our project but i could not understand now i want you to teach me how to write test 
-cases from the starting belive me i a newbie in this 
+Like how can i write test cases for this 
