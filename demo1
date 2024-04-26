@@ -1,8 +1,12 @@
-enum Color{
-    Red,Green,Blue
+export const logInfo = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['info'].push(`${timestamp} info ${tag} ${message}`)
+    if (logs.info.length === threshold.info) {
+        await sendLogsToAPI(logs.info);
+        logs.info = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs',JSON.stringify(logs));
 }
-
-let demo:Color =Red ;
-
-console.log(demo)
-Why it is giving error
+I want to make a new function which will be replaced for the code from line 4 to line 9
+please name the function properly and make it asynchronos
