@@ -1,53 +1,45 @@
-this is Api.ts 
-import { mapAndThrowError } from "../api_error";
-import { HOME_DETAILS_URL } from "../endpoints";
-import { httpRequest } from "../http_client";
-import { HomPageDetailsResponse } from "./models";
-import { HomePageDetailsResponseSchema } from "./schemas";
+jest.mock('../http_client', () => ({
+  httpRequest: jest.fn(),
+}));
 
-export async function getHomePageDetailsApi(
-  authToken: string
-): Promise<HomPageDetailsResponse> {
-  try {
-    const response = await httpRequest(HOME_DETAILS_URL)
-      .authToken(authToken)
-      .post()
-      .readAsJson();
-    return HomePageDetailsResponseSchema.parse(
-      response
-    ) as HomPageDetailsResponse;
-  } catch (e) {
-    mapAndThrowError(e);
-  }
-}
+jest.mock('../api_error', () => ({
+  mapAndThrowError: jest.fn(),
+}));
 
-and i need write test cases for this 
+describe('getHomePageDetailsApi', () => {
+  test('should return home page details on successful API call', async () => {
+    // Mock the response data
+    const mockResponseData = {
+      deviceList: [], // Sample device list data
+      meshEnabledStatus: true,
+      parentalControlList: [], // Sample parental control list data
+      routerStatus: 'Up',
+      wifiList: [], // Sample wifi list data
+      timestamp: Date.now(),
+    };
 
-i am giving all the imports below 
-export const HOME_DETAILS_URL = `${BASE_URL}/CRSP/getHomePageDetails`;
+    // Mock the httpRequest function to return a mock response
+    (httpRequest as jest.Mock).mockResolvedValueOnce({
+      readAsJson: jest.fn().mockResolvedValueOnce(mockResponseData),
+    });
 
+    // Call the function with a mock auth token
+    const authToken = 'mockAuthToken';
+    const result = await getHomePageDetailsApi(authToken);
 
-export function httpRequest(url: string): ClientWrapper {
-  return new ClientWrapper(WRETCH_INSTANCE.options({ mode: "cors" }).url(url));
-}
+    // Check if the function returns the expected result
+    expect(result).toEqual(mockResponseData);
+  });
 
-export type HomPageDetailsResponse = {
-  deviceList: Array<DeviceData>;
-  meshEnabledStatus: boolean;
-  parentalControlList: Array<ParentalData>;
-  routerStatus: string;
-  wifiList: Array<WifiData>;
-  timestamp: number;
-};
+  test('should handle error if API call fails', async () => {
+    // Mock the httpRequest function to throw an error
+    (httpRequest as jest.Mock).mockRejectedValueOnce(new Error('API error'));
 
-export const HomePageDetailsResponseSchema = z.object({
-  deviceList: z.array(DeviceListSchema),
-  meshEnabledStatus: z.boolean(),
-  parentalControlList: z.array(ParentalDataSchema),
-  routerStatus: z.enum(["Up", "Down"]),
-  wifiList: z.array(WifiDataSchema).min(1),
-  timestamp: z.number(),
+    // Call the function with a mock auth token
+    const authToken = 'mockAuthToken';
+    await expect(getHomePageDetailsApi(authToken)).rejects.toThrow('API error');
+
+    // Ensure that mapAndThrowError is called when an error occurs
+    expect(mapAndThrowError).toHaveBeenCalled();
+  });
 });
-
-i have create a file named api.test.ts now i want you to give me the steps how can i write the unit testcases with the help 
-of jest
