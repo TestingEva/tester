@@ -1,11 +1,14 @@
-let logs = JSON?.parse(localStorage?.getItem('logs')) || {
-    info: [],
-    debug: [],
-    warn: [],
-    error: [],
-    events: []
-};
+let logs = null
 
+export function initalizeLogs() {
+    logs = JSON?.parse(localStorage?.getItem('logs')) || {
+        info: [],
+        debug: [],
+        warn: [],
+        error: [],
+        events: []
+    };
+}
 const threshold = {
     info: 50,
     debug: 50,
@@ -71,7 +74,29 @@ const sendLogsToAPI = async (logArray) => {
         logError('FetchError', `Error sending logs to API:${error.stack}`);
     }
 };
-okay so my senior is asking a question that if we are not initalizing the logs varible using a function how it gets initalized when the page is loaded is there
-any logic behind that
-more explanation regarding the question : He was saying that like to intialize we must keep them in a function and use useEffect with empty dependency in the App.js and 
-when our component gets loaded we need to call the function to intialize the logs 
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+import "./css/App.css";
+import Router from './Routers';
+import { useEffect } from 'react';
+import { initalizeLogs } from './utils/logger';
+
+function App() {
+  useEffect(()=>{
+    initalizeLogs();
+  },[])
+  return <Router></Router>
+}
+
+export default App;
+
+
+Uncaught (in promise) TypeError: Cannot read properties of null (reading 'info')
+    at l (logger.js:32:16)
+    at Routers.js:124:5
+    at as (react-dom.production.min.js:244:332)
+    at _u (react-dom.production.min.js:286:111)
+    at react-dom.production.min.js:282:391
+    at P (scheduler.production.min.js:13:203)
+    at MessagePort.D (scheduler.production.min.js:14:128)
+The above error i am getting on my console
