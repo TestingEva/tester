@@ -1,64 +1,54 @@
-import { renderHook, act } from "@testing-library/react-hooks";
+import { renderHook, act, waitFor } from "@testing-library/react";
 import nock from "nock";
-import { useLoginMetadata } from "./authHooks";
+import { LOGIN_META_DATA_URL } from "../../data/endpoints";
+import { useLoginMetadata } from "./hooks";
 
 describe("useLoginMetadata", () => {
-  afterEach(() => {
-    // Clean up any remaining nock interceptors after each test
-    nock.cleanAll();
-  });
-
-  test("should return login metadata", async () => {
-    // Mocking the API endpoint using nock
-    const scope = nock("https://example.com")
-      .get("/login-metadata")
-      .reply(200, {
-        adminPwdChanged: false,
-        passwordRequired: true
-      });
-
-    // Render the hook
-    const { result, waitFor } = renderHook(() => useLoginMetadata());
-
-    // Ensure that the hook initially returns loading status
-    expect(result.current.status).toBe("loading");
-
-    // Wait for the hook to fetch data
-    await act(async () => {
-      await waitFor(() => expect(result.current.status).toBe("success"));
+    afterEach(() => {
+        nock.cleanAll();
     });
 
-    // Ensure that the hook returns the correct data
-    expect(result.current.data).toEqual({
-      adminPwdChanged: false,
-      passwordRequired: true
+    test("should return login metadata", async () => {
+        const scope = nock(LOGIN_META_DATA_URL)
+            .post('/')
+            .reply(200, {
+                adminPwdChanged: false,
+                passwordRequired: true
+            });
+
+        const { result } = renderHook(() => useLoginMetadata());
+        await waitFor(() => expect(result.current.status).toBe("loading"))
+
+
+        await act(async () => {
+            await waitFor(() => expect(result.current.status).toBe("success"));
+        });
+
+        expect(result.current.data).toEqual({
+            adminPwdChanged: false,
+            passwordRequired: true
+        });
+
+        expect(scope.isDone()).toBe(true);
     });
 
-    // Ensure that the nock scope is satisfied
-    expect(scope.isDone()).toBe(true);
-  });
+    test("should handle API error", async () => {
+        const scope = nock(LOGIN_META_DATA_URL)
+            .post('/')
+            .reply(500);
 
-  test("should handle API error", async () => {
-    // Mocking the API endpoint to return an error response
-    const scope = nock("https://example.com")
-      .get("/login-metadata")
-      .reply(500);
+        const { result } = renderHook(() => useLoginMetadata());
+        await waitFor(() => expect(result.current.status).toBe("loading"))
 
-    // Render the hook
-    const { result, waitFor } = renderHook(() => useLoginMetadata());
 
-    // Ensure that the hook initially returns loading status
-    expect(result.current.status).toBe("loading");
+        await act(async () => {
+            await waitFor(() => expect(result.current.status).toBe("error"));
+        });
 
-    // Wait for the hook to fetch data
-    await act(async () => {
-      await waitFor(() => expect(result.current.status).toBe("error"));
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+
+        expect(scope.isDone()).toBe(true);
     });
-
-    // Ensure that the hook returns the correct error
-    expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-
-    // Ensure that the nock scope is satisfied
-    expect(scope.isDone()).toBe(true);
-  });
 });
+
+for the act its saying "Avoid wrapping Testing Library util calls in `act`"
