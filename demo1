@@ -1,51 +1,44 @@
-import { getLoginMetadataApi, getLoginTokenApi, loginApi } from './api';
-import { ApiError } from './api'; // Import ApiError if it's defined in a separate file
+import { getUsers } from './api';
+import wretch from 'wretch';
 
-// Mocking the httpRequest function
-jest.mock('./http_client', () => ({
-  httpRequest: jest.fn(),
-}));
+// Mock the wretch library to return a fake response
+jest.mock('wretch');
 
-describe('API Tests', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
+describe('API Testing', () => {
+  test('getUsers - success', async () => {
+    // Mock the response data
+    const mockResponse = [
+      { id: 1, name: 'John' },
+      { id: 2, name: 'Alice' }
+    ];
+
+    // Mock the wretch.get().json() method to return the mockResponse
+    wretch.mockResolvedValueOnce({ get: () => ({ json: () => mockResponse }) });
+
+    // Call the getUsers function
+    const users = await getUsers();
+
+    // Assert that the returned data matches the mockResponse
+    expect(users).toEqual(mockResponse);
   });
 
-  describe('getLoginMetadataApi', () => {
-    it('should return login metadata', async () => {
-      // Mocking the response from httpRequest
-      const mockResponse = { adminPwdChanged: true, passwordRequired: true };
-      (httpRequest as jest.Mock).mockResolvedValueOnce(mockResponse);
+  test('getUsers - failure', async () => {
+    // Mock the wretch.get().json() method to throw an error
+    wretch.mockRejectedValueOnce(new Error('Network error'));
 
-      const result = await getLoginMetadataApi();
-      expect(result).toEqual(mockResponse);
-    });
-
-    it('should throw an ApiError on failure', async () => {
-      // Mocking the httpRequest to throw an error
-      (httpRequest as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
-
-      await expect(getLoginMetadataApi()).rejects.toThrow(ApiError);
-    });
-  });
-
-  describe('getLoginTokenApi', () => {
-    it('should return login token', async () => {
-      // Similar to getLoginMetadataApi test
-    });
-
-    it('should throw an ApiError on failure', async () => {
-      // Similar to getLoginMetadataApi test
-    });
-  });
-
-  describe('loginApi', () => {
-    it('should return login response', async () => {
-      // Similar to getLoginMetadataApi test
-    });
-
-    it('should throw an ApiError on failure', async () => {
-      // Similar to getLoginMetadataApi test
-    });
+    // Call the getUsers function and expect it to throw an error
+    await expect(getUsers()).rejects.toThrow('Failed to fetch users');
   });
 });
+import wretch from 'wretch';
+
+const BASE_URL = 'https://example.com/api';
+
+export const getUsers = async () => {
+  try {
+    const response = await wretch(`${BASE_URL}/users`).get().json();
+    return response;
+  } catch (error) {
+    throw new Error('Failed to fetch users');
+  }
+};
