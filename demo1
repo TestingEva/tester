@@ -1,4 +1,4 @@
-import { renderHook } from "@testing-library/react-hooks";
+import { renderHook, act } from "@testing-library/react-hooks";
 import nock from "nock";
 import { useLoginMetadata } from "./authHooks";
 
@@ -18,16 +18,17 @@ describe("useLoginMetadata", () => {
       });
 
     // Render the hook
-    const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata());
+    const { result, waitFor } = renderHook(() => useLoginMetadata());
 
     // Ensure that the hook initially returns loading status
     expect(result.current.status).toBe("loading");
 
     // Wait for the hook to fetch data
-    await waitForNextUpdate();
+    await act(async () => {
+      await waitFor(() => expect(result.current.status).toBe("success"));
+    });
 
-    // Ensure that the hook returns success status and the correct data
-    expect(result.current.status).toBe("success");
+    // Ensure that the hook returns the correct data
     expect(result.current.data).toEqual({
       adminPwdChanged: false,
       passwordRequired: true
@@ -44,16 +45,17 @@ describe("useLoginMetadata", () => {
       .reply(500);
 
     // Render the hook
-    const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata());
+    const { result, waitFor } = renderHook(() => useLoginMetadata());
 
     // Ensure that the hook initially returns loading status
     expect(result.current.status).toBe("loading");
 
     // Wait for the hook to fetch data
-    await waitForNextUpdate();
+    await act(async () => {
+      await waitFor(() => expect(result.current.status).toBe("error"));
+    });
 
-    // Ensure that the hook returns error status and no data
-    expect(result.current.status).toBe("error");
+    // Ensure that the hook returns the correct error
     expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
 
     // Ensure that the nock scope is satisfied
