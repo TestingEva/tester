@@ -1,20 +1,7 @@
-testing.ts
-import wretch from 'wretch';
-
-export const getUsers = async () => {
-  try {
-    const response = await wretch('https://jsonplaceholder.typicode.com/todos/1').get().json();
-    console.log(response)
-    return response;
-  } catch (error) {
-    throw new Error('Failed to fetch users');
-  }
-};
-
-testing.test.ts
 import { getUsers } from './testing';
-import wretch from 'wretch';
+import wretch, { factory } from 'wretch';
 
+// Mock the wretch library to return a fake response
 jest.mock('wretch');
 
 describe('API Testing', () => {
@@ -24,17 +11,24 @@ describe('API Testing', () => {
             id: 1,
             title: "delectus aut autem",
             completed: false
-        }
-        wretch.mockResolvedValueOnce({ get: () => ({ json: () => mockResponse }) });
+        };
+
+        // Mock the wretch.get().json() method to return the mockResponse
+        (wretch as jest.Mocked<typeof factory>).mockReturnValueOnce({
+            get: jest.fn().mockReturnValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) })
+        });
+
         const users = await getUsers();
         expect(users).toEqual(mockResponse);
     });
 
     test('getUsers - failure', async () => {
-        wretch.mockRejectedValueOnce(new Error('Network error'));
+        // Mock the wretch.get().json() method to throw an error
+        (wretch as jest.Mocked<typeof factory>).mockReturnValueOnce({
+            get: jest.fn().mockReturnValueOnce({ json: jest.fn().mockRejectedValueOnce(new Error('Network error')) })
+        });
+
+        // Call the getUsers function and expect it to throw an error
         await expect(getUsers()).rejects.toThrow('Failed to fetch users');
     });
 });
-
-its saying Property 'mockResolvedValueOnce' does not exist on type 'typeof factory'
-
