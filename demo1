@@ -15,16 +15,20 @@ describe('API Testing', () => {
             completed: false
         };
 
-        // Mocking the wretch.get().json() chain to return the mockResponse
-        (wretch().get as jest.Mock).mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) });
+        // Mocking the wretch instance to return a mock function for get
+        const wretchMock = jest.fn();
+        wretchMock.mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) });
+        (wretch as jest.Mock).mockReturnValueOnce(wretchMock);
 
         const users = await getUsers();
         expect(users).toEqual(mockResponse);
     });
 
     test('getUsers - failure', async () => {
-        // Mocking the wretch.get().json() chain to reject with an error
-        (wretch().get as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+        // Mocking the wretch instance to return a mock function for get
+        const wretchMock = jest.fn();
+        wretchMock.mockRejectedValueOnce(new Error('Network error'));
+        (wretch as jest.Mock).mockReturnValueOnce(wretchMock);
 
         await expect(getUsers()).rejects.toThrow('Failed to fetch users');
     });
