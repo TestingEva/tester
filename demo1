@@ -1,62 +1,62 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  clearSession,
-  getLoginMetadata,
-  getSession,
-  login,
-} from "../../data/auth/auth";
-import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
-import { asyncHookData, lazyAsyncHookData } from "../hook_data_impl";
-import { KEY_LOGIN, KEY_LOGIN_METADATA, KEY_SESSION } from "../keys";
-import { AuthMetadata, AuthRequest, AuthResponse, Session } from "./models";
+import { renderHook } from "@testing-library/react-hooks";
+import nock from "nock";
+import { useLoginMetadata } from "./authHooks";
 
-export function useSession(): AsyncHookData<Session> {
-  const { data, status, error } = useQuery({
-    queryKey: [KEY_SESSION],
-    queryFn: getSession,
-    staleTime: 1000,
+describe("useLoginMetadata", () => {
+  afterEach(() => {
+    // Clean up any remaining nock interceptors after each test
+    nock.cleanAll();
   });
-  return asyncHookData(status, error, data === null ? undefined : data);
-}
 
-export function useLogout(): LazyAsyncHookData<void, void> {
-  const client = useQueryClient();
-  const { mutateAsync, status, error, data } = useMutation({
-    mutationFn: clearSession,
-    onSuccess: async (_, __, ___) => {
-      await client.invalidateQueries({ queryKey: [KEY_SESSION] });
-      //clear all cached data
-      await client.invalidateQueries();
-    },
+  test("should return login metadata", async () => {
+    // Mocking the API endpoint using nock
+    const scope = nock("https://example.com")
+      .get("/login-metadata")
+      .reply(200, {
+        adminPwdChanged: false,
+        passwordRequired: true
+      });
+
+    // Render the hook
+    const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata());
+
+    // Ensure that the hook initially returns loading status
+    expect(result.current.status).toBe("loading");
+
+    // Wait for the hook to fetch data
+    await waitForNextUpdate();
+
+    // Ensure that the hook returns success status and the correct data
+    expect(result.current.status).toBe("success");
+    expect(result.current.data).toEqual({
+      adminPwdChanged: false,
+      passwordRequired: true
+    });
+
+    // Ensure that the nock scope is satisfied
+    expect(scope.isDone()).toBe(true);
   });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
 
-export function useLogin(): LazyAsyncHookData<AuthRequest, AuthResponse> {
-  const client = useQueryClient();
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: [KEY_LOGIN],
-    mutationFn: login,
-    onSuccess: async (_, __, ___) => {
-      await client.invalidateQueries({ queryKey: [KEY_SESSION] });
-    },
+  test("should handle API error", async () => {
+    // Mocking the API endpoint to return an error response
+    const scope = nock("https://example.com")
+      .get("/login-metadata")
+      .reply(500);
+
+    // Render the hook
+    const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata());
+
+    // Ensure that the hook initially returns loading status
+    expect(result.current.status).toBe("loading");
+
+    // Wait for the hook to fetch data
+    await waitForNextUpdate();
+
+    // Ensure that the hook returns error status and no data
+    expect(result.current.status).toBe("error");
+    expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+
+    // Ensure that the nock scope is satisfied
+    expect(scope.isDone()).toBe(true);
   });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useLoginMetadata(): AsyncHookData<AuthMetadata> {
-  const { status, data, error } = useQuery({
-    queryKey: [KEY_LOGIN_METADATA],
-    queryFn: getLoginMetadata,
-  });
-  return asyncHookData(status, error, data);
-}
-
-In this i have a useLoginMetadata function for this i want to write the unit 
-testcases 
-the response of the APi is the following
-{
-    adminPwdChanged: false,
-    passwordRequired: true
-}
-now i want you to use nock to write the test cases for the same 
+});
