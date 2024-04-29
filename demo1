@@ -1,7 +1,6 @@
 import { getUsers } from './testing';
-import wretch, { factory } from 'wretch';
+import wretch from 'wretch';
 
-// Mock the wretch library to return a fake response
 jest.mock('wretch');
 
 describe('API Testing', () => {
@@ -13,9 +12,9 @@ describe('API Testing', () => {
             completed: false
         };
 
-        // Mock the wretch.get().json() method to return the mockResponse
-        (wretch as jest.Mocked<typeof factory>).mockReturnValueOnce({
-            get: jest.fn().mockReturnValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) })
+        // Mock wretch.get() to return an object with a json method that resolves to the mockResponse
+        (wretch as jest.Mocked<typeof wretch>).mockReturnValueOnce({
+            get: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) })
         });
 
         const users = await getUsers();
@@ -23,12 +22,11 @@ describe('API Testing', () => {
     });
 
     test('getUsers - failure', async () => {
-        // Mock the wretch.get().json() method to throw an error
-        (wretch as jest.Mocked<typeof factory>).mockReturnValueOnce({
-            get: jest.fn().mockReturnValueOnce({ json: jest.fn().mockRejectedValueOnce(new Error('Network error')) })
+        // Mock wretch.get() to return an object with a json method that rejects with an error
+        (wretch as jest.Mocked<typeof wretch>).mockReturnValueOnce({
+            get: jest.fn().mockRejectedValueOnce(new Error('Network error'))
         });
 
-        // Call the getUsers function and expect it to throw an error
         await expect(getUsers()).rejects.toThrow('Failed to fetch users');
     });
 });
