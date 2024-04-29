@@ -1,2 +1,35 @@
-Conversion of type 'typeof factory' to type 'Mock<any, any>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-  Type 'typeof factory' is missing the following properties from type 'Mock<any, any>': getMockName, mock, mockClear, mockReset
+import { getUsers } from './testing';
+
+// Importing wretch directly into the test file
+import wretch from 'wretch';
+
+// Mocking the wretch module
+jest.mock('wretch');
+
+describe('API Testing', () => {
+    test('getUsers - success', async () => {
+        const mockResponse = {
+            userId: 1,
+            id: 1,
+            title: "delectus aut autem",
+            completed: false
+        };
+
+        // Mocking the wretch instance to return a mock function for get
+        const wretchMock: any = jest.fn();
+        wretchMock.mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) });
+        (wretch as any).mockReturnValueOnce(wretchMock);
+
+        const users = await getUsers();
+        expect(users).toEqual(mockResponse);
+    });
+
+    test('getUsers - failure', async () => {
+        // Mocking the wretch instance to return a mock function for get
+        const wretchMock: any = jest.fn();
+        wretchMock.mockRejectedValueOnce(new Error('Network error'));
+        (wretch as any).mockReturnValueOnce(wretchMock);
+
+        await expect(getUsers()).rejects.toThrow('Failed to fetch users');
+    });
+});
