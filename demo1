@@ -1,7 +1,9 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import nock from "nock";
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
 import { useLoginMetadata } from "./hooks";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
 const queryClient = new QueryClient(
     {
         defaultOptions: {
@@ -12,23 +14,29 @@ const queryClient = new QueryClient(
     }
 );
 
+const server = setupServer(
+    rest.post('http://localhost:3004/CRSP/getLoginMetadata', (req, res, ctx) => {
+        return res(ctx.json({
+            passwordLess: false,
+            showRouterRearImage: true
+        }));
+    })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
 type WrapperType = {
     children: JSX.Element;
 }
 
 const wrapper: React.FC<WrapperType> = (props) => (
     <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
-)
+);
+
 describe("useLoginMetadata", () => {
-
     test("should return login metadata", async () => {
-        const scope = nock("http://localhost:3004")
-            .post('/CRSP/getLoginMetadata')
-            .reply(200, {
-                passwordLess: false,
-                showRouterRearImage: true
-            });
-
         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
 
         await waitFor(() => expect(result.current.status).toBe("success"));
@@ -37,22 +45,19 @@ describe("useLoginMetadata", () => {
             passwordLess: false,
             showRouterRearImage: true
         });
-
-        expect(scope.isDone()).toBe(true);
     });
 
     test("should handle API error", async () => {
-        const scope = nock("http://localhost:3004")
-            .post('/CRSP/getLoginMetadata')
-            .reply(500);
+        server.use(
+            rest.post('http://localhost:3004/CRSP/getLoginMetadata', (req, res, ctx) => {
+                return res(ctx.status(500));
+            })
+        );
 
         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
         await waitFor(() => expect(result.current.status).toBe("error"));
 
         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-
-        expect(scope.isDone()).toBe(true);
     });
 });
-Instead of nock can we use some other library to complete the test. the library must have 
-the support of wretch 
