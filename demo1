@@ -1,6 +1,9 @@
 import { getUsers } from './testing';
+
+// Importing wretch directly into the test file
 import wretch from 'wretch';
 
+// Mocking the wretch module
 jest.mock('wretch');
 
 describe('API Testing', () => {
@@ -12,20 +15,16 @@ describe('API Testing', () => {
             completed: false
         };
 
-        // Mock wretch.get() to return an object with a json method that resolves to the mockResponse
-        (wretch as jest.Mocked<typeof wretch>).mockReturnValueOnce({
-            get: jest.fn().mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) })
-        });
+        // Mocking the wretch.get().json() chain to return the mockResponse
+        (wretch().get as jest.Mock).mockResolvedValueOnce({ json: jest.fn().mockResolvedValueOnce(mockResponse) });
 
         const users = await getUsers();
         expect(users).toEqual(mockResponse);
     });
 
     test('getUsers - failure', async () => {
-        // Mock wretch.get() to return an object with a json method that rejects with an error
-        (wretch as jest.Mocked<typeof wretch>).mockReturnValueOnce({
-            get: jest.fn().mockRejectedValueOnce(new Error('Network error'))
-        });
+        // Mocking the wretch.get().json() chain to reject with an error
+        (wretch().get as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
 
         await expect(getUsers()).rejects.toThrow('Failed to fetch users');
     });
