@@ -1,42 +1,23 @@
-import { renderHook, waitFor } from "@testing-library/react-hooks";
-import nock from "nock";
-import { LOGIN_META_DATA_URL } from "../../data/endpoints";
-import { useLoginMetadata } from "./hooks";
+Test suite failed to run
 
-describe("useLoginMetadata", () => {
-    afterEach(() => {
-        nock.cleanAll();
-    });
+    Cannot find module 'wretch/resolver' from 'src/data/api_error.ts'
 
-    test("should return login metadata", async () => {
-        const scope = nock(LOGIN_META_DATA_URL)
-            .post('/')
-            .reply(200, {
-                adminPwdChanged: false,
-                passwordRequired: true
-            });
+    Require stack:
+      src/data/api_error.ts
+      src/data/auth/auth.ts
+      src/features/auth/hooks.ts
+      src/features/auth/hooks_auth.test.tsx
 
-        const { result } = renderHook(() => useLoginMetadata());
-        await waitFor(() => expect(result.current.status).toBe("success"));
+    > 1 | import { WretchError } from "wretch/resolver";
+        | ^
+      2 | import { ZodError } from "zod";
+      3 |
+      4 | export const STATUS_SCHEMA_VALIDATION_FAILED = 1;
 
-        expect(result.current.data).toEqual({
-            adminPwdChanged: false,
-            passwordRequired: true
-        });
-
-        expect(scope.isDone()).toBe(true);
-    });
-
-    test("should handle API error", async () => {
-        const scope = nock(LOGIN_META_DATA_URL)
-            .post('/')
-            .reply(500);
-
-        const { result } = renderHook(() => useLoginMetadata());
-        await waitFor(() => expect(result.current.status).toBe("error"));
-
-        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-
-        expect(scope.isDone()).toBe(true);
-    });
-});
+      at Resolver.resolveModule (node_modules/jest-resolve/build/resolver.js:324:11)
+      at Object.<anonymous> (src/data/api_error.ts:1:1)
+      at Object.<anonymous> (src/data/auth/auth.ts:9:1)
+      at Object.<anonymous> (src/features/auth/hooks.ts:2:1)
+      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:3:1)
+      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
+      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
