@@ -1,44 +1,40 @@
-import { getUsers } from './api';
+testing.ts
 import wretch from 'wretch';
-
-// Mock the wretch library to return a fake response
-jest.mock('wretch');
-
-describe('API Testing', () => {
-  test('getUsers - success', async () => {
-    // Mock the response data
-    const mockResponse = [
-      { id: 1, name: 'John' },
-      { id: 2, name: 'Alice' }
-    ];
-
-    // Mock the wretch.get().json() method to return the mockResponse
-    wretch.mockResolvedValueOnce({ get: () => ({ json: () => mockResponse }) });
-
-    // Call the getUsers function
-    const users = await getUsers();
-
-    // Assert that the returned data matches the mockResponse
-    expect(users).toEqual(mockResponse);
-  });
-
-  test('getUsers - failure', async () => {
-    // Mock the wretch.get().json() method to throw an error
-    wretch.mockRejectedValueOnce(new Error('Network error'));
-
-    // Call the getUsers function and expect it to throw an error
-    await expect(getUsers()).rejects.toThrow('Failed to fetch users');
-  });
-});
-import wretch from 'wretch';
-
-const BASE_URL = 'https://example.com/api';
 
 export const getUsers = async () => {
   try {
-    const response = await wretch(`${BASE_URL}/users`).get().json();
+    const response = await wretch('https://jsonplaceholder.typicode.com/todos/1').get().json();
+    console.log(response)
     return response;
   } catch (error) {
     throw new Error('Failed to fetch users');
   }
 };
+
+testing.test.ts
+import { getUsers } from './testing';
+import wretch from 'wretch';
+
+jest.mock('wretch');
+
+describe('API Testing', () => {
+    test('getUsers - success', async () => {
+        const mockResponse = {
+            userId: 1,
+            id: 1,
+            title: "delectus aut autem",
+            completed: false
+        }
+        wretch.mockResolvedValueOnce({ get: () => ({ json: () => mockResponse }) });
+        const users = await getUsers();
+        expect(users).toEqual(mockResponse);
+    });
+
+    test('getUsers - failure', async () => {
+        wretch.mockRejectedValueOnce(new Error('Network error'));
+        await expect(getUsers()).rejects.toThrow('Failed to fetch users');
+    });
+});
+
+its saying Property 'mockResolvedValueOnce' does not exist on type 'typeof factory'
+
