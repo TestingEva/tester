@@ -1,23 +1,58 @@
-Test suite failed to run
+import { renderHook, waitFor } from "@testing-library/react";
+import nock from "nock";
+import { useLoginMetadata } from "./hooks";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient(
+    {
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    }
+);
 
-    Cannot find module 'wretch/resolver' from 'src/data/api_error.ts'
+type WrapperType = {
+    children: JSX.Element;
+}
 
-    Require stack:
-      src/data/api_error.ts
-      src/data/auth/auth.ts
-      src/features/auth/hooks.ts
-      src/features/auth/hooks_auth.test.tsx
+const wrapper: React.FC<WrapperType> = (props) => (
+    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+)
+describe("useLoginMetadata", () => {
 
-    > 1 | import { WretchError } from "wretch/resolver";
-        | ^
-      2 | import { ZodError } from "zod";
-      3 |
-      4 | export const STATUS_SCHEMA_VALIDATION_FAILED = 1;
+    test("should return login metadata", async () => {
+        const scope = nock("http://localhost:3004")
+            .post('/CRSP/getLoginMetadata')
+            .reply(200, {
+                passwordLess: false,
+                showRouterRearImage: true
+            });
 
-      at Resolver.resolveModule (node_modules/jest-resolve/build/resolver.js:324:11)
-      at Object.<anonymous> (src/data/api_error.ts:1:1)
-      at Object.<anonymous> (src/data/auth/auth.ts:9:1)
-      at Object.<anonymous> (src/features/auth/hooks.ts:2:1)
-      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:3:1)
-      at TestScheduler.scheduleTests (node_modules/@jest/core/build/TestScheduler.js:333:13)
-      at runJest (node_modules/@jest/core/build/runJest.js:404:19)
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("success"));
+
+        expect(result.current.data).toEqual({
+            passwordLess: false,
+            showRouterRearImage: true
+        });
+
+        expect(scope.isDone()).toBe(true);
+    });
+
+    test("should handle API error", async () => {
+        const scope = nock("http://localhost:3004")
+            .post('/CRSP/getLoginMetadata')
+            .reply(500);
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+        await waitFor(() => expect(result.current.status).toBe("error"));
+
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+
+        expect(scope.isDone()).toBe(true);
+    });
+});
+Instead of nock can we use some other library to complete the test. the library must have 
+the support of wretch 
