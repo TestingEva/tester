@@ -1,8 +1,7 @@
-Great! it works as expected HEre is the finalized code now 
-let logs ;
-try{
+let logs;
+try {
     logs = JSON?.parse(localStorage?.getItem('logs'));
-    if(!logs||typeof logs !== 'object'){
+    if (!logs || typeof logs !== 'object') {
         logs = {
             info: [],
             debug: [],
@@ -12,7 +11,7 @@ try{
         }
     }
 }
-catch(e){
+catch (e) {
     logs = {
         info: [],
         debug: [],
@@ -23,13 +22,27 @@ catch(e){
 }
 
 const threshold = {
-    info: 5,
-    debug: 5,
-    warn: 1,
+    info: 50,
+    debug: 50,
+    warn: 10,
     error: 5,
-    events: 5
+    events: 50
 }
-const isConsole = true;
+const thresholdInterval = 25 * 1000;//25 second
+
+setInterval(async () => {
+    const logArray = Object.keys(logs).reduce((acc, key) => acc.concat(logs[key]), [])
+    await sendLogsToAPI(logArray);
+    logs = {
+        info: [],
+        debug: [],
+        warn: [],
+        error: [],
+        events: []
+    }
+}, thresholdInterval)
+
+const isConsole = false;
 
 async function storeLogs(level) {
     if (logs[level]?.length === threshold[level]) {
@@ -91,8 +104,4 @@ const sendLogsToAPI = async (logArray) => {
     }
 };
 
-now my team leader is asking for addtion of another scenario like there is a threshold which when reached the logs are sent back to 
-the api but now he also want to include time based logging like after every 5 minutes this logging will happen and it will send all the logs 
-the data format will be like this {
-    logList:[array of strings which include all the logs like the logs of (error warn events info debug ) as in order ]
-}
+Its working fine as expected for the some cases its sending the empty array as payload I want that if the array is empty then it should not send it 
