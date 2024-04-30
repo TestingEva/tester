@@ -1,35 +1,102 @@
 let logs;
-
 try {
-    logs = JSON?.parse(localStorage?.getItem('logs'));
-    // Check if logs exist and if all required keys are present
+    logs = JSON.parse(localStorage.getItem('logs'));
     if (logs && typeof logs === 'object') {
         const requiredKeys = ['info', 'debug', 'warn', 'error', 'events'];
         for (const key of requiredKeys) {
-            if (!logs.hasOwnProperty(key)) {
-                logs[key] = []; // Initialize missing key with an empty array
+            if (!logs[key]) {
+                logs[key] = [];
             }
         }
-    } else {
-        // Initialize logs with default values if not present or not an object
+    }
+    else {
         logs = {
             info: [],
             debug: [],
             warn: [],
             error: [],
             events: []
-        };
+        }
     }
-} catch (error) {
-    console.error('Error parsing logs from localStorage:', error);
-    // Initialize logs with default values in case of error
+}
+catch (e) {
     logs = {
         info: [],
         debug: [],
         warn: [],
         error: [],
         events: []
-    };
+    }
 }
 
-// Rest of your code remains the same...
+const threshold = {
+    info: 5,
+    debug: 5,
+    warn: 1,
+    error: 5,
+    events: 5
+}
+const isConsole = true;
+
+async function storeLogs(level) {
+    if (logs[level]?.length === threshold[level]) {
+        await sendLogsToAPI(logs[level]);
+        logs[level] = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs', JSON.stringify(logs));
+}
+
+export const logInfo = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['info']?.push(`${timestamp} info ${tag} ${message}`)
+    storeLogs('info');
+}
+
+export const logDebug = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['debug']?.push(`${timestamp} debug ${tag} ${message}`)
+    storeLogs('debug');
+}
+
+export const logWarn = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['warn']?.push(`${timestamp} warn ${tag} ${message}`)
+    storeLogs('warn');
+}
+
+export const logError = async (tag = "WebUi", message = "", stackTrace = "") => {
+    const timestamp = new Date().toISOString();
+    logs['error']?.push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
+    storeLogs('error');
+}
+
+export const logEvent = async (tag = "WebUi", message = "", context = "") => {
+    const timestamp = new Date().toISOString();
+    logs['events']?.push(`${timestamp} events ${tag} ${message} ${JSON?.stringify(context)}`)
+    storeLogs('events');
+}
+
+const sendLogsToAPI = async (logArray) => {
+    try {
+        const formattedData = {
+            logList: logArray
+        }
+        const response = await fetch('test', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedData)
+        });
+        if (!response.ok) {
+            throw new Error('Failed to send logs to API');
+        }
+    } catch (error) {
+        logError('FetchError', `Error sending logs to API:${error.stack}`);
+    }
+};
+
+
+can this code be more optimised
