@@ -16,4 +16,79 @@ send the data in the following format
         "2024-04-30T07:36:29.528Z info NetworkRequest API request sent CRSP/getAutoRefreshStatus"
     ]
 
-    could you help me in achieving this 
+    could you help me in achieving this below is the logger.js file which creates this logs 
+
+let logs = JSON?.parse(localStorage?.getItem('logs')) || {
+    info: [],
+    debug: [],
+    warn: [],
+    error: [],
+    events: []
+};
+
+const threshold = {
+    info: 50,
+    debug: 50,
+    warn: 10,
+    error: 5,
+    events: 50
+}
+const isConsole = true;
+
+async function storeLogs(level) {
+    if (logs[level]?.length === threshold[level]) {
+        await sendLogsToAPI(logs[level]);
+        logs[level] = [];
+    }
+    isConsole && console.log("logs", logs)
+    localStorage.setItem('logs', JSON.stringify(logs));
+}
+
+export const logInfo = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['info']?.push(`${timestamp} info ${tag} ${message}`)
+    storeLogs('info');
+}
+
+export const logDebug = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['debug']?.push(`${timestamp} debug ${tag} ${message}`)
+    storeLogs('debug');
+}
+
+export const logWarn = async (tag = "WebUi", message = "") => {
+    const timestamp = new Date().toISOString();
+    logs['warn']?.push(`${timestamp} warn ${tag} ${message}`)
+    storeLogs('warn');
+}
+
+export const logError = async (tag = "WebUi", message = "", stackTrace = "") => {
+    const timestamp = new Date().toISOString();
+    logs['error']?.push(`${timestamp} error ${tag} ${message} ${stackTrace}`)
+    storeLogs('error');
+}
+
+export const logEvent = async (tag = "WebUi", message = "", context = "") => {
+    const timestamp = new Date().toISOString();
+    logs['events']?.push(`${timestamp} events ${tag} ${message} ${JSON?.stringify(context)}`)
+    storeLogs('events');
+}
+
+const sendLogsToAPI = async (logArray) => {
+    try {
+        const response = await fetch('test', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(logArray)
+        });
+        if (!response.ok) {
+            throw new Error('Failed to send logs to API');
+        }
+    } catch (error) {
+        logError('FetchError', `Error sending logs to API:${error.stack}`);
+    }
+};
+
