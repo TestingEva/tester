@@ -1,63 +1,19 @@
-import { renderHook, waitFor } from "@testing-library/react";
-import { rest } from 'msw';
-import { setupServer } from 'msw/node';
-import { useLoginMetadata } from "./hooks";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+[
+    "2024-04-30T07:35:47.446Z info PageLoad User Routed to /basic/home",
+    "2024-04-30T07:35:47.633Z info NetworkRequest API request sent CRSP/getHomePageDetails",
+    "2024-04-30T07:36:29.493Z info PageLoad User Routed to /basic/system/status",
+    "2024-04-30T07:36:29.519Z info NetworkRequest API request sent CRSP/getRouterDetails",
+    "2024-04-30T07:36:29.528Z info NetworkRequest API request sent CRSP/getAutoRefreshStatus"
+]
+currently i am sending data in the above format but now the requirements have been changed and we need to 
+send the data in the following format 
 
-const queryClient = new QueryClient(
-    {
-        defaultOptions: {
-            queries: {
-                retry: false
-            }
-        }
-    }
-);
+    "logList": [
+        "2024-04-30T07:35:47.446Z info PageLoad User Routed to /basic/home",
+        "2024-04-30T07:35:47.633Z info NetworkRequest API request sent CRSP/getHomePageDetails",
+        "2024-04-30T07:36:29.493Z info PageLoad User Routed to /basic/system/status",
+        "2024-04-30T07:36:29.519Z info NetworkRequest API request sent CRSP/getRouterDetails",
+        "2024-04-30T07:36:29.528Z info NetworkRequest API request sent CRSP/getAutoRefreshStatus"
+    ]
 
-const server = setupServer(
-    rest.post('http://localhost:3004/CRSP/getLoginMetadata', (req, res, ctx) => {
-        return res(ctx.json({
-            passwordLess: false,
-            showRouterRearImage: true
-        }));
-    })
-);
-
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
-type WrapperType = {
-    children: JSX.Element;
-}
-
-const wrapper: React.FC<WrapperType> = (props) => (
-    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
-);
-
-describe("useLoginMetadata", () => {
-    test("should return login metadata", async () => {
-        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
-
-        await waitFor(() => expect(result.current.status).toBe("success"));
-
-        expect(result.current.data).toEqual({
-            passwordLess: false,
-            showRouterRearImage: true
-        });
-    });
-
-    test("should handle API error", async () => {
-        server.use(
-            rest.post('http://localhost:3004/CRSP/getLoginMetadata', (req, res, ctx) => {
-                return res(ctx.status(500));
-            })
-        );
-
-        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
-
-        await waitFor(() => expect(result.current.status).toBe("error"));
-
-        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-    });
-});
+    could you help me in achieving this 
