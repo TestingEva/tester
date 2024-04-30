@@ -1,1 +1,66 @@
+let logs;
 
+try {
+    logs = JSON.parse(localStorage.getItem('logs'));
+    if (!logs || typeof logs !== 'object') {
+        throw new Error('Invalid logs format');
+    }
+} catch (error) {
+    console.error('Error parsing logs from localStorage:', error);
+    logs = getDefaultLogs();
+}
+
+const threshold = {
+    info: 5,
+    debug: 5,
+    warn: 1,
+    error: 5,
+    events: 5
+};
+const isConsole = true;
+
+async function storeLogs(level) {
+    if (logs[level]?.length === threshold[level]) {
+        await sendLogsToAPI(logs[level]);
+        logs[level] = [];
+    }
+    isConsole && console.log("logs", logs);
+    localStorage.setItem('logs', JSON.stringify(logs));
+}
+
+export const log = async (level, tag = "WebUi", message = "", stackTrace = "", context = "") => {
+    const timestamp = new Date().toISOString();
+    logs[level]?.push(`${timestamp} ${level} ${tag} ${message} ${stackTrace} ${JSON.stringify(context)}`);
+    storeLogs(level);
+};
+
+const sendLogsToAPI = async (logArray) => {
+    try {
+        const formattedData = {
+            logList: logArray
+        };
+        const response = await fetch('test', {
+            method: 'POST',
+            mode: 'cors',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formattedData)
+        });
+        if (!response.ok) {
+            throw new Error('Failed to send logs to API');
+        }
+    } catch (error) {
+        log('error', 'FetchError', `Error sending logs to API: ${error.stack}`);
+    }
+};
+
+function getDefaultLogs() {
+    return {
+        info: [],
+        debug: [],
+        warn: [],
+        error: [],
+        events: []
+    };
+}
