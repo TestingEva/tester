@@ -1,3 +1,6 @@
+import { fetchRequests } from "./FetchRequest";
+import CONFIG from './../config/env.json'
+
 let logs;
 try {
     logs = JSON?.parse(localStorage?.getItem('logs'));
@@ -28,21 +31,22 @@ const threshold = {
     error: 5,
     events: 50
 }
-const thresholdInterval = 25 * 1000;//25 second
-
+const thresholdInterval = 5 * 60 * 1000;
+const isConsole = false;
 setInterval(async () => {
     const logArray = Object.keys(logs).reduce((acc, key) => acc.concat(logs[key]), [])
-    await sendLogsToAPI(logArray);
-    logs = {
-        info: [],
-        debug: [],
-        warn: [],
-        error: [],
-        events: []
+    if (logArray.length > 1) {
+        await sendLogsToAPI(logArray);
+        logs = {
+            info: [],
+            debug: [],
+            warn: [],
+            error: [],
+            events: []
+        }
+        localStorage.setItem('logs', JSON.stringify(logs));
     }
 }, thresholdInterval)
-
-const isConsole = false;
 
 async function storeLogs(level) {
     if (logs[level]?.length === threshold[level]) {
@@ -84,24 +88,12 @@ export const logEvent = async (tag = "WebUi", message = "", context = "") => {
 }
 
 const sendLogsToAPI = async (logArray) => {
-    try {
-        const formattedData = {
-            logList: logArray
-        }
-        const response = await fetch('test', {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formattedData)
-        });
-        if (!response.ok) {
-            throw new Error('Failed to send logs to API');
-        }
-    } catch (error) {
-        logError('FetchError', `Error sending logs to API:${error.stack}`);
+    const formattedData = {
+        logList: logArray
     }
+    fetchRequests({ url: CONFIG?.SAVE_LOGS, body: JSON.stringify(formattedData) }).then(() => {
+        logInfo("Logging", "Logged the Logs")
+    })
 };
 
-Its working fine as expected for the some cases its sending the empty array as payload I want that if the array is empty then it should not send it 
+can ypu optimize this code?
