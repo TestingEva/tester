@@ -1,3 +1,59 @@
+import { renderHook, waitFor } from "@testing-library/react";
+import wretch from "wretch";
+import { useLoginMetadata } from "./hooks";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+import MockAdapter from 'axios-mock-adapter';
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false
+        }
+    }
+});
+
+type WrapperType = {
+    children: JSX.Element;
+}
+
+const wrapper: React.FC<WrapperType> = (props) => (
+    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+)
+
+describe("useLoginMetadata", () => {
+    const mock = new MockAdapter(wretch().polyfills({ fetch }));
+    
+    test("should return login metadata", async () => {
+        mock.onPost("http://localhost:3004/CRSP/getLoginMetadata").reply(200, {
+            passwordLess: false,
+            showRouterRearImage: true
+        });
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("success"));
+
+        expect(result.current.data).toEqual({
+            passwordLess: false,
+            showRouterRearImage: true
+        });
+    });
+
+    test("should handle API error", async () => {
+        mock.onPost("http://localhost:3004/CRSP/getLoginMetadata").reply(500);
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+        
+        await waitFor(() => expect(result.current.status).toBe("error"));
+
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+    });
+});
+
+
+
+
 Hi I am using wretch(2.8.1) in my react project (react v18.2.0) and i am using react query .
 For testing the hooks i have written the following codes 
 import { HttpResponse,http } from 'msw'
