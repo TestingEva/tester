@@ -1,37 +1,54 @@
-export function useLoginMetadata(): AsyncHookData<AuthMetadata> {
-  const { status, data, error } = useQuery({
-    queryKey: [KEY_LOGIN_METADATA],
-    queryFn: getLoginMetadata,
-  });
-  return asyncHookData(status, error, data);
-}
-this is a function in my react Project in which i am using React Query 
+import { renderHook } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import fetchMock from "fetch-mock-jest";
+import { useLoginMetadata } from "./hooks";
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false
+        }
+    }
+});
 
+const wrapper = ({ children }: { children?: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
 
-export async function getLoginMetadata(): Promise<AuthMetadata> {
-  const response = await getLoginMetadataApi();
-  return {
-    passwordLess: !response.passwordRequired,
-    showRouterRearImage: !response.adminPwdChanged,
-  };
-}
+const mockLoginMetadataResponse = {
+    passwordRequired: true,
+    adminPwdChanged: true
+};
 
-export async function getLoginMetadataApi(): Promise<LoginMetadataResponse> {
-  try {
-    const response = await httpRequest(LOGIN_META_DATA_URL).post().readAsJson();
-    return LoginMetadataResponseSchema.parse(response) as LoginMetadataResponse;
-  } catch (e) {
-    mapAndThrowError(e);
-  }
-}
+describe("useLoginMetadata", () => {
+    afterEach(() => {
+        fetchMock.restore();
+    });
 
-the httpRequest is wretch 
+    test("should return login metadata", async () => {
+        fetchMock.post(LOGIN_META_DATA_URL, mockLoginMetadataResponse);
 
-now i want you to write the test cases for this 
-use fetch-mock-jest to mock the server 
+        const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata(), { wrapper });
 
-const LOGIN_META_DATA_URL = `http://localhost:3004/CRSP/getLoginMetadata`;
+        // Wait for the hook to resolve
+        await waitForNextUpdate();
 
-Use all the above information and complete this task
+        expect(result.current.status).toBe("success");
+        expect(result.current.data).toEqual({
+            passwordLess: false,
+            showRouterRearImage: false
+        });
+    });
 
+    test("should handle API error", async () => {
+        fetchMock.post(LOGIN_META_DATA_URL, 500);
+
+        const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        // Wait for the hook to resolve
+        await waitForNextUpdate();
+
+        expect(result.current.status).toBe("error");
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+    });
+});
