@@ -1,198 +1,45 @@
-import { renderHook, waitFor } from "@testing-library/react";
-import { useLoginMetadata } from "./hooks";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+ useLoginMetadata › should return login metadata
 
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: false
-        }
-    }
-});
+    expect(received).toBe(expected) // Object.is equality
 
-type WrapperType = {
-    children: JSX.Element;
-}
+    Expected: "success"
+    Received: "error"
 
-const wrapper: React.FC<WrapperType> = (props) => (
-    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
-)
+    Ignored nodes: comments, script, style
+    <html>
+      <head />
+      <body>
+        <div />
+      </body>
+    </html>
 
-describe("useLoginMetadata", () => {
-    // Mock fetch globally before running the tests
-    beforeEach(() => {
-        global.fetch = jest.fn();
-    });
+      230 |         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+      231 |
+    > 232 |         await waitFor(() => expect(result.current.status).toBe("success"));
+          |                                                           ^
+      233 |
+      234 |         expect(result.current.data).toEqual(mockResponse);
+      235 |     });
 
-    // Restore fetch after each test
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
+      at src/features/auth/hooks_auth.test.tsx:232:59
+      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:47:12)
+      at checkCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:127:77)
+      at checkRealTimersCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:121:16)
+      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:516:19)
 
-    test("should return login metadata", async () => {
-        const mockResponse = {
-            passwordLess: false,
-            showRouterRearImage: true
-        };
+  ● useLoginMetadata › should handle API error
 
-        // Mock the fetch function to return the desired response
-        global.fetch.mockResolvedValueOnce({
-            json: jest.fn().mockResolvedValueOnce(mockResponse),
-            ok: true,
-            headers: {
-                get: () => "application/json", // Adjust content type if necessary
-            },
-            status: 200,
-            statusText: "OK",
-        });
+    expect(received).toEqual(expected) // deep equality
 
-        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+    Expected: [Error: Failed to fetch login metadata]
+    Received: [Error: Error message]
 
-        await waitFor(() => expect(result.current.status).toBe("success"));
+      251 |         await waitFor(() => expect(result.current.status).toBe("error"));
+      252 |
+    > 253 |         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+          |                                      ^
+      254 |     });
+      255 | });
+      256 |
 
-        expect(result.current.data).toEqual(mockResponse);
-    });
-
-    test("should handle API error", async () => {
-        // Mock the fetch function to simulate a 500 error
-        global.fetch.mockResolvedValueOnce({
-            ok: false,
-            status: 500,
-            statusText: "Internal Server Error",
-            headers: {
-                get: () => "text/html", // Adjust content type if necessary
-            },
-            text: jest.fn().mockResolvedValueOnce("Error message"),
-        });
-
-        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
-
-        await waitFor(() => expect(result.current.status).toBe("error"));
-
-        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-    });
-});
-
-
-hooks.ts
-
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  clearSession,
-  getLoginMetadata,
-  getSession,
-  login,
-} from "../../data/auth/auth";
-import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
-import { asyncHookData, lazyAsyncHookData } from "../hook_data_impl";
-import { KEY_LOGIN, KEY_LOGIN_METADATA, KEY_SESSION } from "../keys";
-import { AuthMetadata, AuthRequest, AuthResponse, Session } from "./models";
-
-export function useSession(): AsyncHookData<Session> {
-  const { data, status, error } = useQuery({
-    queryKey: [KEY_SESSION],
-    queryFn: getSession,
-    staleTime: 1000,
-  });
-  return asyncHookData(status, error, data === null ? undefined : data);
-}
-
-export function useLogout(): LazyAsyncHookData<void, void> {
-  const client = useQueryClient();
-  const { mutateAsync, status, error, data } = useMutation({
-    mutationFn: clearSession,
-    onSuccess: async (_, __, ___) => {
-      await client.invalidateQueries({ queryKey: [KEY_SESSION] });
-      //clear all cached data
-      await client.invalidateQueries();
-    },
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useLogin(): LazyAsyncHookData<AuthRequest, AuthResponse> {
-  const client = useQueryClient();
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: [KEY_LOGIN],
-    mutationFn: login,
-    onSuccess: async (_, __, ___) => {
-      await client.invalidateQueries({ queryKey: [KEY_SESSION] });
-    },
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useLoginMetadata(): AsyncHookData<AuthMetadata> {
-  const { status, data, error } = useQuery({
-    queryKey: [KEY_LOGIN_METADATA],
-    queryFn: getLoginMetadata,
-  });
-  return asyncHookData(status, error, data);
-}
-
-
-this is the file named hook_data_impl.ts
-
-import {
-  AsyncHookData,
-  HookData,
-  LazyAsyncHookData,
-  LazyHookData,
-} from "./hook_data";
-
-export function hookData<O>(data: O | undefined): HookData<O> {
-  return {
-    data: data,
-  };
-}
-
-export function lazyHookData<I, O>(
-  data: O | undefined,
-  invoke: (input: I) => O | undefined
-): LazyHookData<I, O> {
-  return {
-    data: data,
-    invoke: invoke,
-  };
-}
-
-export function asyncHookData<O>(
-  status: "pending" | "idle" | "error" | "success",
-  error: Error | null,
-  data: O | undefined
-): AsyncHookData<O> {
-  return {
-    status: status,
-    data: data,
-    error: error === null ? undefined : error,
-    isIdle: status === "idle",
-    isPending: status === "pending",
-    isError: status === "error",
-    isSuccess: status === "success",
-  };
-}
-
-export function lazyAsyncHookData<I, O>(
-  status: "pending" | "idle" | "error" | "success",
-  error: Error | null,
-  data: O | undefined,
-  invoke: (input: I) => Promise<O | undefined>
-): LazyAsyncHookData<I, O> {
-  return {
-    status: status,
-    data: data,
-    error: error === null ? undefined : error,
-    isIdle: status === "idle",
-    isPending: status === "pending",
-    isError: status === "error",
-    isSuccess: status === "success",
-    invoke: invoke,
-  };
-}
-
-
-I have given you my full code base now suggest me the fix
-
-
-
-
+      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:253:38)
