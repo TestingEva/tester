@@ -1,2 +1,77 @@
 Conversion of type '{ json: jest.Mock<any, any>; ok: true; headers: { get: () => string; }; status: number; statusText: string; }' to type 'Response' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
   Type '{ json: Mock<any, any>; ok: true; headers: { get: () => string; }; status: number; statusText: string; }' is missing the following properties from type 'Response': redirected, type, url, clone, and 6 more.
+
+
+import { renderHook, waitFor } from "@testing-library/react";
+import { useLoginMetadata } from "./hooks";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false
+        }
+    }
+});
+
+type WrapperType = {
+    children: JSX.Element;
+}
+
+const wrapper: React.FC<WrapperType> = (props) => (
+    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+)
+
+describe("useLoginMetadata", () => {
+    // Mock fetch globally before running the tests
+    beforeEach(() => {
+        global.fetch = jest.fn();
+    });
+
+    // Restore fetch after each test
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test("should return login metadata", async () => {
+        const mockResponse = {
+            passwordLess: false,
+            showRouterRearImage: true
+        };
+
+        // Mock the fetch function to return the desired response
+        (global.fetch as jest.Mock).mockResolvedValueOnce({
+            json: jest.fn().mockResolvedValueOnce(mockResponse),
+            ok: true,
+            headers: {
+                get: () => 'application/json' // Mocked content type
+            },
+            status: 200, // Mocked status code
+            statusText: "OK" // Mocked status text
+        });
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("success"));
+
+        expect(result.current.data).toEqual(mockResponse);
+    });
+
+    test("should handle API error", async () => {
+        // Mock the fetch function to simulate a 500 error
+        (global.fetch as jest.Mock).mockResolvedValueOnce({
+            ok: false,
+            status: 500,
+            statusText: "Internal Server Error",
+            headers: {
+                get: () => 'text/plain' // Mocked content type
+            }
+        });
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("error"));
+
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+    });
+});
