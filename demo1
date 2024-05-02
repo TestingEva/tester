@@ -1,54 +1,21 @@
-import { renderHook } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import fetchMock from "fetch-mock-jest";
-import { useLoginMetadata } from "./hooks";
+Test suite failed to run
 
-const queryClient = new QueryClient({
-    defaultOptions: {
-        queries: {
-            retry: false
-        }
-    }
-});
+    Cannot find module 'node-fetch' from 'node_modules/fetch-mock/cjs/server.js'
 
-const wrapper = ({ children }: { children?: React.ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
+    Require stack:
+      node_modules/fetch-mock/cjs/server.js
+      node_modules/fetch-mock-jest/server.js
+      src/features/auth/hooks_auth.test.tsx
 
-const mockLoginMetadataResponse = {
-    passwordRequired: true,
-    adminPwdChanged: true
-};
+      1 | import { renderHook } from "@testing-library/react"
+      2 | import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+    > 3 | import fetchMock from "fetch-mock-jest"
+        | ^
+      4 | import { useLoginMetadata } from "./hooks"
+      5 | import { LOGIN_META_DATA_URL } from "../../data/endpoints";
+      6 |
 
-describe("useLoginMetadata", () => {
-    afterEach(() => {
-        fetchMock.restore();
-    });
-
-    test("should return login metadata", async () => {
-        fetchMock.post(LOGIN_META_DATA_URL, mockLoginMetadataResponse);
-
-        const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata(), { wrapper });
-
-        // Wait for the hook to resolve
-        await waitForNextUpdate();
-
-        expect(result.current.status).toBe("success");
-        expect(result.current.data).toEqual({
-            passwordLess: false,
-            showRouterRearImage: false
-        });
-    });
-
-    test("should handle API error", async () => {
-        fetchMock.post(LOGIN_META_DATA_URL, 500);
-
-        const { result, waitForNextUpdate } = renderHook(() => useLoginMetadata(), { wrapper });
-
-        // Wait for the hook to resolve
-        await waitForNextUpdate();
-
-        expect(result.current.status).toBe("error");
-        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-    });
-});
+      at Resolver.resolveModule (node_modules/jest-resolve/build/resolver.js:324:11)
+      at Object.<anonymous> (node_modules/fetch-mock/cjs/server.js:9:10)
+      at Object.<anonymous> (node_modules/fetch-mock-jest/server.js:1:101)
+      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:3:1)
