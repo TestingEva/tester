@@ -1,45 +1,258 @@
- useLoginMetadata › should return login metadata
+// import { renderHook, waitFor } from "@testing-library/react";
+// import nock from "nock";
+// import { useLoginMetadata } from "./hooks";
+// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// const queryClient = new QueryClient(
+//     {
+//         defaultOptions: {
+//             queries: {
+//                 retry: false
+//             }
+//         }
+//     }
+// );
 
-    expect(received).toBe(expected) // Object.is equality
+// type WrapperType = {
+//     children: JSX.Element;
+// }
 
-    Expected: "success"
-    Received: "error"
+// const wrapper: React.FC<WrapperType> = (props) => (
+//     <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+// )
+// describe("useLoginMetadata", () => {
 
-    Ignored nodes: comments, script, style
-    <html>
-      <head />
-      <body>
-        <div />
-      </body>
-    </html>
+//     test("should return login metadata", async () => {
+//         const scope = nock("http://localhost:3004")
+//             .post('/CRSP/getLoginMetadata')
+//             .reply(200, {
+//                 passwordLess: false,
+//                 showRouterRearImage: true
+//             });
 
-      230 |         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
-      231 |
-    > 232 |         await waitFor(() => expect(result.current.status).toBe("success"));
-          |                                                           ^
-      233 |
-      234 |         expect(result.current.data).toEqual(mockResponse);
-      235 |     });
+//         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
 
-      at src/features/auth/hooks_auth.test.tsx:232:59
-      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:47:12)
-      at checkCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:127:77)
-      at checkRealTimersCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:121:16)
-      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:516:19)
+//         await waitFor(() => expect(result.current.status).toBe("success"));
 
-  ● useLoginMetadata › should handle API error
+//         expect(result.current.data).toEqual({
+//             passwordLess: false,
+//             showRouterRearImage: true
+//         });
 
-    expect(received).toEqual(expected) // deep equality
+//         expect(scope.isDone()).toBe(true);
+//     });
 
-    Expected: [Error: Failed to fetch login metadata]
-    Received: [Error: Error message]
+//     test("should handle API error", async () => {
+//         const scope = nock("http://localhost:3004")
+//             .post('/CRSP/getLoginMetadata')
+//             .reply(500);
 
-      251 |         await waitFor(() => expect(result.current.status).toBe("error"));
-      252 |
-    > 253 |         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-          |                                      ^
-      254 |     });
-      255 | });
-      256 |
+//         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+//         await waitFor(() => expect(result.current.status).toBe("error"));
 
-      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:253:38)
+//         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+
+//         expect(scope.isDone()).toBe(true);
+//     });
+// });
+
+//-----------------------------------------------------------------------------------------
+
+// import { HttpResponse,http } from 'msw'
+// import { setupServer } from 'msw/node';
+// import { renderHook, waitFor } from "@testing-library/react";
+// import { useLoginMetadata } from "./hooks";
+// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// const queryClient = new QueryClient(
+//     {
+//         defaultOptions: {
+//             queries: {
+//                 retry: false
+//             }
+//         }
+//     }
+// );
+
+// type WrapperType = {
+//     children: JSX.Element;
+// }
+
+// const wrapper: React.FC<WrapperType> = (props) => (
+//     <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+// )
+
+// const server = setupServer(
+//     http.post('http://localhost:3004/CRSP/getLoginMetadata', () => {
+//         return HttpResponse.json(
+//             {
+//                 passwordLess: false,
+//                 showRouterRearImage: true
+//             });
+//     })
+// );
+
+// beforeAll(() => server.listen());
+// afterEach(() => server.resetHandlers());
+// afterAll(() => server.close());
+
+// describe("useLoginMetadata", () => {
+//     test("should return login metadata", async () => {
+//         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+//         await waitFor(() => expect(result.current.status).toBe("success"));
+
+//         expect(result.current.data).toEqual({
+//             passwordLess: false,
+//             showRouterRearImage: true
+//         });
+//     });
+
+//     test("should handle API error", async () => {
+//         server.use(
+//             rest.post('http://localhost:3004/CRSP/getLoginMetadata', (req, res, ctx) => {
+//                 return res(ctx.status(500));
+//             })
+//         );
+
+//         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+//         await waitFor(() => expect(result.current.status).toBe("error"));
+
+//         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+//     });
+// });
+
+// -------------------------------------------------------------------------------------
+
+// import { renderHook, waitFor } from "@testing-library/react";
+// import wretch from "wretch";
+// import { useLoginMetadata } from "./hooks";
+// import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// import MockAdapter from 'axios-mock-adapter';
+
+// const queryClient = new QueryClient({
+//     defaultOptions: {
+//         queries: {
+//             retry: false
+//         }
+//     }
+// });
+
+// type WrapperType = {
+//     children: JSX.Element;
+// }
+
+// const wrapper: React.FC<WrapperType> = (props) => (
+//     <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+// )
+
+// describe("useLoginMetadata", () => {
+//     const mock = new MockAdapter(wretch().polyfills({ fetch }));
+    
+//     test("should return login metadata", async () => {
+//         mock.onPost("http://localhost:3004/CRSP/getLoginMetadata").reply(200, {
+//             passwordLess: false,
+//             showRouterRearImage: true
+//         });
+
+//         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+//         await waitFor(() => expect(result.current.status).toBe("success"));
+
+//         expect(result.current.data).toEqual({
+//             passwordLess: false,
+//             showRouterRearImage: true
+//         });
+//     });
+
+//     test("should handle API error", async () => {
+//         mock.onPost("http://localhost:3004/CRSP/getLoginMetadata").reply(500);
+
+//         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+        
+//         await waitFor(() => expect(result.current.status).toBe("error"));
+
+//         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+//     });
+// });
+
+// -------------------------------------------------------------------------------
+
+import { renderHook, waitFor } from "@testing-library/react";
+import { useLoginMetadata } from "./hooks";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: false
+        }
+    }
+});
+
+type WrapperType = {
+    children: JSX.Element;
+}
+
+const wrapper: React.FC<WrapperType> = (props) => (
+    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+)
+
+describe("useLoginMetadata", () => {
+    // Mock fetch globally before running the tests
+    beforeEach(() => {
+        global.fetch = jest.fn();
+    });
+
+    // Restore fetch after each test
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    test("should return login metadata", async () => {
+        const mockResponse = {
+            passwordLess: false,
+            showRouterRearImage: true
+        };
+
+        // Mock the fetch function to return the desired response
+        global.fetch.mockResolvedValueOnce({
+            json: jest.fn().mockResolvedValueOnce(mockResponse),
+            ok: true,
+            headers: {
+                get: () => "application/json", // Adjust content type if necessary
+            },
+            status: 200,
+            statusText: "OK",
+        });
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("success"));
+
+        expect(result.current.data).toEqual(mockResponse);
+    });
+
+    test("should handle API error", async () => {
+        // Mock the fetch function to simulate a 500 error
+        global.fetch.mockResolvedValueOnce({
+            ok: false,
+            status: 500,
+            statusText: "Internal Server Error",
+            headers: {
+                get: () => "text/html", // Adjust content type if necessary
+            },
+            text: jest.fn().mockResolvedValueOnce("Error message"),
+        });
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("error"));
+
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+    });
+});
+the following error i am getting
+
+Property 'mockResolvedValueOnce' does not exist on type '(input: RequestInfo | URL, init?: RequestInit | undefined) => Promise<Response>'.
