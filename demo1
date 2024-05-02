@@ -1,1 +1,127 @@
-Hi by mistake i have made some changes in my logger file and used git add . and git commit --amend but now i want to discard this commit how to do this
+Hi I am using wretch(2.8.1) in my react project (react v18.2.0) and i am using react query .
+For testing the hooks i have written the following codes 
+import { HttpResponse,http } from 'msw'
+import { setupServer } from 'msw/node';
+import { renderHook, waitFor } from "@testing-library/react";
+import { useLoginMetadata } from "./hooks";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient(
+    {
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    }
+);
+
+type WrapperType = {
+    children: JSX.Element;
+}
+
+const wrapper: React.FC<WrapperType> = (props) => (
+    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+)
+
+const server = setupServer(
+    http.post('http://localhost:3004/CRSP/getLoginMetadata', () => {
+        return HttpResponse.json(
+            {
+                passwordLess: false,
+                showRouterRearImage: true
+            });
+    })
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+
+describe("useLoginMetadata", () => {
+    test("should return login metadata", async () => {
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("success"));
+
+        expect(result.current.data).toEqual({
+            passwordLess: false,
+            showRouterRearImage: true
+        });
+    });
+
+    test("should handle API error", async () => {
+        server.use(
+            rest.post('http://localhost:3004/CRSP/getLoginMetadata', (req, res, ctx) => {
+                return res(ctx.status(500));
+            })
+        );
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("error"));
+
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+    });
+});
+
+It didnt worked so i had written the following code 
+import { renderHook, waitFor } from "@testing-library/react";
+import nock from "nock";
+import { useLoginMetadata } from "./hooks";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+const queryClient = new QueryClient(
+    {
+        defaultOptions: {
+            queries: {
+                retry: false
+            }
+        }
+    }
+);
+
+type WrapperType = {
+    children: JSX.Element;
+}
+
+const wrapper: React.FC<WrapperType> = (props) => (
+    <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>
+)
+describe("useLoginMetadata", () => {
+
+    test("should return login metadata", async () => {
+        const scope = nock("http://localhost:3004")
+            .post('/CRSP/getLoginMetadata')
+            .reply(200, {
+                passwordLess: false,
+                showRouterRearImage: true
+            });
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+
+        await waitFor(() => expect(result.current.status).toBe("success"));
+
+        expect(result.current.data).toEqual({
+            passwordLess: false,
+            showRouterRearImage: true
+        });
+
+        expect(scope.isDone()).toBe(true);
+    });
+
+    test("should handle API error", async () => {
+        const scope = nock("http://localhost:3004")
+            .post('/CRSP/getLoginMetadata')
+            .reply(500);
+
+        const { result } = renderHook(() => useLoginMetadata(), { wrapper });
+        await waitFor(() => expect(result.current.status).toBe("error"));
+
+        expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
+
+        expect(scope.isDone()).toBe(true);
+    });
+});
+but both are not working could you suggest me some other packages other than nock or msw or could you make the code work 
+
+
