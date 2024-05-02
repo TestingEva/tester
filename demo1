@@ -1,61 +1,122 @@
- Console
+hooks.ts
 
-    console.log
-      Result {
-        current: {
-          status: 'pending',
-          data: undefined,
-          error: undefined,
-          isIdle: false,
-          isPending: true,
-          isError: false,
-          isSuccess: false
-        }
-      }
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  clearSession,
+  getLoginMetadata,
+  getSession,
+  login,
+} from "../../data/auth/auth";
+import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
+import { asyncHookData, lazyAsyncHookData } from "../hook_data_impl";
+import { KEY_LOGIN, KEY_LOGIN_METADATA, KEY_SESSION } from "../keys";
+import { AuthMetadata, AuthRequest, AuthResponse, Session } from "./models";
 
-      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:229:17)
+export function useSession(): AsyncHookData<Session> {
+  const { data, status, error } = useQuery({
+    queryKey: [KEY_SESSION],
+    queryFn: getSession,
+    staleTime: 1000,
+  });
+  return asyncHookData(status, error, data === null ? undefined : data);
+}
 
-  ● useLoginMetadata › should return login metadata
-                                                                                                                                                       
-    expect(received).toBe(expected) // Object.is equality                                                                                              
-                                                                                                                                                       
-    Expected: "success"                                                                                                                                
-    Received: "error"                                                                                                                                  
+export function useLogout(): LazyAsyncHookData<void, void> {
+  const client = useQueryClient();
+  const { mutateAsync, status, error, data } = useMutation({
+    mutationFn: clearSession,
+    onSuccess: async (_, __, ___) => {
+      await client.invalidateQueries({ queryKey: [KEY_SESSION] });
+      //clear all cached data
+      await client.invalidateQueries();
+    },
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
 
-    Ignored nodes: comments, script, style
-    <html>
-      <head />
-      <body>
-        <div />
-      </body>
-    </html>
+export function useLogin(): LazyAsyncHookData<AuthRequest, AuthResponse> {
+  const client = useQueryClient();
+  const { mutateAsync, status, data, error } = useMutation({
+    mutationKey: [KEY_LOGIN],
+    mutationFn: login,
+    onSuccess: async (_, __, ___) => {
+      await client.invalidateQueries({ queryKey: [KEY_SESSION] });
+    },
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
 
-      229 |         console.log("Result",result)
-      230 |
-    > 231 |         await waitFor(() => expect(result.current.status).toBe("success"));
-          |                                                           ^
-      232 |
-      233 |         expect(result.current.data).toEqual(mockResponse);
-      234 |     });
+export function useLoginMetadata(): AsyncHookData<AuthMetadata> {
+  const { status, data, error } = useQuery({
+    queryKey: [KEY_LOGIN_METADATA],
+    queryFn: getLoginMetadata,
+  });
+  return asyncHookData(status, error, data);
+}
 
-      at src/features/auth/hooks_auth.test.tsx:231:59
-      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:47:12)
-      at checkCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:127:77)
-      at checkRealTimersCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:121:16)
-      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:516:19)
 
-  ● useLoginMetadata › should handle API error
+this is the file named hook_data_impl.ts
 
-    expect(received).toEqual(expected) // deep equality
+import {
+  AsyncHookData,
+  HookData,
+  LazyAsyncHookData,
+  LazyHookData,
+} from "./hook_data";
 
-    Expected: [Error: Failed to fetch login metadata]
-    Received: [Error: t.text is not a function]
+export function hookData<O>(data: O | undefined): HookData<O> {
+  return {
+    data: data,
+  };
+}
 
-      248 |         await waitFor(() => expect(result.current.status).toBe("error"));
-      249 |
-    > 250 |         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-          |                                      ^
-      251 |     });
-      252 | });
+export function lazyHookData<I, O>(
+  data: O | undefined,
+  invoke: (input: I) => O | undefined
+): LazyHookData<I, O> {
+  return {
+    data: data,
+    invoke: invoke,
+  };
+}
 
-      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:250:38)
+export function asyncHookData<O>(
+  status: "pending" | "idle" | "error" | "success",
+  error: Error | null,
+  data: O | undefined
+): AsyncHookData<O> {
+  return {
+    status: status,
+    data: data,
+    error: error === null ? undefined : error,
+    isIdle: status === "idle",
+    isPending: status === "pending",
+    isError: status === "error",
+    isSuccess: status === "success",
+  };
+}
+
+export function lazyAsyncHookData<I, O>(
+  status: "pending" | "idle" | "error" | "success",
+  error: Error | null,
+  data: O | undefined,
+  invoke: (input: I) => Promise<O | undefined>
+): LazyAsyncHookData<I, O> {
+  return {
+    status: status,
+    data: data,
+    error: error === null ? undefined : error,
+    isIdle: status === "idle",
+    isPending: status === "pending",
+    isError: status === "error",
+    isSuccess: status === "success",
+    invoke: invoke,
+  };
+}
+
+
+I have given you my full code base now suggest me the fix
+
+
+
+
