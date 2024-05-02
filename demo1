@@ -1,63 +1,37 @@
- useLoginMetadata › should return login metadata
+export function useLoginMetadata(): AsyncHookData<AuthMetadata> {
+  const { status, data, error } = useQuery({
+    queryKey: [KEY_LOGIN_METADATA],
+    queryFn: getLoginMetadata,
+  });
+  return asyncHookData(status, error, data);
+}
+this is a function in my react Project in which i am using React Query 
 
-    expect(received).toBe(expected) // Object.is equality
 
-    Expected: "success"
-    Received: "error"
 
-    Ignored nodes: comments, script, style
-    <html>
-      <head />
-      <body>
-        <div />
-      </body>
-    </html>
+export async function getLoginMetadata(): Promise<AuthMetadata> {
+  const response = await getLoginMetadataApi();
+  return {
+    passwordLess: !response.passwordRequired,
+    showRouterRearImage: !response.adminPwdChanged,
+  };
+}
 
-      225 |         const { result } = renderHook(() => useLoginMetadata(), { wrapper });
-      226 |
-    > 227 |         await waitFor(() => expect(result.current.status).toBe("success"));
-          |                                                           ^
-      228 |
-      229 |         expect(result.current.data).toEqual({
-      230 |             passwordLess: false,
+export async function getLoginMetadataApi(): Promise<LoginMetadataResponse> {
+  try {
+    const response = await httpRequest(LOGIN_META_DATA_URL).post().readAsJson();
+    return LoginMetadataResponseSchema.parse(response) as LoginMetadataResponse;
+  } catch (e) {
+    mapAndThrowError(e);
+  }
+}
 
-      at src/features/auth/hooks_auth.test.tsx:227:59
-      at runWithExpensiveErrorDiagnosticsDisabled (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/config.js:47:12)
-      at checkCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:127:77)
-      at checkRealTimersCallback (node_modules/@testing-library/react/node_modules/@testing-library/dom/dist/wait-for.js:121:16)
-      at Timeout.task [as _onTimeout] (node_modules/jsdom/lib/jsdom/browser/Window.js:516:19)
+the httpRequest is wretch 
 
-  ● useLoginMetadata › should handle API error
+now i want you to write the test cases for this 
+use fetch-mock-jest to mock the server 
 
-    expect(received).toEqual(expected) // deep equality
+const LOGIN_META_DATA_URL = `http://localhost:3004/CRSP/getLoginMetadata`;
 
-    Expected: [Error: Failed to fetch login metadata]
-    Received: [Error: [
-      {
-        "code": "invalid_type",
-        "expected": "boolean",
-        "received": "undefined",
-        "path": [
-          "adminPwdChanged"
-        ],
-        "message": "Required"
-      },
-      {
-        "code": "invalid_type",
-        "expected": "boolean",
-        "received": "undefined",
-        "path": [
-          "passwordRequired"
-        ],
-        "message": "Required"
-      }
-    ]]
+Use all the above information and complete this task
 
-      249 |         await waitFor(() => expect(result.current.status).toBe("error"));
-      250 |
-    > 251 |         expect(result.current.error).toEqual(new Error("Failed to fetch login metadata"));
-          |                                      ^
-      252 |     });
-      253 | });
-
-      at Object.<anonymous> (src/features/auth/hooks_auth.test.tsx:251:38)
