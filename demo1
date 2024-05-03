@@ -1,137 +1,103 @@
-0	Laptop
-8000	Smart Home Product
-10000	Mobile
-10001	Mobile
-10002	Mobile
-10026	Laptop
-20000	Laptop
-20001	Laptop
-20002	Laptop
-20003	Laptop
-20004	Laptop
-20005	Laptop
-20006	Laptop
-20007	Laptop
-20008	Laptop
-21000	Laptop
-21001	Laptop
-21002	Laptop
-21003	Laptop
-21004	Laptop
-21005	Laptop
-21006	Laptop
-21007	Laptop
-30000	Tablet
-30001	Tablet
-30002	Tablet
-30003	Tablet
-40000	Smart Home Product
-40001	Smart Home Product
-40002	Smart Home Product
-40003	Game Console
-40004	Game Console
-40005	Stream Box
-40006	Stream Box
-40007	Stream Box
-40008	Printer
-40010	Phone
-40011	Speaker
-40012	UPS
-40013	Repeater
-40014	Smart Home Product
-40015	NAS
-40016	Smart Home Product
-40017	Security
-40018	Security
-40019	Laptop
-40020	Laptop
-40021	Laptop
-40022	Smart Home Product
-40023	Smart Watch
-40024	Smart Watch
-40025	Smart Assistant
-40026	Smart Assistant
-40027	Smart Assistant
-40030	Stream Box
-40040	GameConsole
-40060	Smart Home Product
-40061	Smart Home Product
-40062	Smart Home Product
-40063	Smart Home Product
-40064	Smart Home Product
-40065	Baby Monitor
-40066	Smart Assistant
-40067	Smart Assistant
-40070	Laptop
-40071	Speaker
-40072	Smart Home Product
-40073	Smart Home Product
-40074	Laptop
-40075	Smart Ride
-40076	GPS
-40077	Smart Ride
-40078	Firewall
-40079	Smart Ride
-40080	Game Console
-40081	Game Console
-40082	Laptop
-40083	Laptop
-40084	Smart Home Product
-40100	Printer
-40101	Printer
-40300	eReader
-40700	Smart TV
-40701	Smart TV
-50000	Laptop
-60000	Laptop
-70000	Laptop
-90000	Laptop
-90100	Laptop
-90200	Laptop
-90300	Laptop
-90400	Laptop
-90500	Laptop
-90600	Laptop
-90700	Speakers
-90800	Laptop
-90900	Laptop
-91000	Laptop
-91100	Laptop
-91200	Laptop
-91300	Laptop
-
-
-
-This is a file which contains key value pair 
-
-i have completed upto the following 
-
-const iconIdType = {
-        "0": Laptop,
-        "8000": SmartHomeHub,
-        "10000":Mobile,
-        "10001":Mobile,
-        "10002":Mobile,
-        "10026":Laptop,
-        "20000":Laptop,
-        "20001":Laptop,
-        "20002":Laptop,
-        "20003":Laptop,
-        "20004":Laptop,
-        "20005":Laptop,
-        "20006":Laptop,
-        "20007":Laptop,
-        "20008":Laptop,
-        "21000":Laptop,
-        "21001":Laptop,
-        "21002":Laptop,
-        "21003":Laptop,
-        "21004":Laptop,
-        "21005":Laptop,
-        "21006":Laptop,
-        "21007":Laptop,
-
-
-    }
-
-    but is there any better way of grouping them and if there please do it 
+{
+  "0": Laptop,
+  "8000": SmartHomeHub,
+  "10000": Mobile,
+  "10001": Mobile,
+  "10002": Mobile,
+  "10026": Laptop,
+  "20000": Laptop,
+  "20001": Laptop,
+  "20002": Laptop,
+  "20003": Laptop,
+  "20004": Laptop,
+  "20005": Laptop,
+  "20006": Laptop,
+  "20007": Laptop,
+  "20008": Laptop,
+  "21000": Laptop,
+  "21001": Laptop,
+  "21002": Laptop,
+  "21003": Laptop,
+  "21004": Laptop,
+  "21005": Laptop,
+  "21006": Laptop,
+  "21007": Laptop,
+  "30000": Tablet,
+  "30001": Tablet,
+  "30002": Tablet,
+  "30003": Tablet,
+  "40000": SmartHomeProduct,
+  "40001": SmartHomeProduct,
+  "40002": SmartHomeProduct,
+  "40003": GameConsole,
+  "40004": GameConsole,
+  "40005": StreamBox,
+  "40006": StreamBox,
+  "40007": StreamBox,
+  "40008": Printer,
+  "40010": Phone,
+  "40011": Speaker,
+  "40012": UPS,
+  "40013": Repeater,
+  "40014": SmartHomeProduct,
+  "40015": NAS,
+  "40016": SmartHomeProduct,
+  "40017": Security,
+  "40018": Security,
+  "40019": Laptop,
+  "40020": Laptop,
+  "40021": Laptop,
+  "40022": SmartHomeProduct,
+  "40023": SmartWatch,
+  "40024": SmartWatch,
+  "40025": SmartAssistant,
+  "40026": SmartAssistant,
+  "40027": SmartAssistant,
+  "40030": StreamBox,
+  "40040": GameConsole,
+  "40060": SmartHomeProduct,
+  "40061": SmartHomeProduct,
+  "40062": SmartHomeProduct,
+  "40063": SmartHomeProduct,
+  "40064": SmartHomeProduct,
+  "40065": BabyMonitor,
+  "40066": SmartAssistant,
+  "40067": SmartAssistant,
+  "40070": Laptop,
+  "40071": Speaker,
+  "40072": SmartHomeProduct,
+  "40073": SmartHomeProduct,
+  "40074": Laptop,
+  "40075": SmartRide,
+  "40076": GPS,
+  "40077": SmartRide,
+  "40078": Firewall,
+  "40079": SmartRide,
+  "40080": GameConsole,
+  "40081": GameConsole,
+  "40082": Laptop,
+  "40083": Laptop,
+  "40084": SmartHomeProduct,
+  "40100": Printer,
+  "40101": Printer,
+  "40300": eReader,
+  "40700": SmartTV,
+  "40701": SmartTV,
+  "50000": Laptop,
+  "60000": Laptop,
+  "70000": Laptop,
+  "90000": Laptop,
+  "90100": Laptop,
+  "90200": Laptop,
+  "90300": Laptop,
+  "90400": Laptop,
+  "90500": Laptop,
+  "90600": Laptop,
+  "90700": Speakers,
+  "90800": Laptop,
+  "90900": Laptop,
+  "91000": Laptop,
+  "91100": Laptop,
+  "91200": Laptop,
+  "91300": Laptop
+}
