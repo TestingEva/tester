@@ -1,103 +1,103 @@
-{
-  "0": Laptop,
-  "8000": SmartHomeHub,
-  "10000": Mobile,
-  "10001": Mobile,
-  "10002": Mobile,
-  "10026": Laptop,
-  "20000": Laptop,
-  "20001": Laptop,
-  "20002": Laptop,
-  "20003": Laptop,
-  "20004": Laptop,
-  "20005": Laptop,
-  "20006": Laptop,
-  "20007": Laptop,
-  "20008": Laptop,
-  "21000": Laptop,
-  "21001": Laptop,
-  "21002": Laptop,
-  "21003": Laptop,
-  "21004": Laptop,
-  "21005": Laptop,
-  "21006": Laptop,
-  "21007": Laptop,
-  "30000": Tablet,
-  "30001": Tablet,
-  "30002": Tablet,
-  "30003": Tablet,
-  "40000": SmartHomeProduct,
-  "40001": SmartHomeProduct,
-  "40002": SmartHomeProduct,
-  "40003": GameConsole,
-  "40004": GameConsole,
-  "40005": StreamBox,
-  "40006": StreamBox,
-  "40007": StreamBox,
-  "40008": Printer,
-  "40010": Phone,
-  "40011": Speaker,
-  "40012": UPS,
-  "40013": Repeater,
-  "40014": SmartHomeProduct,
-  "40015": NAS,
-  "40016": SmartHomeProduct,
-  "40017": Security,
-  "40018": Security,
-  "40019": Laptop,
-  "40020": Laptop,
-  "40021": Laptop,
-  "40022": SmartHomeProduct,
-  "40023": SmartWatch,
-  "40024": SmartWatch,
-  "40025": SmartAssistant,
-  "40026": SmartAssistant,
-  "40027": SmartAssistant,
-  "40030": StreamBox,
-  "40040": GameConsole,
-  "40060": SmartHomeProduct,
-  "40061": SmartHomeProduct,
-  "40062": SmartHomeProduct,
-  "40063": SmartHomeProduct,
-  "40064": SmartHomeProduct,
-  "40065": BabyMonitor,
-  "40066": SmartAssistant,
-  "40067": SmartAssistant,
-  "40070": Laptop,
-  "40071": Speaker,
-  "40072": SmartHomeProduct,
-  "40073": SmartHomeProduct,
-  "40074": Laptop,
-  "40075": SmartRide,
-  "40076": GPS,
-  "40077": SmartRide,
-  "40078": Firewall,
-  "40079": SmartRide,
-  "40080": GameConsole,
-  "40081": GameConsole,
-  "40082": Laptop,
-  "40083": Laptop,
-  "40084": SmartHomeProduct,
-  "40100": Printer,
-  "40101": Printer,
-  "40300": eReader,
-  "40700": SmartTV,
-  "40701": SmartTV,
-  "50000": Laptop,
-  "60000": Laptop,
-  "70000": Laptop,
-  "90000": Laptop,
-  "90100": Laptop,
-  "90200": Laptop,
-  "90300": Laptop,
-  "90400": Laptop,
-  "90500": Laptop,
-  "90600": Laptop,
-  "90700": Speakers,
-  "90800": Laptop,
-  "90900": Laptop,
-  "91000": Laptop,
-  "91100": Laptop,
-  "91200": Laptop,
-  "91300": Laptop
-}
+Computer
+Smart Home Product
+Smartphone
+Smartphone
+Smartphone
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Tablet
+Tablet
+Tablet
+Tablet
+Smart Home Product
+Smart Home Product
+Smart Home Product
+Game Console
+Game Console
+Stream Box
+Stream Box
+Stream Box
+Printer
+Phone
+Speaker
+UPS
+Repeater
+Smart Home Product
+NAS
+Smart Home Product
+Security
+Security
+Computer
+Computer
+Computer
+Smart Home Product
+Smart Watch
+Smart Watch
+Smart Assistant
+Smart Assistant
+Smart Assistant
+Stream Box
+GameConsole
+Smart Home Product
+Smart Home Product
+Smart Home Product
+Smart Home Product
+Smart Home Product
+Baby Monitor
+Smart Assistant
+Smart Assistant
+Computer
+Speaker
+Smart Home Product
+Smart Home Product
+Computer
+Smart Ride
+GPS
+Smart Ride
+Firewall
+Smart Ride
+Game Console
+Game Console
+Computer
+Computer
+Smart Home Product
+Printer
+Printer
+eReader
+Smart TV
+Smart TV
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+Speakers
+Computer
+Computer
+Computer
+Computer
+Computer
+Computer
+
+from this result i want you to return the list of array it must not have duplicates
