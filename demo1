@@ -1,3 +1,30 @@
+const items = [
+  "Computer",
+  "Smart Home Product",
+  "Smartphone",
+  "Tablet",
+  "Game Console",
+  "Stream Box",
+  "Printer",
+  "Phone",
+  "Speaker",
+  "UPS",
+  "Repeater",
+  "NAS",
+  "Security",
+  "Smart Watch",
+  "Smart Assistant",
+  "Baby Monitor",
+  "Smart Ride",
+  "GPS",
+  "Firewall",
+  "eReader",
+  "Smart TV",
+  "Speakers"
+];
+
+
+
 Computer
 Smart Home Product
 Smartphone
