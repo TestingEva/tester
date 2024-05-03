@@ -1,114 +1,109 @@
-
-Value        Key
-
-Computer		default
-Smart Home Product		smartHomeHub
-Smartphone		mobile
-Smartphone		iphone
-Smartphone		android
-Computer		other
-Computer		computer
-Computer		computerApple
-Computer		computerWindows
-Computer		computerLinux
-Computer		computer_HP
-Computer		computer_Dell
-Computer		computer_Asus
-Computer		computer_Acer
-Computer		computer_Lenovo
-Computer		laptop_dell
-Computer		laptop_hp
-Computer		laptopApple
-Computer		laptop_chromebook
-Computer		laptop_microsoft
-Computer		laptop_lenovo
-Computer		laptop_acer
-Computer		laptop_asus
-Tablet		tablet
-Tablet		tabletApple
-Tablet		tabletWindows
-Tablet		tabletAndroid
-Smart Home Product		iot
-Smart Home Product		camera
-Smart Home Product		lightbulb
-Game Console		xbox
-Game Console		sonyPlaystation
-Stream Box		streamer
-Stream Box		tvAndroid
-Stream Box		tvApple
-Printer		printer
-Phone		voip
-Speaker		speakers
-UPS		ups
-Repeater		repeater
-Smart Home Product		airConditioner
-NAS		nas
-Smart Home Product		doorlock
-Security		motionDetector
-Security		smokeDetector
-Computer		
-Computer		bezeqPiper
-Computer		bezeqRepeater
-Smart Home Product		iRobot
-Smart Watch		smartWatch
-Smart Watch		appleWatch
-Smart Assistant		amazonAlexa
-Smart Assistant		googleHome
-Smart Assistant		amazon_dot
-Stream Box		chromcast
-GameConsole		gameConsole
-Smart Home Product		smartSwitch
-Smart Home Product		smartBoiler
-Smart Home Product		doorbell
-Smart Home Product		smartPlug
-Smart Home Product		smartSocket
-Baby Monitor		babyMonitor
-Smart Assistant		googleHomeMini
-Smart Assistant		googleHomeMax
-Computer		raspberryPi
-Speaker		BoseSpeakers
-Smart Home Product		Medical
-Smart Home Product		SolarPanel
-Computer		StreamerTelenet
-Smart Ride		smartCar
-GPS		gps
-Smart Ride		smartBicycle
-Firewall		firewall
-Smart Ride		smartScooter
-Game Console		Wii
-Game Console		Nintendo
-Computer		VMWARE
-Computer		Motorola
-Smart Home Product		SmartWeatherStation
-Printer		printer_cannon
-Printer		printer_hp
-eReader		kindle
-Smart TV		tv_samsung
-Smart TV		tv_sony
-Computer		androidDevice
-Computer		appleDevice
-Computer		windowsDevice
-Computer		cannon
-Computer		dell
-Computer		google
-Computer		hp
-Computer		lg
-Computer		nest
-Computer		philips
-Speakers		sonos
-Computer		sony
-Computer		xiaomi
-Computer		samsung
-Computer		huawei
-Computer		Amazon
-Computer		Arduino
-
-
-I want you to map the above data 
-
-in the following way 
-
-{
-default:Computer,
-smartHomeHub: Smart Home product  and so on 
-}
+const data = {
+  default: "Computer",
+  smartHomeHub: "Smart Home Product",
+  mobile: "Smartphone",
+  iphone: "Smartphone",
+  android: "Smartphone",
+  other: "Computer",
+  computer: "Computer",
+  computerApple: "Computer",
+  computerWindows: "Computer",
+  computerLinux: "Computer",
+  computer_HP: "Computer",
+  computer_Dell: "Computer",
+  computer_Asus: "Computer",
+  computer_Acer: "Computer",
+  computer_Lenovo: "Computer",
+  laptop_dell: "Computer",
+  laptop_hp: "Computer",
+  laptopApple: "Computer",
+  laptop_chromebook: "Computer",
+  laptop_microsoft: "Computer",
+  laptop_lenovo: "Computer",
+  laptop_acer: "Computer",
+  laptop_asus: "Computer",
+  tablet: "Tablet",
+  tabletApple: "Tablet",
+  tabletWindows: "Tablet",
+  tabletAndroid: "Tablet",
+  iot: "Smart Home Product",
+  camera: "Smart Home Product",
+  lightbulb: "Smart Home Product",
+  xbox: "Game Console",
+  sonyPlaystation: "Game Console",
+  streamer: "Stream Box",
+  tablet: "Tablet",
+  tabletApple: "Tablet",
+  tabletWindows: "Tablet",
+  tabletAndroid: "Tablet",
+  iot: "Smart Home Product",
+  camera: "Smart Home Product",
+  lightbulb: "Smart Home Product",
+  xbox: "Game Console",
+  sonyPlaystation: "Game Console",
+  streamer: "Stream Box",
+  tvAndroid: "Stream Box",
+  tvApple: "Stream Box",
+  printer: "Printer",
+  voip: "Phone",
+  speakers: "Speaker",
+  ups: "UPS",
+  repeater: "Repeater",
+  airConditioner: "Smart Home Product",
+  nas: "NAS",
+  doorlock: "Smart Home Product",
+  motionDetector: "Security",
+  smokeDetector: "Security",
+  iRobot: "Smart Home Product",
+  smartWatch: "Smart Watch",
+  appleWatch: "Smart Watch",
+  amazonAlexa: "Smart Assistant",
+  googleHome: "Smart Assistant",
+  amazon_dot: "Smart Assistant",
+  chromcast: "Stream Box",
+  gameConsole: "GameConsole",
+  smartSwitch: "Smart Home Product",
+  smartBoiler: "Smart Home Product",
+  doorbell: "Smart Home Product",
+  smartPlug: "Smart Home Product",
+  smartSocket: "Smart Home Product",
+  babyMonitor: "Baby Monitor",
+  googleHomeMini: "Smart Assistant",
+  googleHomeMax: "Smart Assistant",
+  raspberryPi: "Computer",
+  BoseSpeakers: "Speaker",
+  Medical: "Smart Home Product",
+  SolarPanel: "Smart Home Product",
+  smartCar: "Smart Ride",
+  gps: "GPS",
+  smartBicycle: "Smart Ride",
+  firewall: "Firewall",
+  smartScooter: "Smart Ride",
+  Wii: "Game Console",
+  Nintendo: "Game Console",
+  VMWARE: "Computer",
+  Motorola: "Computer",
+  SmartWeatherStation: "Smart Home Product",
+  printer_cannon: "Printer",
+  printer_hp: "Printer",
+  kindle: "eReader",
+  tv_samsung: "Smart TV",
+  tv_sony: "Smart TV",
+  androidDevice: "Computer",
+  appleDevice: "Computer",
+  windowsDevice: "Computer",
+  cannon: "Computer",
+  dell: "Computer",
+  google: "Computer",
+  hp: "Computer",
+  lg: "Computer",
+  nest: "Computer",
+  philips: "Computer",
+  sonos: "Speakers",
+  sony: "Computer",
+  xiaomi: "Computer",
+  samsung: "Computer",
+  huawei: "Computer",
+  Amazon: "Computer",
+  Arduino: "Computer",
+};
