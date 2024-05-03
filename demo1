@@ -1,130 +1,114 @@
-const items = [
-  "Computer",
-  "Smart Home Product",
-  "Smartphone",
-  "Tablet",
-  "Game Console",
-  "Stream Box",
-  "Printer",
-  "Phone",
-  "Speaker",
-  "UPS",
-  "Repeater",
-  "NAS",
-  "Security",
-  "Smart Watch",
-  "Smart Assistant",
-  "Baby Monitor",
-  "Smart Ride",
-  "GPS",
-  "Firewall",
-  "eReader",
-  "Smart TV",
-  "Speakers"
-];
+
+Value        Key
+
+Computer		default
+Smart Home Product		smartHomeHub
+Smartphone		mobile
+Smartphone		iphone
+Smartphone		android
+Computer		other
+Computer		computer
+Computer		computerApple
+Computer		computerWindows
+Computer		computerLinux
+Computer		computer_HP
+Computer		computer_Dell
+Computer		computer_Asus
+Computer		computer_Acer
+Computer		computer_Lenovo
+Computer		laptop_dell
+Computer		laptop_hp
+Computer		laptopApple
+Computer		laptop_chromebook
+Computer		laptop_microsoft
+Computer		laptop_lenovo
+Computer		laptop_acer
+Computer		laptop_asus
+Tablet		tablet
+Tablet		tabletApple
+Tablet		tabletWindows
+Tablet		tabletAndroid
+Smart Home Product		iot
+Smart Home Product		camera
+Smart Home Product		lightbulb
+Game Console		xbox
+Game Console		sonyPlaystation
+Stream Box		streamer
+Stream Box		tvAndroid
+Stream Box		tvApple
+Printer		printer
+Phone		voip
+Speaker		speakers
+UPS		ups
+Repeater		repeater
+Smart Home Product		airConditioner
+NAS		nas
+Smart Home Product		doorlock
+Security		motionDetector
+Security		smokeDetector
+Computer		
+Computer		bezeqPiper
+Computer		bezeqRepeater
+Smart Home Product		iRobot
+Smart Watch		smartWatch
+Smart Watch		appleWatch
+Smart Assistant		amazonAlexa
+Smart Assistant		googleHome
+Smart Assistant		amazon_dot
+Stream Box		chromcast
+GameConsole		gameConsole
+Smart Home Product		smartSwitch
+Smart Home Product		smartBoiler
+Smart Home Product		doorbell
+Smart Home Product		smartPlug
+Smart Home Product		smartSocket
+Baby Monitor		babyMonitor
+Smart Assistant		googleHomeMini
+Smart Assistant		googleHomeMax
+Computer		raspberryPi
+Speaker		BoseSpeakers
+Smart Home Product		Medical
+Smart Home Product		SolarPanel
+Computer		StreamerTelenet
+Smart Ride		smartCar
+GPS		gps
+Smart Ride		smartBicycle
+Firewall		firewall
+Smart Ride		smartScooter
+Game Console		Wii
+Game Console		Nintendo
+Computer		VMWARE
+Computer		Motorola
+Smart Home Product		SmartWeatherStation
+Printer		printer_cannon
+Printer		printer_hp
+eReader		kindle
+Smart TV		tv_samsung
+Smart TV		tv_sony
+Computer		androidDevice
+Computer		appleDevice
+Computer		windowsDevice
+Computer		cannon
+Computer		dell
+Computer		google
+Computer		hp
+Computer		lg
+Computer		nest
+Computer		philips
+Speakers		sonos
+Computer		sony
+Computer		xiaomi
+Computer		samsung
+Computer		huawei
+Computer		Amazon
+Computer		Arduino
 
 
+I want you to map the above data 
 
-Computer
-Smart Home Product
-Smartphone
-Smartphone
-Smartphone
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Tablet
-Tablet
-Tablet
-Tablet
-Smart Home Product
-Smart Home Product
-Smart Home Product
-Game Console
-Game Console
-Stream Box
-Stream Box
-Stream Box
-Printer
-Phone
-Speaker
-UPS
-Repeater
-Smart Home Product
-NAS
-Smart Home Product
-Security
-Security
-Computer
-Computer
-Computer
-Smart Home Product
-Smart Watch
-Smart Watch
-Smart Assistant
-Smart Assistant
-Smart Assistant
-Stream Box
-GameConsole
-Smart Home Product
-Smart Home Product
-Smart Home Product
-Smart Home Product
-Smart Home Product
-Baby Monitor
-Smart Assistant
-Smart Assistant
-Computer
-Speaker
-Smart Home Product
-Smart Home Product
-Computer
-Smart Ride
-GPS
-Smart Ride
-Firewall
-Smart Ride
-Game Console
-Game Console
-Computer
-Computer
-Smart Home Product
-Printer
-Printer
-eReader
-Smart TV
-Smart TV
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
-Speakers
-Computer
-Computer
-Computer
-Computer
-Computer
-Computer
+in the following way 
 
-from this result i want you to return the list of array it must not have duplicates
+{
+default:Computer,
+smartHomeHub: Smart Home product  and so on 
+}
