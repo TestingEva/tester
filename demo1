@@ -1,112 +1,55 @@
-const tempData = {
-        default: "Computer",
-        smartHomeHub: "Smart Home Product",
-        mobile: "Smartphone",
-        iphone: "Smartphone",
-        android: "Smartphone",
-        other: "Computer",
-        computer: "Computer",
-        computerApple: "Computer",
-        computerWindows: "Computer",
-        computerLinux: "Computer",
-        computer_HP: "Computer",
-        computer_Dell: "Computer",
-        computer_Asus: "Computer",
-        computer_Acer: "Computer",
-        computer_Lenovo: "Computer",
-        laptop_dell: "Computer",
-        laptop_hp: "Computer",
-        laptopApple: "Computer",
-        laptop_chromebook: "Computer",
-        laptop_microsoft: "Computer",
-        laptop_lenovo: "Computer",
-        laptop_acer: "Computer",
-        laptop_asus: "Computer",
-        tablet: "Tablet",
-        tabletApple: "Tablet",
-        tabletWindows: "Tablet",
-        tabletAndroid: "Tablet",
-        iot: "Smart Home Product",
-        camera: "Smart Home Product",
-        lightbulb: "Smart Home Product",
-        xbox: "Game Console",
-        sonyPlaystation: "Game Console",
-        streamer: "Stream Box",
-        tablet: "Tablet",
-        tabletApple: "Tablet",
-        tabletWindows: "Tablet",
-        tabletAndroid: "Tablet",
-        iot: "Smart Home Product",
-        camera: "Smart Home Product",
-        lightbulb: "Smart Home Product",
-        xbox: "Game Console",
-        sonyPlaystation: "Game Console",
-        streamer: "Stream Box",
-        tvAndroid: "Stream Box",
-        tvApple: "Stream Box",
-        printer: "Printer",
-        voip: "Phone",
-        speakers: "Speaker",
-        ups: "UPS",
-        repeater: "Repeater",
-        airConditioner: "Smart Home Product",
-        nas: "NAS",
-        doorlock: "Smart Home Product",
-        motionDetector: "Security",
-        smokeDetector: "Security",
-        iRobot: "Smart Home Product",
-        smartWatch: "Smart Watch",
-        appleWatch: "Smart Watch",
-        amazonAlexa: "Smart Assistant",
-        googleHome: "Smart Assistant",
-        amazon_dot: "Smart Assistant",
-        chromcast: "Stream Box",
-        gameConsole: "GameConsole",
-        smartSwitch: "Smart Home Product",
-        smartBoiler: "Smart Home Product",
-        doorbell: "Smart Home Product",
-        smartPlug: "Smart Home Product",
-        smartSocket: "Smart Home Product",
-        babyMonitor: "Baby Monitor",
-        googleHomeMini: "Smart Assistant",
-        googleHomeMax: "Smart Assistant",
-        raspberryPi: "Computer",
-        BoseSpeakers: "Speaker",
-        Medical: "Smart Home Product",
-        SolarPanel: "Smart Home Product",
-        smartCar: "Smart Ride",
-        gps: "GPS",
-        smartBicycle: "Smart Ride",
-        firewall: "Firewall",
-        smartScooter: "Smart Ride",
-        Wii: "Game Console",
-        Nintendo: "Game Console",
-        VMWARE: "Computer",
-        Motorola: "Computer",
-        SmartWeatherStation: "Smart Home Product",
-        printer_cannon: "Printer",
-        printer_hp: "Printer",
-        kindle: "eReader",
-        tv_samsung: "Smart TV",
-        tv_sony: "Smart TV",
-        androidDevice: "Computer",
-        appleDevice: "Computer",
-        windowsDevice: "Computer",
-        cannon: "Computer",
-        dell: "Computer",
-        google: "Computer",
-        hp: "Computer",
-        lg: "Computer",
-        nest: "Computer",
-        philips: "Computer",
-        sonos: "Speakers",
-        sony: "Computer",
-        xiaomi: "Computer",
-        samsung: "Computer",
-        huawei: "Computer",
-        Amazon: "Computer",
-        Arduino: "Computer",
-      };
-      const demo = Object.values(tempData)
+import { Col, Container, Row } from "react-bootstrap";
+import { VZButton } from "../../components/vz-button/VZButton";
+import "./FirmwareUpgrade.css";
+import { usePlatformInfo } from "../../../domain/misc/hooks";
 
-in demo there are many duplicate pairs can you write a code to remove it
+export const FirmwareUpgrade: React.FC = () => {
+  const { isPending, isError, data } = usePlatformInfo();
+
+  if (isPending || data === undefined) {
+    return <></>;
+  }
+
+  if (isError) {
+    return <></>;
+  }
+
+  return <FirmwareUpgradeView swVersion={data.swVersion} />;
+};
+
+type Props = {
+  swVersion: string;
+};
+
+const FirmwareUpgradeView: React.FC<Props> = (props) => {
+  return (
+    <Container>
+      <p>Firmware upgrade</p>
+      <Col>
+        <h1>Firmware Upgrade</h1>
+        <hr />
+        <p>
+          This tool allows you to upgrade the router firmware using a file provided by us. You can download the latest firmware from the related web
+          site.
+        </p>
+        <p>
+          Enter the path and name, or browse to the location, of the upgrade file then click the "BEGIN UPGRADE" button. You will be prompted to
+          confirm the upgrade to complete the process.
+        </p>
+        <Row className="row-cols-auto align-items-center">
+          <Col className="p-0">Firmware File</Col>
+          <Col className="col-3">
+            <input type="file" accept=".tar,.gz,.zip,.bin,.swu"/>
+          </Col>
+          <Col>
+            <VZButton>BEGIN UPGRADE</VZButton>
+          </Col>
+        </Row>
+        <p>Router build number:{props.swVersion}</p>
+      </Col>
+    </Container>
+  );
+};
+
+
+On click of Begin Upgrade i want to use React Query to send the data 
