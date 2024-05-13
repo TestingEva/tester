@@ -1,55 +1,20 @@
-import { Col, Container, Row } from "react-bootstrap";
-import { VZButton } from "../../components/vz-button/VZButton";
-import "./FirmwareUpgrade.css";
-import { usePlatformInfo } from "../../../domain/misc/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { getHomeDetails } from "../../data/home/home";
+import { AsyncHookData } from "../hook_data";
+import { asyncHookData } from "../hook_data_impl";
+import { KEY_HOME_DETAILS } from "../keys";
+import { HomePageDetails } from "./models";
+import { usePlatformModel, usePlatformType } from "../misc/hooks";
 
-export const FirmwareUpgrade: React.FC = () => {
-  const { isPending, isError, data } = usePlatformInfo();
-
-  if (isPending || data === undefined) {
-    return <></>;
-  }
-
-  if (isError) {
-    return <></>;
-  }
-
-  return <FirmwareUpgradeView swVersion={data.swVersion} />;
-};
-
-type Props = {
-  swVersion: string;
-};
-
-const FirmwareUpgradeView: React.FC<Props> = (props) => {
-  return (
-    <Container>
-      <p>Firmware upgrade</p>
-      <Col>
-        <h1>Firmware Upgrade</h1>
-        <hr />
-        <p>
-          This tool allows you to upgrade the router firmware using a file provided by us. You can download the latest firmware from the related web
-          site.
-        </p>
-        <p>
-          Enter the path and name, or browse to the location, of the upgrade file then click the "BEGIN UPGRADE" button. You will be prompted to
-          confirm the upgrade to complete the process.
-        </p>
-        <Row className="row-cols-auto align-items-center">
-          <Col className="p-0">Firmware File</Col>
-          <Col className="col-3">
-            <input type="file" accept=".tar,.gz,.zip,.bin,.swu"/>
-          </Col>
-          <Col>
-            <VZButton>BEGIN UPGRADE</VZButton>
-          </Col>
-        </Row>
-        <p>Router build number:{props.swVersion}</p>
-      </Col>
-    </Container>
-  );
-};
-
-
-On click of Begin Upgrade i want to use React Query to send the data 
+export function useHomePageDetails(): AsyncHookData<HomePageDetails> {
+  const platformTypeData = usePlatformType().data;
+  const platformModelData = usePlatformModel().data;
+  const { status, data, error } = useQuery({
+    queryKey: [KEY_HOME_DETAILS],
+    queryFn: () => getHomeDetails(platformTypeData!, platformModelData!),
+    enabled: platformTypeData !== undefined && platformModelData !== undefined,
+  });
+  return asyncHookData(status, error, data);
+}
+I want you to write the tests for this query 
+I am using jest to test these 
