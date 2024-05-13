@@ -1,20 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
-import { getHomeDetails } from "../../data/home/home";
-import { AsyncHookData } from "../hook_data";
-import { asyncHookData } from "../hook_data_impl";
-import { KEY_HOME_DETAILS } from "../keys";
-import { HomePageDetails } from "./models";
-import { usePlatformModel, usePlatformType } from "../misc/hooks";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-export function useHomePageDetails(): AsyncHookData<HomePageDetails> {
-  const platformTypeData = usePlatformType().data;
-  const platformModelData = usePlatformModel().data;
-  const { status, data, error } = useQuery({
-    queryKey: [KEY_HOME_DETAILS],
-    queryFn: () => getHomeDetails(platformTypeData!, platformModelData!),
-    enabled: platformTypeData !== undefined && platformModelData !== undefined,
-  });
-  return asyncHookData(status, error, data);
-}
-I want you to write the tests for this query 
-I am using jest to test these 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: false,
+    },
+  },
+});
+
+type WrapperType = {
+  children: JSX.Element;
+};
+
+const wrapper: React.FC<WrapperType> = (props) => <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>;
+
+the following Error I am getting
+Parsing error: '>' expected.eslint
+'QueryClientProvider' refers to a value, but is being used as a type here. Did you mean 'typeof QueryClientProvider'?
