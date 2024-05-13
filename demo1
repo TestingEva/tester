@@ -1,4 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
+import { useHomePageDetails } from "./hooks";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -12,8 +14,92 @@ type WrapperType = {
   children: JSX.Element;
 };
 
-const wrapper: React.FC<WrapperType> = (props) => <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>;
+const wrapper: React.FC<WrapperType> = (props: WrapperType) => <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>;
 
-the following Error I am getting
-Parsing error: '>' expected.eslint
-'QueryClientProvider' refers to a value, but is being used as a type here. Did you mean 'typeof QueryClientProvider'?
+test("my first test", async () => {
+  const { result } = renderHook(() => useHomePageDetails(), { wrapper });
+  await waitFor(() => { console.log(result.current.status); expect(result.current.isSuccess).toBe(true) });
+
+  expect(result.current.data).toBeDefined()
+})
+
+
+This is coming as the output 
+
+ console.log
+      pending
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      pending
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
+
+      at src/domain/home/hooks.test.tsx:21:33
+
+    console.log
+      error
