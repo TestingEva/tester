@@ -1,5 +1,6 @@
 import { Table } from "react-bootstrap";
 import { SystemLogModel } from "../../../../domain/system-logging/models";
+import "./MainLoggingComponent.css"; // Import the CSS file for custom styles
 
 type Props = {
   data?: SystemLogModel[];
@@ -7,7 +8,7 @@ type Props = {
 
 export const MainLoggingComponent: React.FC<Props> = ({ data }) => {
   return (
-    <div className="table-responsive">
+    <div className="table-container">
       <Table striped bordered hover>
         <thead>
           <tr>
@@ -17,25 +18,29 @@ export const MainLoggingComponent: React.FC<Props> = ({ data }) => {
             <th>Details</th>
           </tr>
         </thead>
-        <tbody>
-          {data && data.length > 0 ? (
-            data.map((log, index) => (
-              <tr key={index}>
-                <td>{new Date(log.dateTime).toLocaleString()}</td>
-                <td>{log.type}</td>
-                <td>{log.level}</td>
-                <td style={{ minWidth: "300px" }}>{log.detail}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={4} className="text-center">
-                No data available
-              </td>
-            </tr>
-          )}
-        </tbody>
       </Table>
+      <div className="table-body-container">
+        <Table striped bordered hover>
+          <tbody>
+            {data && data.length > 0 ? (
+              data.map((log, index) => (
+                <tr key={index}>
+                  <td>{new Date(log.dateTime).toLocaleString()}</td>
+                  <td>{log.type}</td>
+                  <td>{log.level}</td>
+                  <td style={{ minWidth: "300px" }}>{log.detail}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="text-center">
+                  No data available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
     </div>
   );
 };
