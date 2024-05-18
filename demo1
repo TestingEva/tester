@@ -1,24 +1,78 @@
-import { TypeSelectionBodyOptions, TypeSelectionHeaderContainer } from "./styles";
+import { useEffect, useState } from "react";
+import { PlatformType, RouteType } from "../../../domain/misc/models";
+import { useSystemLogging } from "../../../domain/system-logging/hooks";
+import { SystemLogModel } from "../../../domain/system-logging/models";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { SystemLoggingPageContainer, VZSmallButton, SystemLoggingHeaderOptionRow } from "./styles";
+import { TypeSelectionHeader } from "../../components/type-selection-header/TypeSelectionHeader";
+import { useNavigate, useParams } from "react-router-dom";
 
-type Props = {
-  currentSelectedType: string;
-  availableHeaderOptions: string[];
-  onOptionClick: ;
+export const SystemLogging: React.FC = () => {
+  const request = {
+    logType: "string",
+    limit: 0,
+    offset: 0,
+    requestId: "string",
+    startDateTime: "string",
+    endDateTime: "string",
+  };
+  const { data, isPending, error } = useSystemLogging(PlatformType.Router, request);
+
+  if (isPending) return <></>;
+  if (error) return <></>;
+
+  return <SystemLoggingView data={data} />;
 };
-export const TypeSelectionHeader: React.FC<Props> = (props) => {
+
+const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "wifi"];
+const HeaderOptions = () => {
   return (
-    <TypeSelectionHeaderContainer>
-      {props.availableHeaderOptions.map((val, index) => {
-        return (
-          <TypeSelectionBodyOptions
-            $selected={props.currentSelectedType === val}
-            key={index}
-            onClick={}
-          >
-            {val}
-          </TypeSelectionBodyOptions>
-        );
-      })}
-    </TypeSelectionHeaderContainer>
+    <SystemLoggingHeaderOptionRow>
+      <VZSmallButton>Settings</VZSmallButton>
+      <VZSmallButton>Options</VZSmallButton>
+      <VZSmallButton>Refresh</VZSmallButton>
+      <VZSmallButton $primary>Save</VZSmallButton>
+    </SystemLoggingHeaderOptionRow>
   );
 };
+
+type Props = {
+  data?: SystemLogModel[];
+};
+export const SystemLoggingView: React.FC<Props> = (props) => {
+  const navigate = useNavigate();
+  const [selectedType, setSelectedType] = useState("system");
+  const handleOptionClick = (option: string) => {
+    setSelectedType(option);
+    navigate(`/adv/monitoring/log/${option}`);
+  };
+  
+  return (
+    <>
+      <VZHeader
+        title="System Logging"
+        breadcrumbData={[
+          { label: "Diagnostics & Monitoring" },
+          { label: "System Logging", destType: RouteType.SYS_LOG },
+          { label: selectedType },
+        ]}
+        rightBody={HeaderOptions()}
+        bottomBody={
+          <TypeSelectionHeader
+            currentSelectedType={selectedType}
+            availableHeaderOptions={testAvaibableOptions}
+            onOptionClick={handleOptionClick}
+          />
+        }
+      />
+      <SystemLoggingPageContainer className="vz--footer"></SystemLoggingPageContainer>
+    </>
+  );
+};
+
+from different page if I route to SystemLogging Page then the url remains 
+http://localhost:3000/#/adv/monitoring/log/:id
+but i want to set the params also 
+
+also please handle this case suppose if a user uses 
+http://localhost:3000/#/adv/monitoring/log/advanced then by default the advanced option should be selected
