@@ -1,116 +1,96 @@
-import { useEffect, useMemo, useState } from "react";
-import { PlatformType, RouteType } from "../../../domain/misc/models";
-import { useSystemLogging } from "../../../domain/system-logging/hooks";
-import { SystemLogModel } from "../../../domain/system-logging/models";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { SystemLoggingPageContainer, VZSmallButton, SystemLoggingHeaderOptionRow } from "./styles";
-import { TypeSelectionHeader } from "../../components/type-selection-header/TypeSelectionHeader";
-import { useNavigate, useParams } from "react-router-dom";
-
-export const SystemLogging: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [selectedType, setSelectedType] = useState(id || "system");
-
-  useEffect(() => {
-    if (id !== ":id") {
-      setSelectedType(id!);
-    } else {
-      navigate(`/adv/monitoring/log/system`);
-    }
-  }, [id, navigate]);
-
-  const requestData = useMemo(() => {
-    return {
-      requestId: "componentId",
-      logType: selectedType,
-      startDateTime: "startTimeData",
-      endDateTime: "endTimeData",
-      offset: 0,
-      limit: 100,
-    };
-  }, [selectedType]);
-
-  const { data, isPending, error } = useSystemLogging(PlatformType.Router, requestData);
-
-  if (isPending) return <></>;
-  if (error) return <></>;
-
-  return <SystemLoggingView data={data} selectedType={selectedType} setSelectedType={setSelectedType} />;
-};
-
-const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "wifi"];
-const HeaderOptions: React.FC<{ selectedType: string }> = ({ selectedType }) => {
-  return (
-    //TODO: Add proper check
-    <SystemLoggingHeaderOptionRow>
-      {selectedType === "firewall" && <VZSmallButton>Settings</VZSmallButton>}
-      <VZSmallButton>Options</VZSmallButton>
-      <VZSmallButton>Refresh</VZSmallButton>
-      <VZSmallButton $primary>Save</VZSmallButton>
-    </SystemLoggingHeaderOptionRow>
-  );
-};
+import { SystemLogModel } from "../../../../domain/system-logging/models";
 
 type Props = {
   data?: SystemLogModel[];
-  selectedType: string;
-  setSelectedType: React.Dispatch<React.SetStateAction<string>>;
 };
-
-export const SystemLoggingView: React.FC<Props> = ({ data, selectedType, setSelectedType }) => {
-  const navigate = useNavigate();
-  const handleOptionClick = (option: string) => {
-    setSelectedType(option);
-    navigate(`/adv/monitoring/log/${option}`);
-  };
-
-  return (
-    <>
-      <VZHeader
-        title="System Logging"
-        breadcrumbData={[
-          { label: "Diagnostics & Monitoring" },
-          //TODO:BreadCrumb Reload issue
-          { label: "System Logging", destType: RouteType.SYS_LOG },
-          { label: selectedType }, //TODO: convert to the proper header
-        ]}
-        rightBody={<HeaderOptions selectedType={selectedType} />}
-        bottomBody={
-          <TypeSelectionHeader
-            currentSelectedType={selectedType}
-            availableHeaderOptions={testAvaibableOptions}
-            onOptionClick={handleOptionClick}
-          />
-        }
-      />
-      <SystemLoggingPageContainer className="vz--footer"></SystemLoggingPageContainer>
-    </>
-  );
+export const MainLoggingComponent: React.FC<Props> = (props) => {
+  console.log(props.data);
+  return <></>;
 };
+this is the format of data i am having in the data
+[
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPREQUEST(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPOFFER(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPDISCOVER(br-lan) a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPACK(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be VIN0019ALKKW131"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPREQUEST(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPOFFER(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPDISCOVER(br-lan) a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPACK(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be VIN0019ALKKW131"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPREQUEST(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPOFFER(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPDISCOVER(br-lan) a8:7e:ea:f5:4b:be"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPACK(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:be VIN0019ALKKW131"
+    },
+    {
+        "dateTime": "2024-03-15T02:55:23",
+        "type": "dnsmasq-dhcp",
+        "level": "INFO",
+        "detail": "DHCPREQUEST(br-lan) 192.168.1.2 a8:7e:ea:f5:4b:behehe"
+    }
+]
 
+now i want you to implement a table from react-bootstrap the table heading will be Time,Event Type,Log Level,Details
 
-So there is a refresh button i want on click the call to be made 
+i m using 2.10.2 version of react-bootstrap 
 
-here is my hooks.ts file
-import { useQuery } from "@tanstack/react-query";
-import { AsyncHookData } from "../hook_data";
-import { KEY_SYSTEM_LOGS } from "../keys";
-import { getSystemLogs } from "../../data/system-logging/system_logging";
-import { asyncHookData } from "../hook_data_impl";
-import { SystemLogModel } from "./models";
-import { PlatformType } from "../misc/models";
-import { SystemLoggingApiRequest } from "../../data/system-logging/model";
-
-export function useSystemLogging(
-  platformType: PlatformType,
-  request: SystemLoggingApiRequest
-): AsyncHookData<SystemLogModel[]> {
-  const { data, status, error } = useQuery({
-    queryKey: [KEY_SYSTEM_LOGS, request],
-    queryFn: () => getSystemLogs(platformType, request),
-  });
-  return asyncHookData(status, error, data);
-}
-
-how can we achieve this
+other requirements are the Details should more space and table should be responsive could you do that
