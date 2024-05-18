@@ -30,9 +30,9 @@ export const SystemLogging: React.FC = () => {
       limit: 100,
     };
   }, [selectedType]);
-  const { data, isPending, error } = useSystemLogging(PlatformType.Router, requestData);
-
+  
   useEffect(() => {
+    const { data, isPending, error } = useSystemLogging(PlatformType.Router, requestData);
     console.log(requestData);
   }, [requestData]);
 
@@ -91,5 +91,7 @@ export const SystemLoggingView: React.FC<Props> = ({ data, selectedType, setSele
   );
 };
 
+I tried the above method but i am getting error 
+React Hook "useSystemLogging" cannot be called inside a callback. React Hooks must be called in a React function component or a custom React Hook function  react-hooks/rules-of-hooks
 
-this is my component and your task is to fetchData when the requestData is changed we need to make a call 
+could you fix this
