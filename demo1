@@ -11,7 +11,7 @@ export const SystemLogging: React.FC = () => {
   const request = {
     logType: "string",
     limit: 0,
-    offset: 0,
+    offset: 100,
     requestId: "string",
     startDateTime: "string",
     endDateTime: "string",
@@ -39,22 +39,33 @@ const HeaderOptions = () => {
 type Props = {
   data?: SystemLogModel[];
 };
+
 export const SystemLoggingView: React.FC<Props> = (props) => {
   const navigate = useNavigate();
-  const [selectedType, setSelectedType] = useState("system");
+  const { id } = useParams<{ id: string }>();
+  const [selectedType, setSelectedType] = useState(id || "system");
+  useEffect(() => {
+    if (id !== ":id") {
+      setSelectedType(id!);
+    } else {
+      navigate(`/adv/monitoring/log/system`);
+    }
+  }, [id, navigate]);
+
   const handleOptionClick = (option: string) => {
     setSelectedType(option);
     navigate(`/adv/monitoring/log/${option}`);
   };
-  
+
   return (
     <>
       <VZHeader
         title="System Logging"
         breadcrumbData={[
           { label: "Diagnostics & Monitoring" },
+          //TODO:BreadCrumb Reload issue
           { label: "System Logging", destType: RouteType.SYS_LOG },
-          { label: selectedType },
+          { label: selectedType }, //TODO: convert to the proper header
         ]}
         rightBody={HeaderOptions()}
         bottomBody={
@@ -70,9 +81,4 @@ export const SystemLoggingView: React.FC<Props> = (props) => {
   );
 };
 
-from different page if I route to SystemLogging Page then the url remains 
-http://localhost:3000/#/adv/monitoring/log/:id
-but i want to set the params also 
-
-also please handle this case suppose if a user uses 
-http://localhost:3000/#/adv/monitoring/log/advanced then by default the advanced option should be selected
+This is my component now in the request we have logType which can be system,security,advanced,firewall,wdhcp,ldhcp,wifi now based on selectedType i need to change the logType and when the logType is changed we need to make the call with the new request
