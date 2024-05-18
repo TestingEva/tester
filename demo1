@@ -1,68 +1,24 @@
-import { useEffect, useState } from "react";
-import { PlatformType, RouteType } from "../../../domain/misc/models";
-import { useSystemLogging } from "../../../domain/system-logging/hooks";
-import { SystemLogModel } from "../../../domain/system-logging/models";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { SystemLoggingPageContainer, VZSmallButton, SystemLoggingHeaderOptionRow } from "./styles";
-import { TypeSelectionHeader } from "../../components/type-selection-header/TypeSelectionHeader";
-import { useNavigate, useParams } from "react-router-dom";
-
-export const SystemLogging: React.FC = () => {
-  const request = {
-    logType: "string",
-    limit: 0,
-    offset: 0,
-    requestId: "string",
-    startDateTime: "string",
-    endDateTime: "string",
-  };
-  const { data, isPending, error } = useSystemLogging(PlatformType.Router, request);
-
-  if (isPending) return <></>;
-  if (error) return <></>;
-
-  return <SystemLoggingView data={data} />;
-};
-
-const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "wifi"];
-const HeaderOptions = () => {
-  return (
-    <SystemLoggingHeaderOptionRow>
-      <VZSmallButton>Settings</VZSmallButton>
-      <VZSmallButton>Options</VZSmallButton>
-      <VZSmallButton>Refresh</VZSmallButton>
-      <VZSmallButton $primary>Save</VZSmallButton>
-    </SystemLoggingHeaderOptionRow>
-  );
-};
+import { TypeSelectionBodyOptions, TypeSelectionHeaderContainer } from "./styles";
 
 type Props = {
-  data?: SystemLogModel[];
+  currentSelectedType: string;
+  availableHeaderOptions: string[];
+  onOptionClick: ;
 };
-export const SystemLoggingView: React.FC<Props> = (props) => {
-  const navigate = useNavigate();
-  const param = useParams();
-  const [selectedType, setSelectedType] = useState("system");
-
+export const TypeSelectionHeader: React.FC<Props> = (props) => {
   return (
-    <>
-      <VZHeader
-        title="System Logging"
-        breadcrumbData={[
-          { label: "Diagnostics & Monitoring" },
-          { label: "System Logging", destType: RouteType.SYS_LOG },
-          { label: "System" },
-        ]}
-        rightBody={HeaderOptions()}
-        bottomBody={
-          <TypeSelectionHeader
-            currentSelectedType={selectedType}
-            availableHeaderOptions={testAvaibableOptions}
-            onOptionClick={}
-          />
-        }
-      />
-      <SystemLoggingPageContainer className="vz--footer"></SystemLoggingPageContainer>
-    </>
+    <TypeSelectionHeaderContainer>
+      {props.availableHeaderOptions.map((val, index) => {
+        return (
+          <TypeSelectionBodyOptions
+            $selected={props.currentSelectedType === val}
+            key={index}
+            onClick={}
+          >
+            {val}
+          </TypeSelectionBodyOptions>
+        );
+      })}
+    </TypeSelectionHeaderContainer>
   );
 };
