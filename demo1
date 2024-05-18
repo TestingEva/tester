@@ -1,105 +1,68 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook, waitFor } from "@testing-library/react";
-import { useHomePageDetails } from "./hooks";
+import { useEffect, useState } from "react";
+import { PlatformType, RouteType } from "../../../domain/misc/models";
+import { useSystemLogging } from "../../../domain/system-logging/hooks";
+import { SystemLogModel } from "../../../domain/system-logging/models";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { SystemLoggingPageContainer, VZSmallButton, SystemLoggingHeaderOptionRow } from "./styles";
+import { TypeSelectionHeader } from "../../components/type-selection-header/TypeSelectionHeader";
+import { useNavigate, useParams } from "react-router-dom";
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-    },
-  },
-});
+export const SystemLogging: React.FC = () => {
+  const request = {
+    logType: "string",
+    limit: 0,
+    offset: 0,
+    requestId: "string",
+    startDateTime: "string",
+    endDateTime: "string",
+  };
+  const { data, isPending, error } = useSystemLogging(PlatformType.Router, request);
 
-type WrapperType = {
-  children: JSX.Element;
+  if (isPending) return <></>;
+  if (error) return <></>;
+
+  return <SystemLoggingView data={data} />;
 };
 
-const wrapper: React.FC<WrapperType> = (props: WrapperType) => <QueryClientProvider client={queryClient}>{props.children}</QueryClientProvider>;
+const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "wifi"];
+const HeaderOptions = () => {
+  return (
+    <SystemLoggingHeaderOptionRow>
+      <VZSmallButton>Settings</VZSmallButton>
+      <VZSmallButton>Options</VZSmallButton>
+      <VZSmallButton>Refresh</VZSmallButton>
+      <VZSmallButton $primary>Save</VZSmallButton>
+    </SystemLoggingHeaderOptionRow>
+  );
+};
 
-test("my first test", async () => {
-  const { result } = renderHook(() => useHomePageDetails(), { wrapper });
-  await waitFor(() => { console.log(result.current.status); expect(result.current.isSuccess).toBe(true) });
+type Props = {
+  data?: SystemLogModel[];
+};
+export const SystemLoggingView: React.FC<Props> = (props) => {
+  const navigate = useNavigate();
+  const param = useParams();
+  const [selectedType, setSelectedType] = useState("system");
 
-  expect(result.current.data).toBeDefined()
-})
-
-
-This is coming as the output 
-
- console.log
-      pending
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      pending
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
-
-      at src/domain/home/hooks.test.tsx:21:33
-
-    console.log
-      error
+  return (
+    <>
+      <VZHeader
+        title="System Logging"
+        breadcrumbData={[
+          { label: "Diagnostics & Monitoring" },
+          { label: "System Logging", destType: RouteType.SYS_LOG },
+          { label: "System" },
+        ]}
+        rightBody={HeaderOptions()}
+        bottomBody={
+          <TypeSelectionHeader
+            currentSelectedType={selectedType}
+            availableHeaderOptions={testAvaibableOptions}
+            onOptionClick={}
+          />
+        }
+      />
+      <SystemLoggingPageContainer className="vz--footer"></SystemLoggingPageContainer>
+    </>
+  );
+};
