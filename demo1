@@ -173,6 +173,27 @@ export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) =>
   );
 };
 
+and now below is the hook 
+import { useMutation } from "@tanstack/react-query";
+import { LazyAsyncHookData } from "../hook_data";
+import { KEY_SYSTEM_LOGS } from "../keys";
+import { getSystemLogs } from "../../data/system-logging/system_logging";
+import { lazyAsyncHookData } from "../hook_data_impl";
+import { SystemLogModel } from "./models";
+import { PlatformType } from "../misc/models";
+import { SystemLoggingApiRequest } from "../../data/system-logging/model";
+
+export function useSystemLogging(
+  platformType: PlatformType,
+  request: SystemLoggingApiRequest
+): LazyAsyncHookData<void, SystemLogModel[]> {
+  const { mutateAsync, status, data, error } = useMutation({
+    mutationKey: [KEY_SYSTEM_LOGS],
+    mutationFn: () => getSystemLogs(platformType, request),
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
+
 
 Okay so the new requirement of this project is that we need to add infinite scroll which i already did 
 the infinity scrolll have a function called fetchNextLog when we scroll to a certain limit the fetchNextLog is called 
