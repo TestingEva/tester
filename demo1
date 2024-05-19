@@ -1,204 +1,336 @@
-this is my hooks.ts
-import { useMutation } from "@tanstack/react-query";
-import { LazyAsyncHookData } from "../hook_data";
-import { KEY_SYSTEM_LOGS } from "../keys";
-import { getSystemLogs } from "../../data/system-logging/system_logging";
-import { lazyAsyncHookData } from "../hook_data_impl";
-import { SystemLogModel } from "./models";
-import { PlatformType } from "../misc/models";
-import { SystemLoggingApiRequest } from "../../data/system-logging/model";
+I have done the same with the javascript in my previous code could you please check it as the above response doesnt solves my issue 
+import React, { useEffect, useMemo, useState } from 'react'
 
-export function useSystemLogging(
-  platformType: PlatformType
-): LazyAsyncHookData<SystemLoggingApiRequest, SystemLogModel[]> {
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: [KEY_SYSTEM_LOGS],
-    mutationFn: (request: SystemLoggingApiRequest) => getSystemLogs(platformType, request),
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
+import './SystemLogging.css'
+import { HeaderWithBody } from '../../../common/header/Header'
+import { SystemLoggingConstants } from '../../../constants/Diagnostics'
+import { TypeSelectionHeader } from './sys-log-components/TypeSelectionHeader'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { clearSysLogRequest, fetchSysLogRequest } from './Action'
+import { MainLoggingPage } from './sys-logging-pages/MainLoggingPage'
+import FirewallLoggingSettings from './sys-logging-pages/FirewallLoggingSettings'
+import Footer from '../../../common/footer/Footer'
+import TimeSettingsPage from './sys-logging-pages/TimeSettingsPage'
+import CONFIG from '../../../config/env.json'
+import { v4 as uuidv4 } from 'uuid'
+import { fetchDateTimeRequest } from '../../system/date-time/Action'
+import { fetchRequests } from '../../../utils/FetchRequest'
+import VZLoader from '../../../common/loader/Loader'
+
+const SystemLogging = () => {
+    const apiData = useSelector((state) => {
+        return state?.sysLog?.data
+    })
+    const localDateTimeData = useSelector((state) => state?.dateTime?.data)
+    const params = useParams()
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [loadPage, setLoadPage] = useState(false)
+    const [selectedLogType, setSelectedLogType] = useState('system')
+    const [currentData, setCurrentData] = useState([])
+    const [selectedPageType, setSelectedPageType] = useState(0)
+    const [timeData, setTimeData] = useState({})
+    const [startTimeData, setStartTimeData] = useState()
+    const [endTimeData, setEndTimeData] = useState()
+    const [componentId, setComponentId] = useState(uuidv4())
+    const [cumulativeOffset, setCumulativeOffset] = useState(100)
+    const [isDataRemaining, setIsDataRemaining] = useState(false)
+    const [defaultCalendarTime, setDefaultCalendarTime] = useState(0)
+
+    const requestData = useMemo(() => {
+        return {
+            requestId: componentId,
+            logType: SystemLoggingConstants?.requestLogType?.[params?.id],
+            startDateTime: startTimeData,
+            endDateTime: endTimeData,
+            offset: 0,
+            limit: 100,
+        }
+    }, [params, startTimeData, endTimeData, componentId])
+
+
+    const clearLog = () => {
+        setCurrentData([])
+        dispatch(
+            clearSysLogRequest({
+                body: { logType: SystemLoggingConstants?.requestLogType?.[params?.id] },
+            })
+        )
+    }
+
+    const subtractDaysFromLocalDateTime = (days) => {
+        const localDate = new Date(timeData?.time)
+        localDate?.setDate(localDate?.getDate() - days)
+        return `${localDate?.toISOString().slice(0, -1)}`
+    }
+
+    const filterLogs = ({ type = 'prevDay', startTime, endTime }) => {
+
+        switch (type) {
+            case 'prevDay':
+                setStartTimeData(subtractDaysFromLocalDateTime(1))
+                setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
+                break
+            case 'prevWeek':
+                setStartTimeData(subtractDaysFromLocalDateTime(7))
+                setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
+                break
+            default:
+                setStartTimeData(startTime)
+                setEndTimeData(endTime)
+                break
+        }
+        setSelectedPageType(0)
+    }
+
+    function saveLogs() {
+        fetchRequests({ url: CONFIG?.SYS_LOGGING_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ logType: SystemLoggingConstants?.requestLogType?.[params?.id] }) }).then(rData => { return rData?.blob() }).then(res => {
+            const blob = new Blob([res], { type: 'application/text' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `messages_${SystemLoggingConstants?.logFileName?.[params?.id]}.log`;
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+        })
+    }
+
+    const refreshPage = () => {
+        window.scrollTo(0, 0)
+        setCurrentData([])
+        setCumulativeOffset(100)
+        filterLogs({ type: "prevDay" })
+        setComponentId(uuidv4())
+    }
+    useEffect(() => {
+        setSelectedLogType(params?.id)
+        if (timeData?.time) {
+            setStartTimeData(subtractDaysFromLocalDateTime(1))
+            setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
+        }
+        // eslint-disable-next-line
+    }, [params])
+
+    useEffect(() => {
+        if (startTimeData && endTimeData) {
+            window.scrollTo(0, 0)
+            setCurrentData([])
+            setLoadPage(false)
+            setCumulativeOffset(100)
+            dispatch(fetchSysLogRequest({ body: { ...requestData, requestId: uuidv4() } }))
+        }
+        // eslint-disable-next-line
+    }, [params.id, dispatch, requestData])
+
+    useMemo(() => {
+        if (localDateTimeData && Object.keys(localDateTimeData)?.length) {
+            setTimeData({
+                time: localDateTimeData?.localDateTime,
+            })
+            setDefaultCalendarTime({
+                time: localDateTimeData?.localDateTime
+            })
+        }
+    }, [localDateTimeData])
+
+    useEffect(() => {
+        if (timeData?.time) {
+            setStartTimeData(subtractDaysFromLocalDateTime(1))
+            setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
+        }
+        // eslint-disable-next-line
+    }, [timeData])
+
+    useEffect(() => {
+        dispatch(fetchDateTimeRequest())
+        setComponentId(uuidv4())
+        return () => {
+            setComponentId(null)
+        }
+        // eslint-disable-next-line
+    }, [])
+
+    const callNextLogs = () => {
+        const updatedRequestData = { ...requestData, offset: cumulativeOffset, }
+        apiData?.logList?.length !== 0 && dispatch(fetchSysLogRequest({ body: updatedRequestData }))
+        setCumulativeOffset((prev) => prev + requestData?.limit)
+    }
+
+    const HeaderOptions = () => {
+        return (
+            <div className="sys-log-option-row">
+                {params?.id === 'firewall' && (
+                    <button
+                        className="sys-log-button-1 b"
+                        onClick={() => setSelectedPageType(2)}
+                    >
+                        {SystemLoggingConstants?.settings}
+                    </button>
+                )}
+                <button
+                    className="sys-log-button-1 b"
+                    onClick={() => setSelectedPageType(1)}
+                >
+                    {SystemLoggingConstants?.opt}
+                </button>
+                <button className="sys-log-button-1 b" onClick={refreshPage}>
+                    {SystemLoggingConstants?.refresh}
+                </button>
+                <button
+                    className="sys-log-button-1 sys-log-save-button b"
+                    onClick={saveLogs}
+                >
+                    {SystemLoggingConstants?.save}
+                </button>
+            </div>
+        )
+    }
+
+    useEffect(() => {
+        if (apiData && Object?.keys(apiData)?.length !== 0 && apiData?.isLogList) {
+            setIsDataRemaining(apiData?.logList?.length !== 0 ? true : false)
+            setCurrentData(c => { return [...c, ...apiData?.logList] })
+            setLoadPage(true);
+        }
+    }, [apiData])
+
+    return (
+        <>
+            <HeaderWithBody
+                title={SystemLoggingConstants?.title}
+                breadcrumbData={SystemLoggingConstants?.breadcrumbData?.concat([
+                    [SystemLoggingConstants?.availablePages?.[params?.id], ''],
+                ])}
+                extra={TypeSelectionHeader({
+                    currentSelectedType: selectedLogType,
+                    setSelectedPageType: setSelectedPageType,
+                    navigate: navigate,
+                })}
+                lineMargin={'sys-log-no-mar'}
+                body={selectedPageType === 0 && HeaderOptions()}
+            />
+            {loadPage ? <>
+                <div className="sys-log-page">
+                    <div className="flex-1">
+                        {selectedPageType === 0 &&
+                            Object?.keys(
+                                SystemLoggingConstants?.availablePages
+                            )?.indexOf(params?.id) !== -1 && (
+                                <MainLoggingPage
+                                    selectedLogType={selectedLogType}
+                                    currentValue={currentData}
+                                    clearLog={clearLog}
+                                    nextLog={callNextLogs}
+                                    hasMore={isDataRemaining}
+                                    defaultTimezone={localDateTimeData?.timeZone}
+                                />
+                            )}
+                        {selectedPageType === 1 &&
+                            Object?.keys(
+                                SystemLoggingConstants?.availablePages
+                            )?.indexOf(params?.id) !== -1 && (
+                                <TimeSettingsPage
+                                    filterLogs={filterLogs}
+                                    back={() => setSelectedPageType(0)}
+                                    defaultTime={defaultCalendarTime?.time?.endsWith('Z') ? defaultCalendarTime?.time?.slice(0, -1) : defaultCalendarTime?.time?.slice(0, -6)}
+                                    defaultTimezone={defaultCalendarTime?.time?.endsWith('Z') ? "Z" : defaultCalendarTime?.time?.slice(-6)}
+                                />
+                            )}
+                        {selectedPageType === 2 &&
+                            Object?.keys(
+                                SystemLoggingConstants?.availablePages
+                            )?.indexOf(params?.id) !== -1 && (
+                                <FirewallLoggingSettings
+                                    back={() => setSelectedPageType(0)}
+                                    refreshPage={refreshPage}
+                                />
+                            )}
+                    </div>
+                    {selectedPageType !== 0 && <Footer />}
+                </div>
+            </> : <VZLoader timeoutLoader={0} inDiv={true} />}
+        </>
+    )
+
 }
 
-This is systemloggig.tsx
-import { useEffect, useMemo, useState } from "react";
-import { PlatformType, RouteType } from "../../../domain/misc/models";
-import { useSystemLogging } from "../../../domain/system-logging/hooks";
-import { SystemLogModel } from "../../../domain/system-logging/models";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { SystemLoggingPageContainer, VZSmallButton, SystemLoggingHeaderOptionRow } from "./styles";
-import { TypeSelectionHeader } from "../../components/type-selection-header/TypeSelectionHeader";
-import { useNavigate, useParams } from "react-router-dom";
-import { MainLoggingComponent } from "./system-log-components/MainLoggingComponent";
+export default SystemLogging
 
-export const SystemLogging: React.FC = () => {
-  const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
-  const [selectedType, setSelectedType] = useState("system");
-  const [offset, setOffset] = useState(0);
-  useEffect(() => {
-    if (id !== ":id") {
-      setSelectedType(id!);
-    } else {
-      navigate(`/adv/monitoring/log/system`);
+import React, { useState } from 'react'
+import InfiniteScroll from 'react-infinite-scroll-component';
+
+import './MainLoggingPage.css'
+import { SystemLoggingConstants } from '../../../../constants/Diagnostics'
+import ApplyModal from '../../../../common/modal/apply-modal/ApplyModal'
+import { ModalRouter } from '../../../../common/modal/Modal'
+import { LoadingSpinner } from '../../../../common/loader/Loader';
+import Footer from '../../../../common/footer/Footer';
+import { reParseAndRemoveTimeZone, timeFormatter4 } from '../../../../utils/TimeFormatters';
+import { timeZoneMap, timezoneMappings } from '../../../../constants/DateTime';
+
+export const MainLoggingPage = ({ selectedLogType, currentValue, clearLog, nextLog, hasMore, defaultTimezone }) => {
+    const [showClearLogModal, setClearLogModal] = useState(false)
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const toggleClearModal = () => {
+        setClearLogModal(!showClearLogModal)
     }
-  }, [id, navigate]);
 
-  const requestData = useMemo(() => {
-    return {
-      requestId: "componentId",
-      logType: selectedType,
-      startDateTime: "startTimeData",
-      endDateTime: "endTimeData",
-      offset,
-      limit: 100,
-    };
-  }, [selectedType, offset]);
-
-  const { invoke, data, isError, isPending } = useSystemLogging(PlatformType.Router);
-
-  useEffect(() => {
-    invoke(requestData);
-  }, [requestData,invoke]);
-
-  const fetchNextLog = async () => {
-    setOffset((prevOffset) => prevOffset + 100);
-  };
-
-  if (isPending) return <></>;
-  if (isError) return <></>;
-  return (
-    <SystemLoggingView
-      data={data}
-      selectedType={selectedType}
-      setSelectedType={setSelectedType}
-      clicked={() => invoke(requestData)}
-      fetchNextLog={fetchNextLog}
-    />
-  );
-};
-
-const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "landhcp", "wifi"];
-const HeaderOptions: React.FC<{ selectedType: string; clicked: () => {} }> = ({ selectedType, clicked }) => {
-  return (
-    //TODO: Add proper check
-    <SystemLoggingHeaderOptionRow>
-      {selectedType === "firewall" && <VZSmallButton>Settings</VZSmallButton>}
-      <VZSmallButton>Options</VZSmallButton>
-      <VZSmallButton onClick={() => clicked()}>Refresh</VZSmallButton>
-      <VZSmallButton $primary>Save</VZSmallButton>
-    </SystemLoggingHeaderOptionRow>
-  );
-};
-
-type Props = {
-  data?: SystemLogModel[];
-  selectedType: string;
-  setSelectedType: React.Dispatch<React.SetStateAction<string>>;
-  clicked: () => {};
-  fetchNextLog: () => void;
-};
-
-export const SystemLoggingView: React.FC<Props> = ({ data, selectedType, setSelectedType, clicked, fetchNextLog }) => {
-  const navigate = useNavigate();
-
-  const handleOptionClick = (option: string) => {
-    setSelectedType(option);
-    navigate(`/adv/monitoring/log/${option}`);
-  };
-
-  return (
-    <>
-      <VZHeader
-        title="System Logging"
-        breadcrumbData={[
-          { label: "Diagnostics & Monitoring" },
-          //TODO:BreadCrumb Reload issue
-          { label: "System Logging", destType: RouteType.SYS_LOG },
-          { label: selectedType }, //TODO: convert to the proper header
-        ]}
-        rightBody={<HeaderOptions selectedType={selectedType} clicked={clicked} />}
-        bottomBody={
-          <TypeSelectionHeader
-            currentSelectedType={selectedType}
-            availableHeaderOptions={testAvaibableOptions}
-            onOptionClick={handleOptionClick}
-          />
-        }
-      />
-      <SystemLoggingPageContainer className="vz--footer">
-        <MainLoggingComponent data={data} fetchNextLog={fetchNextLog} />
-      </SystemLoggingPageContainer>
-    </>
-  );
-};
-
-This is my MainComponent.tsx 
-
-import { Table } from "react-bootstrap";
-import { SystemLogModel } from "../../../../domain/system-logging/models";
-import { VZSmallButton } from "../styles";
-import {
-  LoggingTableData,
-  LoggingTableRow,
-  LoggingTableDetail,
-  MainLoggingPageTableHeader,
-  LoggingTableHeader,
-  LoggingTableDetailHeader,
-  LoggingTableBodyData,
-} from "./styles";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { useEffect, useState } from "react";
-
-type Props = {
-  data?: SystemLogModel[];
-  fetchNextLog: () => void;
-};
-
-export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) => {
-  const [logs, setLogs] = useState<SystemLogModel[]>([]);
-  useEffect(() => {
-    setLogs((prev) => [...prev, ...data!]);
-  }, [data]);
-  
-  return (
-    <>
-      <Table className="mb-0">
-        <MainLoggingPageTableHeader>
-          <LoggingTableRow className="b">
-            <LoggingTableData>Time</LoggingTableData>
-            <LoggingTableHeader>Event Type</LoggingTableHeader>
-            <LoggingTableHeader>Log Level</LoggingTableHeader>
-            <LoggingTableDetailHeader>Details</LoggingTableDetailHeader>
-            <td>
-              <VZSmallButton>Clear</VZSmallButton>
-            </td>
-          </LoggingTableRow>
-        </MainLoggingPageTableHeader>
-      </Table>
-      {logs! && (
-        <InfiniteScroll
-          dataLength={logs?.length}
-          loader={<>Loading...</>}
-          next={fetchNextLog}
-          hasMore={true}
-          height={"calc(100vh - 331px)"}
-        >
-          <Table>
-            <tbody>
-              {logs.map((element, index) => (
-                <LoggingTableRow key={index + 1}>
-                  <LoggingTableData>2024 Mar 14 22:55:23</LoggingTableData>
-                  <LoggingTableBodyData>{element.type}</LoggingTableBodyData>
-                  <LoggingTableBodyData>{element.level}</LoggingTableBodyData>
-                  <LoggingTableDetail>{element.detail}</LoggingTableDetail>
-                </LoggingTableRow>
-              ))}
-            </tbody>
-          </Table>
-        </InfiniteScroll>
-      )}
-    </>
-  );
-};
-
-now the original requirement was that whenever i scroll to some width the offset should change leading to the api to be called but with the above implentation the issue which i am facing is that whenever i scrolled to the bottom the call is being made with the correct offset but the page gets data doesnot gets added in the bottom 
-and it is scrolled to the top 
+    return (
+        <>
+            <div className="sys-log-table-row sys-log-table-header-row pos-rel b">
+                {SystemLoggingConstants?.tableTypes?.map((val, idx) => {
+                    return (
+                        <div className={`sys-log-table-col-${idx + 1}`} key={idx}>{val}</div>
+                    )
+                })}
+                <button
+                    className="clear-sys-log-button"
+                    onClick={toggleClearModal}
+                >
+                    {SystemLoggingConstants?.clear}
+                </button>
+            </div>
+            <InfiniteScroll className='sys-log-inf-list' dataLength={currentValue?.length} loader={<div className='vz-spinner system-log-spinner'><LoadingSpinner /></div>} next={nextLog} hasMore={hasMore} height={"calc(100vh - 331px)"}>
+                <div className='flex-1'>
+                    {currentValue?.map((val, index) => {
+                        return (
+                            val?.dateTime && (
+                                <div className="sys-log-table-row" key={index}>
+                                    {SystemLoggingConstants?.tableRowKeys?.map(
+                                        (key, idx) => {
+                                            return (
+                                                <div key={idx} className={`sys-log-table-col-${idx + 1}`}>{key === "dateTime" ? timeFormatter4(reParseAndRemoveTimeZone(val?.[key] + "Z", timezoneMappings?.[timeZoneMap?.[defaultTimezone]])) : val?.[key]}</div>
+                                            )
+                                        }
+                                    )}
+                                </div>
+                            )
+                        )
+                    })}
+                </div>
+                <Footer />
+            </InfiniteScroll>
+            <ApplyModal
+                show={showApplyModal}
+                setShowModal={setShowApplyModal}
+                time={5000}
+            />
+            <ModalRouter
+                show={showClearLogModal}
+                onHide={toggleClearModal}
+                modalTitle={SystemLoggingConstants?.attention}
+                modalContent={SystemLoggingConstants?.clearDesc(SystemLoggingConstants?.clearlogContent[selectedLogType])}
+                cancel={SystemLoggingConstants?.cancel}
+                onHandleCancel={toggleClearModal}
+                classCancel={'eds-button'}
+                submit={SystemLoggingConstants?.apply}
+                onHandleSubmit={() => {
+                    toggleClearModal()
+                    setShowApplyModal(true)
+                    clearLog()
+                }}
+                classSubmit={'eds-button'}
+            />
+        </>
+    )
+}
