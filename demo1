@@ -1,3 +1,24 @@
+this is my hooks.ts
+import { useMutation } from "@tanstack/react-query";
+import { LazyAsyncHookData } from "../hook_data";
+import { KEY_SYSTEM_LOGS } from "../keys";
+import { getSystemLogs } from "../../data/system-logging/system_logging";
+import { lazyAsyncHookData } from "../hook_data_impl";
+import { SystemLogModel } from "./models";
+import { PlatformType } from "../misc/models";
+import { SystemLoggingApiRequest } from "../../data/system-logging/model";
+
+export function useSystemLogging(
+  platformType: PlatformType
+): LazyAsyncHookData<SystemLoggingApiRequest, SystemLogModel[]> {
+  const { mutateAsync, status, data, error } = useMutation({
+    mutationKey: [KEY_SYSTEM_LOGS],
+    mutationFn: (request: SystemLoggingApiRequest) => getSystemLogs(platformType, request),
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
+
+This is systemloggig.tsx
 import { useEffect, useMemo, useState } from "react";
 import { PlatformType, RouteType } from "../../../domain/misc/models";
 import { useSystemLogging } from "../../../domain/system-logging/hooks";
@@ -11,8 +32,8 @@ import { MainLoggingComponent } from "./system-log-components/MainLoggingCompone
 export const SystemLogging: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const [selectedType, setSelectedType] = useState(id || "system");
-
+  const [selectedType, setSelectedType] = useState("system");
+  const [offset, setOffset] = useState(0);
   useEffect(() => {
     if (id !== ":id") {
       setSelectedType(id!);
@@ -27,19 +48,19 @@ export const SystemLogging: React.FC = () => {
       logType: selectedType,
       startDateTime: "startTimeData",
       endDateTime: "endTimeData",
-      offset: 0,
+      offset,
       limit: 100,
     };
-  }, [selectedType]);
+  }, [selectedType, offset]);
 
-  const { invoke, data, isError, isPending } = useSystemLogging(PlatformType.Router, requestData);
+  const { invoke, data, isError, isPending } = useSystemLogging(PlatformType.Router);
 
   useEffect(() => {
-    invoke();
-  }, [selectedType, invoke]);
+    invoke(requestData);
+  }, [requestData,invoke]);
 
-  const fetchNextLog = () => {
-    console.log("HI I am callwed");
+  const fetchNextLog = async () => {
+    setOffset((prevOffset) => prevOffset + 100);
   };
 
   if (isPending) return <></>;
@@ -49,13 +70,13 @@ export const SystemLogging: React.FC = () => {
       data={data}
       selectedType={selectedType}
       setSelectedType={setSelectedType}
-      clicked={invoke}
+      clicked={() => invoke(requestData)}
       fetchNextLog={fetchNextLog}
     />
   );
 };
 
-const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "wifi"];
+const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "landhcp", "wifi"];
 const HeaderOptions: React.FC<{ selectedType: string; clicked: () => {} }> = ({ selectedType, clicked }) => {
   return (
     //TODO: Add proper check
@@ -73,7 +94,7 @@ type Props = {
   selectedType: string;
   setSelectedType: React.Dispatch<React.SetStateAction<string>>;
   clicked: () => {};
-  fetchNextLog: () => void; // TODO: change the return type of the function
+  fetchNextLog: () => void;
 };
 
 export const SystemLoggingView: React.FC<Props> = ({ data, selectedType, setSelectedType, clicked, fetchNextLog }) => {
@@ -110,7 +131,7 @@ export const SystemLoggingView: React.FC<Props> = ({ data, selectedType, setSele
   );
 };
 
-below is the MainLoggingComponent
+This is my MainComponent.tsx 
 
 import { Table } from "react-bootstrap";
 import { SystemLogModel } from "../../../../domain/system-logging/models";
@@ -125,6 +146,7 @@ import {
   LoggingTableBodyData,
 } from "./styles";
 import InfiniteScroll from "react-infinite-scroll-component";
+import { useEffect, useState } from "react";
 
 type Props = {
   data?: SystemLogModel[];
@@ -132,6 +154,11 @@ type Props = {
 };
 
 export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) => {
+  const [logs, setLogs] = useState<SystemLogModel[]>([]);
+  useEffect(() => {
+    setLogs((prev) => [...prev, ...data!]);
+  }, [data]);
+  
   return (
     <>
       <Table className="mb-0">
@@ -147,9 +174,9 @@ export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) =>
           </LoggingTableRow>
         </MainLoggingPageTableHeader>
       </Table>
-      {data! && (
+      {logs! && (
         <InfiniteScroll
-          dataLength={data?.length}
+          dataLength={logs?.length}
           loader={<>Loading...</>}
           next={fetchNextLog}
           hasMore={true}
@@ -157,7 +184,7 @@ export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) =>
         >
           <Table>
             <tbody>
-              {data.map((element, index) => (
+              {logs.map((element, index) => (
                 <LoggingTableRow key={index + 1}>
                   <LoggingTableData>2024 Mar 14 22:55:23</LoggingTableData>
                   <LoggingTableBodyData>{element.type}</LoggingTableBodyData>
@@ -173,54 +200,5 @@ export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) =>
   );
 };
 
-and now below is the hook 
-import { useMutation } from "@tanstack/react-query";
-import { LazyAsyncHookData } from "../hook_data";
-import { KEY_SYSTEM_LOGS } from "../keys";
-import { getSystemLogs } from "../../data/system-logging/system_logging";
-import { lazyAsyncHookData } from "../hook_data_impl";
-import { SystemLogModel } from "./models";
-import { PlatformType } from "../misc/models";
-import { SystemLoggingApiRequest } from "../../data/system-logging/model";
-
-export function useSystemLogging(
-  platformType: PlatformType,
-  request: SystemLoggingApiRequest
-): LazyAsyncHookData<void, SystemLogModel[]> {
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: [KEY_SYSTEM_LOGS],
-    mutationFn: () => getSystemLogs(platformType, request),
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-
-Okay so the new requirement of this project is that we need to add infinite scroll which i already did 
-the infinity scrolll have a function called fetchNextLog when we scroll to a certain limit the fetchNextLog is called 
-
-now the requirement is that we need to invoke the useSystemLogging but there is a twist on each invoke we need to change the offset in the requestData to offset+limit 
-for example when the page loads and call is made to the API the payload should be
-requestId: "componentId",
-      logType: selectedType,
-      startDateTime: "startTimeData",
-      endDateTime: "endTimeData",
-      offset: 0,
-      limit: 100,
-
-when the fetchNextLog is called again a call is to be made with the following requstData
-requestId: "componentId",
-      logType: selectedType,
-      startDateTime: "startTimeData",
-      endDateTime: "endTimeData",
-      offset: 100,
-      limit: 100,
-and the data to be added 
-then again when the fetchNextLog is called the following should be the requestData
-
-requestId: "componentId",
-      logType: selectedType,
-      startDateTime: "startTimeData",
-      endDateTime: "endTimeData",
-      offset: 200,
-      limit: 100,
-
+now the original requirement was that whenever i scroll to some width the offset should change leading to the api to be called but with the above implentation the issue which i am facing is that whenever i scrolled to the bottom the call is being made with the correct offset but the page gets data doesnot gets added in the bottom 
+and it is scrolled to the top 
