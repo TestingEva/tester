@@ -1,46 +1,205 @@
-import { Table } from "react-bootstrap";
-import { SystemLogModel } from "../../../../domain/system-logging/models";
-import "./MainLoggingComponent.css"; // Import the CSS file for custom styles
+import { useEffect, useMemo, useState } from "react";
+import { PlatformType, RouteType } from "../../../domain/misc/models";
+import { useSystemLogging } from "../../../domain/system-logging/hooks";
+import { SystemLogModel } from "../../../domain/system-logging/models";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { SystemLoggingPageContainer, VZSmallButton, SystemLoggingHeaderOptionRow } from "./styles";
+import { TypeSelectionHeader } from "../../components/type-selection-header/TypeSelectionHeader";
+import { useNavigate, useParams } from "react-router-dom";
+import { MainLoggingComponent } from "./system-log-components/MainLoggingComponent";
+
+export const SystemLogging: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const [selectedType, setSelectedType] = useState(id || "system");
+
+  useEffect(() => {
+    if (id !== ":id") {
+      setSelectedType(id!);
+    } else {
+      navigate(`/adv/monitoring/log/system`);
+    }
+  }, [id, navigate]);
+
+  const requestData = useMemo(() => {
+    return {
+      requestId: "componentId",
+      logType: selectedType,
+      startDateTime: "startTimeData",
+      endDateTime: "endTimeData",
+      offset: 0,
+      limit: 100,
+    };
+  }, [selectedType]);
+
+  const { invoke, data, isError, isPending } = useSystemLogging(PlatformType.Router, requestData);
+
+  useEffect(() => {
+    invoke();
+  }, [selectedType, invoke]);
+
+  const fetchNextLog = () => {
+    console.log("HI I am callwed");
+  };
+
+  if (isPending) return <></>;
+  if (isError) return <></>;
+  return (
+    <SystemLoggingView
+      data={data}
+      selectedType={selectedType}
+      setSelectedType={setSelectedType}
+      clicked={invoke}
+      fetchNextLog={fetchNextLog}
+    />
+  );
+};
+
+const testAvaibableOptions = ["system", "security", "advanced", "firewall", "wandhcp", "wifi"];
+const HeaderOptions: React.FC<{ selectedType: string; clicked: () => {} }> = ({ selectedType, clicked }) => {
+  return (
+    //TODO: Add proper check
+    <SystemLoggingHeaderOptionRow>
+      {selectedType === "firewall" && <VZSmallButton>Settings</VZSmallButton>}
+      <VZSmallButton>Options</VZSmallButton>
+      <VZSmallButton onClick={() => clicked()}>Refresh</VZSmallButton>
+      <VZSmallButton $primary>Save</VZSmallButton>
+    </SystemLoggingHeaderOptionRow>
+  );
+};
 
 type Props = {
   data?: SystemLogModel[];
+  selectedType: string;
+  setSelectedType: React.Dispatch<React.SetStateAction<string>>;
+  clicked: () => {};
+  fetchNextLog: () => void; // TODO: change the return type of the function
 };
 
-export const MainLoggingComponent: React.FC<Props> = ({ data }) => {
+export const SystemLoggingView: React.FC<Props> = ({ data, selectedType, setSelectedType, clicked, fetchNextLog }) => {
+  const navigate = useNavigate();
+
+  const handleOptionClick = (option: string) => {
+    setSelectedType(option);
+    navigate(`/adv/monitoring/log/${option}`);
+  };
+
   return (
-    <div className="table-container">
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Event Type</th>
-            <th>Log Level</th>
-            <th>Details</th>
-          </tr>
-        </thead>
-      </Table>
-      <div className="table-body-container">
-        <Table striped bordered hover>
-          <tbody>
-            {data && data.length > 0 ? (
-              data.map((log, index) => (
-                <tr key={index}>
-                  <td>{new Date(log.dateTime).toLocaleString()}</td>
-                  <td>{log.type}</td>
-                  <td>{log.level}</td>
-                  <td style={{ minWidth: "300px" }}>{log.detail}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="text-center">
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-      </div>
-    </div>
+    <>
+      <VZHeader
+        title="System Logging"
+        breadcrumbData={[
+          { label: "Diagnostics & Monitoring" },
+          //TODO:BreadCrumb Reload issue
+          { label: "System Logging", destType: RouteType.SYS_LOG },
+          { label: selectedType }, //TODO: convert to the proper header
+        ]}
+        rightBody={<HeaderOptions selectedType={selectedType} clicked={clicked} />}
+        bottomBody={
+          <TypeSelectionHeader
+            currentSelectedType={selectedType}
+            availableHeaderOptions={testAvaibableOptions}
+            onOptionClick={handleOptionClick}
+          />
+        }
+      />
+      <SystemLoggingPageContainer className="vz--footer">
+        <MainLoggingComponent data={data} fetchNextLog={fetchNextLog} />
+      </SystemLoggingPageContainer>
+    </>
   );
 };
+
+below is the MainLoggingComponent
+
+import { Table } from "react-bootstrap";
+import { SystemLogModel } from "../../../../domain/system-logging/models";
+import { VZSmallButton } from "../styles";
+import {
+  LoggingTableData,
+  LoggingTableRow,
+  LoggingTableDetail,
+  MainLoggingPageTableHeader,
+  LoggingTableHeader,
+  LoggingTableDetailHeader,
+  LoggingTableBodyData,
+} from "./styles";
+import InfiniteScroll from "react-infinite-scroll-component";
+
+type Props = {
+  data?: SystemLogModel[];
+  fetchNextLog: () => void;
+};
+
+export const MainLoggingComponent: React.FC<Props> = ({ data, fetchNextLog }) => {
+  return (
+    <>
+      <Table className="mb-0">
+        <MainLoggingPageTableHeader>
+          <LoggingTableRow className="b">
+            <LoggingTableData>Time</LoggingTableData>
+            <LoggingTableHeader>Event Type</LoggingTableHeader>
+            <LoggingTableHeader>Log Level</LoggingTableHeader>
+            <LoggingTableDetailHeader>Details</LoggingTableDetailHeader>
+            <td>
+              <VZSmallButton>Clear</VZSmallButton>
+            </td>
+          </LoggingTableRow>
+        </MainLoggingPageTableHeader>
+      </Table>
+      {data! && (
+        <InfiniteScroll
+          dataLength={data?.length}
+          loader={<>Loading...</>}
+          next={fetchNextLog}
+          hasMore={true}
+          height={"calc(100vh - 331px)"}
+        >
+          <Table>
+            <tbody>
+              {data.map((element, index) => (
+                <LoggingTableRow key={index + 1}>
+                  <LoggingTableData>2024 Mar 14 22:55:23</LoggingTableData>
+                  <LoggingTableBodyData>{element.type}</LoggingTableBodyData>
+                  <LoggingTableBodyData>{element.level}</LoggingTableBodyData>
+                  <LoggingTableDetail>{element.detail}</LoggingTableDetail>
+                </LoggingTableRow>
+              ))}
+            </tbody>
+          </Table>
+        </InfiniteScroll>
+      )}
+    </>
+  );
+};
+
+
+Okay so the new requirement of this project is that we need to add infinite scroll which i already did 
+the infinity scrolll have a function called fetchNextLog when we scroll to a certain limit the fetchNextLog is called 
+
+now the requirement is that we need to invoke the useSystemLogging but there is a twist on each invoke we need to change the offset in the requestData to offset+limit 
+for example when the page loads and call is made to the API the payload should be
+requestId: "componentId",
+      logType: selectedType,
+      startDateTime: "startTimeData",
+      endDateTime: "endTimeData",
+      offset: 0,
+      limit: 100,
+
+when the fetchNextLog is called again a call is to be made with the following requstData
+requestId: "componentId",
+      logType: selectedType,
+      startDateTime: "startTimeData",
+      endDateTime: "endTimeData",
+      offset: 100,
+      limit: 100,
+and the data to be added 
+then again when the fetchNextLog is called the following should be the requestData
+
+requestId: "componentId",
+      logType: selectedType,
+      startDateTime: "startTimeData",
+      endDateTime: "endTimeData",
+      offset: 200,
+      limit: 100,
+
