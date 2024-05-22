@@ -1,10 +1,10 @@
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useFirewallLogFilters } from "../../../../domain/system-logging/hooks";
 import { FirewallLogFilterModel } from "../../../../domain/system-logging/models";
 import { ErrorIndicator } from "../../../components/error-indicator/ErrorIndicator";
 import { LoadingIndicator } from "../../../components/loading-indicator/LoadingIndicator";
 import { Col, Container, Row } from "react-bootstrap";
-import { useEffect, useState } from "react";
 import { VZCheckbox } from "../../../components/vz-checkbox/VZCheckbox";
 import { VZSmallButton } from "../styles";
 import { OptionsButtonCol } from "./styles";
@@ -20,7 +20,6 @@ export const FirewallSettings: React.FC = () => {
       setCurrentData(data);
     }
   }, [data]);
-  
 
   if (isError) {
     return <ErrorIndicator />;
@@ -28,7 +27,7 @@ export const FirewallSettings: React.FC = () => {
   if (isPending || data === undefined) {
     return <LoadingIndicator />;
   }
-  return <FirewallSettingsView data={currentData!} />;
+  return <FirewallSettingsView data={currentData!} setData={setCurrentData} />;
 };
 
 export const FirewallLogFilterHeader = styled(Row)`
@@ -50,34 +49,55 @@ export const FirewallLogFilterRowComponent = styled(Row)<{ $disabled?: boolean }
 
 type Props = {
   data: FirewallLogFilterModel;
+  setData: React.Dispatch<React.SetStateAction<FirewallLogFilterModel | undefined>>;
 };
-const FirewallSettingsView: React.FC<Props> = ({ data }) => {
+
+const FirewallSettingsView: React.FC<Props> = ({ data, setData }) => {
+  const handleCheckboxChange = (key: keyof FirewallLogFilterModel) => {
+    setData((prevData) => ({
+      ...prevData!,
+      [key]: !prevData![key],
+    }));
+  };
+
   return (
     <Container>
       <FirewallLogFilterHeader>Accepted Events</FirewallLogFilterHeader>
       <FirewallLogFilterRowComponent>
-        <VZCheckbox checked={true} onChange={() => {}} />
+        <VZCheckbox
+          checked={data.acceptIncomingConnections}
+          onChange={() => handleCheckboxChange("acceptIncomingConnections")}
+        />
         Accept Incoming Connections
       </FirewallLogFilterRowComponent>
       <FirewallLogFilterRowComponent>
-        <VZCheckbox checked={true} onChange={() => {}} />
+        <VZCheckbox
+          checked={data.acceptOutgoingConnections}
+          onChange={() => handleCheckboxChange("acceptOutgoingConnections")}
+        />
         Accept Outgoing Connections
       </FirewallLogFilterRowComponent>
       <FirewallLogFilterHeader>Blocked Events</FirewallLogFilterHeader>
       <FirewallLogFilterRowComponent>
-        <VZCheckbox checked={true} onChange={() => {}} />
+        <VZCheckbox
+          checked={data.allBlockedConnectionAttempts}
+          onChange={() => handleCheckboxChange("allBlockedConnectionAttempts")}
+        />
         All blocked connections attempts
       </FirewallLogFilterRowComponent>
       <Row>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox checked={data.winuuke} onChange={() => handleCheckboxChange("winuuke")} />
             Winuuke
           </FirewallLogFilterRowComponent>
         </Col>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox
+              checked={data.mutiCastBroadCast}
+              onChange={() => handleCheckboxChange("mutiCastBroadCast")}
+            />
             Multicast/Broadcast
           </FirewallLogFilterRowComponent>
         </Col>
@@ -85,13 +105,16 @@ const FirewallSettingsView: React.FC<Props> = ({ data }) => {
       <Row>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox checked={data.echoChargen} onChange={() => handleCheckboxChange("echoChargen")} />
             Echo Chargen
           </FirewallLogFilterRowComponent>
         </Col>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox
+              checked={data.defragmentationError}
+              onChange={() => handleCheckboxChange("defragmentationError")}
+            />
             Defragmentation Error
           </FirewallLogFilterRowComponent>
         </Col>
@@ -99,13 +122,13 @@ const FirewallSettingsView: React.FC<Props> = ({ data }) => {
       <Row>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox checked={data.icmpRedirect} onChange={() => handleCheckboxChange("icmpRedirect")} />
             ICMP Redirect
           </FirewallLogFilterRowComponent>
         </Col>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox checked={data.icmpMultiCast} onChange={() => handleCheckboxChange("icmpMultiCast")} />
             ICMP Multicast
           </FirewallLogFilterRowComponent>
         </Col>
@@ -113,42 +136,49 @@ const FirewallSettingsView: React.FC<Props> = ({ data }) => {
       <Row>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox
+              checked={data.blockedFragments}
+              onChange={() => handleCheckboxChange("blockedFragments")}
+            />
             Blocked Fragments
           </FirewallLogFilterRowComponent>
         </Col>
         <Col>
           <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+            <VZCheckbox
+              checked={data.packetIllegalOptions}
+              onChange={() => handleCheckboxChange("packetIllegalOptions")}
+            />
             Packet Illegal options
           </FirewallLogFilterRowComponent>
         </Col>
       </Row>
       <Row>
         <Col>
-          <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+          <FirewallLogFilterRowComponent checked={data.icmpFlood} onChange={() => handleCheckboxChange("icmpFlood")}>
             ICMP Flood
           </FirewallLogFilterRowComponent>
         </Col>
         <Col>
-          <FirewallLogFilterRowComponent>
-            <VZCheckbox checked={true} onChange={() => {}} />
+          <FirewallLogFilterRowComponent checked={data.synFlood} onChange={() => handleCheckboxChange("synFlood")}>
             Syn Flood
           </FirewallLogFilterRowComponent>
         </Col>
       </Row>
-      <FirewallLogFilterRowComponent>
-        <VZCheckbox checked={true} onChange={() => {}} />
+      <FirewallLogFilterRowComponent checked={data.udpFlood} onChange={() => handleCheckboxChange("udpFlood")}>
         UDP Flood
       </FirewallLogFilterRowComponent>
       <FirewallLogFilterHeader>Other Events</FirewallLogFilterHeader>
-      <FirewallLogFilterRowComponent>
-        <VZCheckbox checked={true} onChange={() => {}} />
-        Remote Adminstration Attempts
+      <FirewallLogFilterRowComponent
+        checked={data.remoteAdministrationAttempts}
+        onChange={() => handleCheckboxChange("remoteAdministrationAttempts")}
+      >
+        Remote Administration Attempts
       </FirewallLogFilterRowComponent>
-      <FirewallLogFilterRowComponent>
-        <VZCheckbox checked={true} onChange={() => {}} />
+      <FirewallLogFilterRowComponent
+        checked={data.connectionStates}
+        onChange={() => handleCheckboxChange("connectionStates")}
+      >
         Connection States
       </FirewallLogFilterRowComponent>
       <FirewallLogFilterHeader>Log Buffer</FirewallLogFilterHeader>
@@ -164,42 +194,3 @@ const FirewallSettingsView: React.FC<Props> = ({ data }) => {
     </Container>
   );
 };
-
-Supppose the data is following 
-{
-    "acceptIncomingConnections": true,
-    "acceptOutgoingConnections": true,
-    "allBlockedConnectionAttempts": true,
-    "blockedFragments": true,
-    "connectionStates": true,
-    "defragmentationError": true,
-    "echoChargen": true,
-    "icmpFlood": true,
-    "icmpMultiCast": true,
-    "icmpRedirect": true,
-    "mutiCastBroadCast": true,
-    "packetIllegalOptions": true,
-    "remoteAdministrationAttempts": true,
-    "synFlood": true,
-    "udpFlood": true,
-    "winuuke": true
-}
-now based on this i want you to create the logic in such a way that suppose if user clicked on accept Outgoing connections then the currentData will be the following 
-{
-    "acceptIncomingConnections": true,
-    "acceptOutgoingConnections": false,
-    "allBlockedConnectionAttempts": true,
-    "blockedFragments": true,
-    "connectionStates": true,
-    "defragmentationError": true,
-    "echoChargen": true,
-    "icmpFlood": true,
-    "icmpMultiCast": true,
-    "icmpRedirect": true,
-    "mutiCastBroadCast": true,
-    "packetIllegalOptions": true,
-    "remoteAdministrationAttempts": true,
-    "synFlood": true,
-    "udpFlood": true,
-    "winuuke": true
-}
