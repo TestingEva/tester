@@ -1,159 +1,39 @@
-import { useEffect, useMemo, useState } from "react";
-import { useClearSystemLogs, useSystemLogCategories, useSystemLogs } from "../../../domain/system-logging/hooks";
-import { LogCategory, SystemLogModel } from "../../../domain/system-logging/models";
-import { useParams } from "react-router-dom";
-import { SystemLoggingView } from "./SystemLoggingView";
-import { convertLogCategorytoParamsId, paramsIdToLogtype } from "./utils";
-import { v4 as uuidv4 } from "uuid";
-import { useLocator, useNavigator } from "../../components/navigator/navigator";
-import { RouteType } from "../../../domain/misc/models";
-import dayjs from "dayjs";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicatorOverlay } from "../../components/loading-indicator/LoadingIndicator";
+import React, { useState } from "react";
 
-export enum SystemLogPageType {
-  Options,
-  Settings,
-  Logs,
+import "./VZCheckbox.css";
+import styled from "styled-components";
+
+interface Props {
+  checked: boolean;
+  onChange: (val: boolean) => void;
+  disabled:boolean
 }
 
-export const SystemLogging: React.FC = () => {
-  const [selectedType, setSelectedType] = useState(LogCategory.system);
-  const [offset, setOffset] = useState(0);
-  const [requestId] = useState(uuidv4());
-  const [hasMore, setHasMore] = useState(false);
-  const [appendedLogs, setAppendedLogs] = useState<SystemLogModel[]>([]);
-  const [activePage, setActivePage] = useState<SystemLogPageType>(SystemLogPageType.Logs);
-  const [dateTimeRange, setDateTimeRange] = useState({
-    start: dayjs().subtract(1, "days").toDate(),
-    end: dayjs().toDate(),
-  });
-  const navigate = useNavigator();
-  const { id } = useParams<{ id: string }>();
-  const { groupLabel } = useLocator();
-  const { invoke: fetchLogs, data: logs, isError } = useSystemLogs();
-  const { invoke: clearLogs } = useClearSystemLogs();
-  const { data: supportedCategories } = useSystemLogCategories();
+const CheckboxTemplate = styled.div<{ $checked: boolean; $disabled: boolean }>`
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  color: white;
+  border: 1px solid black;
+  background-color: ${(props) => (props.$checked ? "black" : "white")};
+  &props.$disabled:
+`;
 
-  const requestData = useMemo(() => {
-    return {
-      requestId,
-      logType: selectedType,
-      startDateTime: dateTimeRange.start,
-      endDateTime: dateTimeRange.end,
-      offset,
-      limit: 100,
-    };
-    //eslint-disable-next-line
-  }, [selectedType, dateTimeRange, offset]);
+export const VZCheckbox: React.FC<Props> = (props) => {
+  const [isChecked, setIsChecked] = useState(props.checked);
 
-  useEffect(() => {
-    if (id !== ":id" && id !== undefined) {
-      setAppendedLogs([]);
-      setOffset(0);
-      setSelectedType(paramsIdToLogtype(id));
-      setActivePage(SystemLogPageType.Logs);
-    } else {
-      navigate(RouteType.SYS_LOG, { pathSuffix: `/system` });
-    }
-    //eslint-disable-next-line
-  }, [id]);
-
-  useEffect(() => {
-    fetchLogsData(requestData);
-    //eslint-disable-next-line
-  }, [requestData]);
-
-  useEffect(() => {
-    if (logs !== undefined) {
-      setAppendedLogs((prevLogs) => [...prevLogs, ...logs]);
-      setHasMore(logs.length >= 30);
-    } else {
-      setHasMore(false);
-    }
-  }, [logs]);
-
-  const fetchLogsData = (data: typeof requestData) => {
-    fetchLogs(data);
+  const toggleChecked = () => {
+    const newValue = !isChecked;
+    setIsChecked(newValue);
+    props.onChange(newValue);
   };
-
-  const fetchNextLog = () => {
-    setOffset((prevOffset) => prevOffset + 100);
-  };
-
-  const onRefresh = () => {
-    setAppendedLogs([]);
-    setOffset(0);
-    fetchLogsData(requestData);
-  };
-
-  const onClear = () => {
-    clearLogs({ logType: selectedType });
-    setOffset(0);
-    setAppendedLogs([]);
-    setHasMore(false);
-  };
-
-  const onTabClick = (category: LogCategory) => {
-    if (category !== selectedType) {
-      setSelectedType(category);
-      setOffset(0);
-      setActivePage(SystemLogPageType.Logs);
-      setDateTimeRange({
-        start: dayjs().subtract(1, "days").toDate(),
-        end: dayjs().toDate(),
-      });
-      navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
-    }
-  };
-
-  const changeActivePage = (pageType: SystemLogPageType) => {
-    setActivePage(pageType);
-  };
-
-  const changeDateTime = (optionSelected: 0 | 1 | 2, startDuration?: Date, endDuration?: Date) => {
-    if (optionSelected === 0) {
-      setDateTimeRange({
-        start: dayjs().subtract(1, "days").toDate(),
-        end: dayjs().toDate(),
-      });
-    } else if (optionSelected === 1) {
-      setDateTimeRange({
-        start: dayjs().subtract(7, "days").toDate(),
-        end: dayjs().toDate(),
-      });
-    } else {
-      setDateTimeRange({
-        start: startDuration!,
-        end: endDuration!,
-      });
-    }
-  };
-
-  // if (supportedCategories === undefined || logs === undefined) return <LoadingIndicator />;
-  if (isError) return <ErrorIndicator />;
 
   return (
-    <LoadingIndicatorOverlay enabled={supportedCategories === undefined}>
-      <SystemLoggingView
-        logs={appendedLogs}
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        onRefreshClicked={onRefresh}
-        onClearClicked={onClear}
-        onLoadMore={fetchNextLog}
-        hasMore={hasMore}
-        supportedCategories={supportedCategories ?? []}
-        onTabClicked={onTabClick}
-        rootBreadcrumbLabel={groupLabel!}
-        activePage={activePage}
-        changeActivePage={changeActivePage}
-        changeDateTime={changeDateTime}
-      />
-    </LoadingIndicatorOverlay>
+    <CheckboxTemplate $checked={isChecked} onClick={toggleChecked} $disabled={props.disabled}>
+      <i className="icon icon--check vz--checkbox--tick" />
+    </CheckboxTemplate>
   );
 };
 
 
-
-Could you look at this code and find out why two calls are being made when this page is loaded
+This is  a checkbox styled componenet i want that when disabled is given then the cursor changes to pointer and it should not be clickable and the color of outer border should be #d8dada
