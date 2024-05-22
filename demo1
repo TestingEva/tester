@@ -1,7 +1,8 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import styled from "styled-components";
 
+// Styled Components
 export const OptionViewContainer = styled(Col)`
   padding: 0 10px;
 `;
@@ -22,40 +23,74 @@ export const OptionsViewRow = styled(Row)`
   font-family: "Verizon NHG eTX Bold", sans-serif;
 `;
 
-export const RadioButton = styled.input`
+export const RadioButtonWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`;
+
+export const RadioButton = styled.input.attrs({ type: 'radio' })`
   appearance: none;
   border-radius: 50%;
   width: 20px;
   height: 20px;
   border: 1px solid #000;
   margin-top: 0.25em;
+  position: relative;
   &:hover {
     cursor: pointer;
   }
-  &:checked {
+  &:checked::before {
+    content: "";
+    display: block;
+    border-radius: 50%;
+    width: 10px;
+    height: 10px;
     background: #000;
+    position: absolute;
+    top: 4px;
+    left: 4px;
   }
 `;
 
+// Component
 export const OptionsView: React.FC = () => {
   const [selectedOption, setOption] = useState(0);
+
   return (
     <OptionViewContainer>
       <OptionsViewHeader>Logging view options</OptionsViewHeader>
       <OptionsViewRow>
-        <RadioButton type={"radio"} name="radio" checked={selectedOption === 0} onChange={() => setOption(0)} />
-        Past day
+        <RadioButtonWrapper>
+          <RadioButton
+            name="radio"
+            checked={selectedOption === 0}
+            onChange={() => setOption(0)}
+          />
+          <span>Past day</span>
+        </RadioButtonWrapper>
       </OptionsViewRow>
       <OptionsViewRow>
-        <RadioButton type={"radio"} name="radio" checked={selectedOption === 1} onChange={() => setOption(1)} />
-        Past week
+        <RadioButtonWrapper>
+          <RadioButton
+            name="radio"
+            checked={selectedOption === 1}
+            onChange={() => setOption(1)}
+          />
+          <span>Past week</span>
+        </RadioButtonWrapper>
       </OptionsViewRow>
       <OptionsViewRow>
-        <RadioButton type={"radio"} name="radio" checked={selectedOption === 2} onChange={() => setOption(2)} />
-        Custom range
+        <RadioButtonWrapper>
+          <RadioButton
+            name="radio"
+            checked={selectedOption === 2}
+            onChange={() => setOption(2)}
+          />
+          <span>Custom range</span>
+        </RadioButtonWrapper>
       </OptionsViewRow>
     </OptionViewContainer>
   );
 };
 
-Hi i want to create a normal component which will be having a Radio buttons and the styling of the button should be like the border i want is black color and the blue circle appear when the radio is selected should also be repaced by black 
+export default OptionsView;
