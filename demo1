@@ -1,39 +1,46 @@
-import React, { useState } from "react";
-
-import "./VZCheckbox.css";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 
 interface Props {
   checked: boolean;
   onChange: (val: boolean) => void;
-  disabled:boolean
+  disabled: boolean;
 }
 
 const CheckboxTemplate = styled.div<{ $checked: boolean; $disabled: boolean }>`
   height: 20px;
   width: 20px;
-  cursor: pointer;
+  cursor: ${(props) => (props.$disabled ? "not-allowed" : "pointer")};
   color: white;
-  border: 1px solid black;
+  border: 1px solid ${(props) => (props.$disabled ? "#d8dada" : "black")};
   background-color: ${(props) => (props.$checked ? "black" : "white")};
-  &props.$disabled:
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .icon {
+    display: ${(props) => (props.$checked ? "block" : "none")};
+    color: white;
+  }
 `;
 
-export const VZCheckbox: React.FC<Props> = (props) => {
-  const [isChecked, setIsChecked] = useState(props.checked);
+export const VZCheckbox: React.FC<Props> = ({ checked, onChange, disabled }) => {
+  const [isChecked, setIsChecked] = useState(checked);
+
+  useEffect(() => {
+    setIsChecked(checked);
+  }, [checked]);
 
   const toggleChecked = () => {
+    if (disabled) return;
     const newValue = !isChecked;
     setIsChecked(newValue);
-    props.onChange(newValue);
+    onChange(newValue);
   };
 
   return (
-    <CheckboxTemplate $checked={isChecked} onClick={toggleChecked} $disabled={props.disabled}>
-      <i className="icon icon--check vz--checkbox--tick" />
+    <CheckboxTemplate $checked={isChecked} onClick={toggleChecked} $disabled={disabled}>
+      <i className="icon icon--check vz--checkbox--tick">✔</i>
     </CheckboxTemplate>
   );
 };
-
-
-This is  a checkbox styled componenet i want that when disabled is given then the cursor changes to pointer and it should not be clickable and the color of outer border should be #d8dada
