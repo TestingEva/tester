@@ -1,336 +1,61 @@
-I have done the same with the javascript in my previous code could you please check it as the above response doesnt solves my issue 
-import React, { useEffect, useMemo, useState } from 'react'
+import { useState } from "react";
+import { Col, Row } from "react-bootstrap";
+import styled from "styled-components";
 
-import './SystemLogging.css'
-import { HeaderWithBody } from '../../../common/header/Header'
-import { SystemLoggingConstants } from '../../../constants/Diagnostics'
-import { TypeSelectionHeader } from './sys-log-components/TypeSelectionHeader'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import { clearSysLogRequest, fetchSysLogRequest } from './Action'
-import { MainLoggingPage } from './sys-logging-pages/MainLoggingPage'
-import FirewallLoggingSettings from './sys-logging-pages/FirewallLoggingSettings'
-import Footer from '../../../common/footer/Footer'
-import TimeSettingsPage from './sys-logging-pages/TimeSettingsPage'
-import CONFIG from '../../../config/env.json'
-import { v4 as uuidv4 } from 'uuid'
-import { fetchDateTimeRequest } from '../../system/date-time/Action'
-import { fetchRequests } from '../../../utils/FetchRequest'
-import VZLoader from '../../../common/loader/Loader'
+export const OptionViewContainer = styled(Col)`
+  padding: 0 10px;
+`;
 
-const SystemLogging = () => {
-    const apiData = useSelector((state) => {
-        return state?.sysLog?.data
-    })
-    const localDateTimeData = useSelector((state) => state?.dateTime?.data)
-    const params = useParams()
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const [loadPage, setLoadPage] = useState(false)
-    const [selectedLogType, setSelectedLogType] = useState('system')
-    const [currentData, setCurrentData] = useState([])
-    const [selectedPageType, setSelectedPageType] = useState(0)
-    const [timeData, setTimeData] = useState({})
-    const [startTimeData, setStartTimeData] = useState()
-    const [endTimeData, setEndTimeData] = useState()
-    const [componentId, setComponentId] = useState(uuidv4())
-    const [cumulativeOffset, setCumulativeOffset] = useState(100)
-    const [isDataRemaining, setIsDataRemaining] = useState(false)
-    const [defaultCalendarTime, setDefaultCalendarTime] = useState(0)
+export const OptionsViewHeader = styled(Row)`
+  height: 64px;
+  border-bottom: 1px solid black;
+  align-items: center;
+  font-size: 20px;
+  font-family: "Verizon NHG eDS Bold", sans-serif;
+`;
 
-    const requestData = useMemo(() => {
-        return {
-            requestId: componentId,
-            logType: SystemLoggingConstants?.requestLogType?.[params?.id],
-            startDateTime: startTimeData,
-            endDateTime: endTimeData,
-            offset: 0,
-            limit: 100,
-        }
-    }, [params, startTimeData, endTimeData, componentId])
+export const OptionsViewRow = styled(Row)`
+  height: 60px;
+  border-bottom: 1px solid #d8dada;
+  align-items: center;
+  gap: 16px;
+  font-family: "Verizon NHG eTX Bold", sans-serif;
+`;
 
+export const RadioButton = styled.input`
+  appearance: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  border: 1px solid #000;
+  margin-top: 0.25em;
+  &:hover {
+    cursor: pointer;
+  }
+  &:checked {
+    background: #000;
+  }
+`;
 
-    const clearLog = () => {
-        setCurrentData([])
-        dispatch(
-            clearSysLogRequest({
-                body: { logType: SystemLoggingConstants?.requestLogType?.[params?.id] },
-            })
-        )
-    }
+export const OptionsView: React.FC = () => {
+  const [selectedOption, setOption] = useState(0);
+  return (
+    <OptionViewContainer>
+      <OptionsViewHeader>Logging view options</OptionsViewHeader>
+      <OptionsViewRow>
+        <RadioButton type={"radio"} name="radio" checked={selectedOption === 0} onChange={() => setOption(0)} />
+        Past day
+      </OptionsViewRow>
+      <OptionsViewRow>
+        <RadioButton type={"radio"} name="radio" checked={selectedOption === 1} onChange={() => setOption(1)} />
+        Past week
+      </OptionsViewRow>
+      <OptionsViewRow>
+        <RadioButton type={"radio"} name="radio" checked={selectedOption === 2} onChange={() => setOption(2)} />
+        Custom range
+      </OptionsViewRow>
+    </OptionViewContainer>
+  );
+};
 
-    const subtractDaysFromLocalDateTime = (days) => {
-        const localDate = new Date(timeData?.time)
-        localDate?.setDate(localDate?.getDate() - days)
-        return `${localDate?.toISOString().slice(0, -1)}`
-    }
-
-    const filterLogs = ({ type = 'prevDay', startTime, endTime }) => {
-
-        switch (type) {
-            case 'prevDay':
-                setStartTimeData(subtractDaysFromLocalDateTime(1))
-                setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
-                break
-            case 'prevWeek':
-                setStartTimeData(subtractDaysFromLocalDateTime(7))
-                setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
-                break
-            default:
-                setStartTimeData(startTime)
-                setEndTimeData(endTime)
-                break
-        }
-        setSelectedPageType(0)
-    }
-
-    function saveLogs() {
-        fetchRequests({ url: CONFIG?.SYS_LOGGING_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ logType: SystemLoggingConstants?.requestLogType?.[params?.id] }) }).then(rData => { return rData?.blob() }).then(res => {
-            const blob = new Blob([res], { type: 'application/text' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `messages_${SystemLoggingConstants?.logFileName?.[params?.id]}.log`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        })
-    }
-
-    const refreshPage = () => {
-        window.scrollTo(0, 0)
-        setCurrentData([])
-        setCumulativeOffset(100)
-        filterLogs({ type: "prevDay" })
-        setComponentId(uuidv4())
-    }
-    useEffect(() => {
-        setSelectedLogType(params?.id)
-        if (timeData?.time) {
-            setStartTimeData(subtractDaysFromLocalDateTime(1))
-            setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
-        }
-        // eslint-disable-next-line
-    }, [params])
-
-    useEffect(() => {
-        if (startTimeData && endTimeData) {
-            window.scrollTo(0, 0)
-            setCurrentData([])
-            setLoadPage(false)
-            setCumulativeOffset(100)
-            dispatch(fetchSysLogRequest({ body: { ...requestData, requestId: uuidv4() } }))
-        }
-        // eslint-disable-next-line
-    }, [params.id, dispatch, requestData])
-
-    useMemo(() => {
-        if (localDateTimeData && Object.keys(localDateTimeData)?.length) {
-            setTimeData({
-                time: localDateTimeData?.localDateTime,
-            })
-            setDefaultCalendarTime({
-                time: localDateTimeData?.localDateTime
-            })
-        }
-    }, [localDateTimeData])
-
-    useEffect(() => {
-        if (timeData?.time) {
-            setStartTimeData(subtractDaysFromLocalDateTime(1))
-            setEndTimeData(timeData?.time?.endsWith('Z') ? timeData?.time?.slice(0, -1) : timeData?.time?.slice(0, -6))
-        }
-        // eslint-disable-next-line
-    }, [timeData])
-
-    useEffect(() => {
-        dispatch(fetchDateTimeRequest())
-        setComponentId(uuidv4())
-        return () => {
-            setComponentId(null)
-        }
-        // eslint-disable-next-line
-    }, [])
-
-    const callNextLogs = () => {
-        const updatedRequestData = { ...requestData, offset: cumulativeOffset, }
-        apiData?.logList?.length !== 0 && dispatch(fetchSysLogRequest({ body: updatedRequestData }))
-        setCumulativeOffset((prev) => prev + requestData?.limit)
-    }
-
-    const HeaderOptions = () => {
-        return (
-            <div className="sys-log-option-row">
-                {params?.id === 'firewall' && (
-                    <button
-                        className="sys-log-button-1 b"
-                        onClick={() => setSelectedPageType(2)}
-                    >
-                        {SystemLoggingConstants?.settings}
-                    </button>
-                )}
-                <button
-                    className="sys-log-button-1 b"
-                    onClick={() => setSelectedPageType(1)}
-                >
-                    {SystemLoggingConstants?.opt}
-                </button>
-                <button className="sys-log-button-1 b" onClick={refreshPage}>
-                    {SystemLoggingConstants?.refresh}
-                </button>
-                <button
-                    className="sys-log-button-1 sys-log-save-button b"
-                    onClick={saveLogs}
-                >
-                    {SystemLoggingConstants?.save}
-                </button>
-            </div>
-        )
-    }
-
-    useEffect(() => {
-        if (apiData && Object?.keys(apiData)?.length !== 0 && apiData?.isLogList) {
-            setIsDataRemaining(apiData?.logList?.length !== 0 ? true : false)
-            setCurrentData(c => { return [...c, ...apiData?.logList] })
-            setLoadPage(true);
-        }
-    }, [apiData])
-
-    return (
-        <>
-            <HeaderWithBody
-                title={SystemLoggingConstants?.title}
-                breadcrumbData={SystemLoggingConstants?.breadcrumbData?.concat([
-                    [SystemLoggingConstants?.availablePages?.[params?.id], ''],
-                ])}
-                extra={TypeSelectionHeader({
-                    currentSelectedType: selectedLogType,
-                    setSelectedPageType: setSelectedPageType,
-                    navigate: navigate,
-                })}
-                lineMargin={'sys-log-no-mar'}
-                body={selectedPageType === 0 && HeaderOptions()}
-            />
-            {loadPage ? <>
-                <div className="sys-log-page">
-                    <div className="flex-1">
-                        {selectedPageType === 0 &&
-                            Object?.keys(
-                                SystemLoggingConstants?.availablePages
-                            )?.indexOf(params?.id) !== -1 && (
-                                <MainLoggingPage
-                                    selectedLogType={selectedLogType}
-                                    currentValue={currentData}
-                                    clearLog={clearLog}
-                                    nextLog={callNextLogs}
-                                    hasMore={isDataRemaining}
-                                    defaultTimezone={localDateTimeData?.timeZone}
-                                />
-                            )}
-                        {selectedPageType === 1 &&
-                            Object?.keys(
-                                SystemLoggingConstants?.availablePages
-                            )?.indexOf(params?.id) !== -1 && (
-                                <TimeSettingsPage
-                                    filterLogs={filterLogs}
-                                    back={() => setSelectedPageType(0)}
-                                    defaultTime={defaultCalendarTime?.time?.endsWith('Z') ? defaultCalendarTime?.time?.slice(0, -1) : defaultCalendarTime?.time?.slice(0, -6)}
-                                    defaultTimezone={defaultCalendarTime?.time?.endsWith('Z') ? "Z" : defaultCalendarTime?.time?.slice(-6)}
-                                />
-                            )}
-                        {selectedPageType === 2 &&
-                            Object?.keys(
-                                SystemLoggingConstants?.availablePages
-                            )?.indexOf(params?.id) !== -1 && (
-                                <FirewallLoggingSettings
-                                    back={() => setSelectedPageType(0)}
-                                    refreshPage={refreshPage}
-                                />
-                            )}
-                    </div>
-                    {selectedPageType !== 0 && <Footer />}
-                </div>
-            </> : <VZLoader timeoutLoader={0} inDiv={true} />}
-        </>
-    )
-
-}
-
-export default SystemLogging
-
-import React, { useState } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component';
-
-import './MainLoggingPage.css'
-import { SystemLoggingConstants } from '../../../../constants/Diagnostics'
-import ApplyModal from '../../../../common/modal/apply-modal/ApplyModal'
-import { ModalRouter } from '../../../../common/modal/Modal'
-import { LoadingSpinner } from '../../../../common/loader/Loader';
-import Footer from '../../../../common/footer/Footer';
-import { reParseAndRemoveTimeZone, timeFormatter4 } from '../../../../utils/TimeFormatters';
-import { timeZoneMap, timezoneMappings } from '../../../../constants/DateTime';
-
-export const MainLoggingPage = ({ selectedLogType, currentValue, clearLog, nextLog, hasMore, defaultTimezone }) => {
-    const [showClearLogModal, setClearLogModal] = useState(false)
-    const [showApplyModal, setShowApplyModal] = useState(false);
-    const toggleClearModal = () => {
-        setClearLogModal(!showClearLogModal)
-    }
-
-    return (
-        <>
-            <div className="sys-log-table-row sys-log-table-header-row pos-rel b">
-                {SystemLoggingConstants?.tableTypes?.map((val, idx) => {
-                    return (
-                        <div className={`sys-log-table-col-${idx + 1}`} key={idx}>{val}</div>
-                    )
-                })}
-                <button
-                    className="clear-sys-log-button"
-                    onClick={toggleClearModal}
-                >
-                    {SystemLoggingConstants?.clear}
-                </button>
-            </div>
-            <InfiniteScroll className='sys-log-inf-list' dataLength={currentValue?.length} loader={<div className='vz-spinner system-log-spinner'><LoadingSpinner /></div>} next={nextLog} hasMore={hasMore} height={"calc(100vh - 331px)"}>
-                <div className='flex-1'>
-                    {currentValue?.map((val, index) => {
-                        return (
-                            val?.dateTime && (
-                                <div className="sys-log-table-row" key={index}>
-                                    {SystemLoggingConstants?.tableRowKeys?.map(
-                                        (key, idx) => {
-                                            return (
-                                                <div key={idx} className={`sys-log-table-col-${idx + 1}`}>{key === "dateTime" ? timeFormatter4(reParseAndRemoveTimeZone(val?.[key] + "Z", timezoneMappings?.[timeZoneMap?.[defaultTimezone]])) : val?.[key]}</div>
-                                            )
-                                        }
-                                    )}
-                                </div>
-                            )
-                        )
-                    })}
-                </div>
-                <Footer />
-            </InfiniteScroll>
-            <ApplyModal
-                show={showApplyModal}
-                setShowModal={setShowApplyModal}
-                time={5000}
-            />
-            <ModalRouter
-                show={showClearLogModal}
-                onHide={toggleClearModal}
-                modalTitle={SystemLoggingConstants?.attention}
-                modalContent={SystemLoggingConstants?.clearDesc(SystemLoggingConstants?.clearlogContent[selectedLogType])}
-                cancel={SystemLoggingConstants?.cancel}
-                onHandleCancel={toggleClearModal}
-                classCancel={'eds-button'}
-                submit={SystemLoggingConstants?.apply}
-                onHandleSubmit={() => {
-                    toggleClearModal()
-                    setShowApplyModal(true)
-                    clearLog()
-                }}
-                classSubmit={'eds-button'}
-            />
-        </>
-    )
-}
+Hi i want to create a normal component which will be having a Radio buttons and the styling of the button should be like the border i want is black color and the blue circle appear when the radio is selected should also be repaced by black 
