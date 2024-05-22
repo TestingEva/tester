@@ -45,11 +45,11 @@ export const SystemLogging: React.FC = () => {
       limit: 100,
     };
     //eslint-disable-next-line
-  }, [id, dateTimeRange, selectedType, offset]);
+  }, [selectedType, dateTimeRange, offset]);
 
-//  useEffect(() => {
-    //console.log("I am triggered");
-  //}, [dateTimeRange]);
+  const fetchLogsData = (data: typeof requestData) => {
+    fetchLogs(data);
+  };
 
   useEffect(() => {
     if (id !== ":id" && id !== undefined) {
@@ -57,12 +57,16 @@ export const SystemLogging: React.FC = () => {
       setOffset(0);
       setSelectedType(paramsIdToLogtype(id));
       setActivePage(SystemLogPageType.Logs);
-      fetchLogs({ ...requestData, logType: paramsIdToLogtype(id) });
     } else {
       navigate(RouteType.SYS_LOG, { pathSuffix: `/system` });
     }
     //eslint-disable-next-line
   }, [id]);
+
+  useEffect(() => {
+    fetchLogsData(requestData);
+    //eslint-disable-next-line
+  }, [requestData]);
 
   useEffect(() => {
     if (logs !== undefined) {
@@ -75,12 +79,12 @@ export const SystemLogging: React.FC = () => {
 
   const fetchNextLog = () => {
     setOffset((prevOffset) => prevOffset + 100);
-    fetchLogs({ ...requestData, offset: offset + 100 });
   };
 
   const onRefresh = () => {
     setAppendedLogs([]);
-    fetchLogs(requestData);
+    setOffset(0);
+    fetchLogsData(requestData);
   };
 
   const onClear = () => {
@@ -118,10 +122,8 @@ export const SystemLogging: React.FC = () => {
         end: endDuration!,
       });
     }
-    fetchLogs(requestData)
   };
 
-  // if (supportedCategories === undefined || logs === undefined) return <LoadingIndicator />;
   if (isError) return <ErrorIndicator />;
 
   return (
@@ -145,6 +147,4 @@ export const SystemLogging: React.FC = () => {
   );
 };
 
-      
-so the main issue with my components is that when i am calling changeDateTime and just after that i am invoking the hook with the fetchLogs(requestData) the StartDate and the endDate have the previous value not the lateset value how
-can we fix this issue 
+export default SystemLogging;
