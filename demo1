@@ -20,4 +20,4 @@ export const VZSmallButton = styled.button<{
           Save
         </VZSmallButton>
 
-my button is not getting disabled
+my button is not getting the properties which i am applying on disable
