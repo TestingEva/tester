@@ -47,10 +47,6 @@ export const SystemLogging: React.FC = () => {
     //eslint-disable-next-line
   }, [selectedType, dateTimeRange, offset]);
 
-  const fetchLogsData = (data: typeof requestData) => {
-    fetchLogs(data);
-  };
-
   useEffect(() => {
     if (id !== ":id" && id !== undefined) {
       setAppendedLogs([]);
@@ -71,11 +67,15 @@ export const SystemLogging: React.FC = () => {
   useEffect(() => {
     if (logs !== undefined) {
       setAppendedLogs((prevLogs) => [...prevLogs, ...logs]);
-      setHasMore(logs.length >= 100);
+      setHasMore(logs.length >= 30);
     } else {
       setHasMore(false);
     }
   }, [logs]);
+
+  const fetchLogsData = (data: typeof requestData) => {
+    fetchLogs(data);
+  };
 
   const fetchNextLog = () => {
     setOffset((prevOffset) => prevOffset + 100);
@@ -95,10 +95,16 @@ export const SystemLogging: React.FC = () => {
   };
 
   const onTabClick = (category: LogCategory) => {
-    setOffset(0);
-    setSelectedType(category);
-    setActivePage(SystemLogPageType.Logs);
-    navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
+    if (category !== selectedType) {
+      setSelectedType(category);
+      setOffset(0);
+      setActivePage(SystemLogPageType.Logs);
+      setDateTimeRange({
+        start: dayjs().subtract(1, "days").toDate(),
+        end: dayjs().toDate(),
+      });
+      navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
+    }
   };
 
   const changeActivePage = (pageType: SystemLogPageType) => {
@@ -124,6 +130,7 @@ export const SystemLogging: React.FC = () => {
     }
   };
 
+  // if (supportedCategories === undefined || logs === undefined) return <LoadingIndicator />;
   if (isError) return <ErrorIndicator />;
 
   return (
@@ -147,4 +154,6 @@ export const SystemLogging: React.FC = () => {
   );
 };
 
-export default SystemLogging;
+
+
+Could you look at this code and find out why two calls are being made when this page is loaded
