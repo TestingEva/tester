@@ -1,96 +1,150 @@
-import React, { useState } from "react";
-import { Col, Row } from "react-bootstrap";
-import styled from "styled-components";
+import { useEffect, useMemo, useState } from "react";
+import { useClearSystemLogs, useSystemLogCategories, useSystemLogs } from "../../../domain/system-logging/hooks";
+import { LogCategory, SystemLogModel } from "../../../domain/system-logging/models";
+import { useParams } from "react-router-dom";
+import { SystemLoggingView } from "./SystemLoggingView";
+import { convertLogCategorytoParamsId, paramsIdToLogtype } from "./utils";
+import { v4 as uuidv4 } from "uuid";
+import { useLocator, useNavigator } from "../../components/navigator/navigator";
+import { RouteType } from "../../../domain/misc/models";
+import dayjs from "dayjs";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicatorOverlay } from "../../components/loading-indicator/LoadingIndicator";
 
-// Styled Components
-export const OptionViewContainer = styled(Col)`
-  padding: 0 10px;
-`;
+export enum SystemLogPageType {
+  Options,
+  Settings,
+  Logs,
+}
 
-export const OptionsViewHeader = styled(Row)`
-  height: 64px;
-  border-bottom: 1px solid black;
-  align-items: center;
-  font-size: 20px;
-  font-family: "Verizon NHG eDS Bold", sans-serif;
-`;
+export const SystemLogging: React.FC = () => {
+  const [selectedType, setSelectedType] = useState(LogCategory.system);
+  const [offset, setOffset] = useState(0);
+  const [requestId] = useState(uuidv4());
+  const [hasMore, setHasMore] = useState(false);
+  const [appendedLogs, setAppendedLogs] = useState<SystemLogModel[]>([]);
+  const [activePage, setActivePage] = useState<SystemLogPageType>(SystemLogPageType.Logs);
+  const [dateTimeRange, setDateTimeRange] = useState({
+    start: dayjs().subtract(1, "days").toDate(),
+    end: dayjs().toDate(),
+  });
+  const navigate = useNavigator();
+  const { id } = useParams<{ id: string }>();
+  const { groupLabel } = useLocator();
+  const { invoke: fetchLogs, data: logs, isError } = useSystemLogs();
+  const { invoke: clearLogs } = useClearSystemLogs();
+  const { data: supportedCategories } = useSystemLogCategories();
 
-export const OptionsViewRow = styled(Row)`
-  height: 60px;
-  border-bottom: 1px solid #d8dada;
-  align-items: center;
-  gap: 16px;
-  font-family: "Verizon NHG eTX Bold", sans-serif;
-`;
+  const requestData = useMemo(() => {
+    return {
+      requestId,
+      logType: selectedType,
+      startDateTime: dateTimeRange.start,
+      endDateTime: dateTimeRange.end,
+      offset,
+      limit: 100,
+    };
+    //eslint-disable-next-line
+  }, [id, dateTimeRange, selectedType, offset]);
 
-export const RadioButtonWrapper = styled.div`
-  display: flex;
-  align-items: center;
-`;
+//  useEffect(() => {
+    //console.log("I am triggered");
+  //}, [dateTimeRange]);
 
-export const RadioButton = styled.input.attrs({ type: 'radio' })`
-  appearance: none;
-  border-radius: 50%;
-  width: 20px;
-  height: 20px;
-  border: 1px solid #000;
-  margin-top: 0.25em;
-  position: relative;
-  &:hover {
-    cursor: pointer;
-  }
-  &:checked::before {
-    content: "";
-    display: block;
-    border-radius: 50%;
-    width: 10px;
-    height: 10px;
-    background: #000;
-    position: absolute;
-    top: 4px;
-    left: 4px;
-  }
-`;
+  useEffect(() => {
+    if (id !== ":id" && id !== undefined) {
+      setAppendedLogs([]);
+      setOffset(0);
+      setSelectedType(paramsIdToLogtype(id));
+      setActivePage(SystemLogPageType.Logs);
+      fetchLogs({ ...requestData, logType: paramsIdToLogtype(id) });
+    } else {
+      navigate(RouteType.SYS_LOG, { pathSuffix: `/system` });
+    }
+    //eslint-disable-next-line
+  }, [id]);
 
-// Component
-export const OptionsView: React.FC = () => {
-  const [selectedOption, setOption] = useState(0);
+  useEffect(() => {
+    if (logs !== undefined) {
+      setAppendedLogs((prevLogs) => [...prevLogs, ...logs]);
+      setHasMore(logs.length >= 100);
+    } else {
+      setHasMore(false);
+    }
+  }, [logs]);
+
+  const fetchNextLog = () => {
+    setOffset((prevOffset) => prevOffset + 100);
+    fetchLogs({ ...requestData, offset: offset + 100 });
+  };
+
+  const onRefresh = () => {
+    setAppendedLogs([]);
+    fetchLogs(requestData);
+  };
+
+  const onClear = () => {
+    clearLogs({ logType: selectedType });
+    setOffset(0);
+    setAppendedLogs([]);
+    setHasMore(false);
+  };
+
+  const onTabClick = (category: LogCategory) => {
+    setOffset(0);
+    setSelectedType(category);
+    setActivePage(SystemLogPageType.Logs);
+    navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
+  };
+
+  const changeActivePage = (pageType: SystemLogPageType) => {
+    setActivePage(pageType);
+  };
+
+  const changeDateTime = (optionSelected: 0 | 1 | 2, startDuration?: Date, endDuration?: Date) => {
+    if (optionSelected === 0) {
+      setDateTimeRange({
+        start: dayjs().subtract(1, "days").toDate(),
+        end: dayjs().toDate(),
+      });
+    } else if (optionSelected === 1) {
+      setDateTimeRange({
+        start: dayjs().subtract(7, "days").toDate(),
+        end: dayjs().toDate(),
+      });
+    } else {
+      setDateTimeRange({
+        start: startDuration!,
+        end: endDuration!,
+      });
+    }
+    fetchLogs(requestData)
+  };
+
+  // if (supportedCategories === undefined || logs === undefined) return <LoadingIndicator />;
+  if (isError) return <ErrorIndicator />;
 
   return (
-    <OptionViewContainer>
-      <OptionsViewHeader>Logging view options</OptionsViewHeader>
-      <OptionsViewRow>
-        <RadioButtonWrapper>
-          <RadioButton
-            name="radio"
-            checked={selectedOption === 0}
-            onChange={() => setOption(0)}
-          />
-          <span>Past day</span>
-        </RadioButtonWrapper>
-      </OptionsViewRow>
-      <OptionsViewRow>
-        <RadioButtonWrapper>
-          <RadioButton
-            name="radio"
-            checked={selectedOption === 1}
-            onChange={() => setOption(1)}
-          />
-          <span>Past week</span>
-        </RadioButtonWrapper>
-      </OptionsViewRow>
-      <OptionsViewRow>
-        <RadioButtonWrapper>
-          <RadioButton
-            name="radio"
-            checked={selectedOption === 2}
-            onChange={() => setOption(2)}
-          />
-          <span>Custom range</span>
-        </RadioButtonWrapper>
-      </OptionsViewRow>
-    </OptionViewContainer>
+    <LoadingIndicatorOverlay enabled={supportedCategories === undefined}>
+      <SystemLoggingView
+        logs={appendedLogs}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        onRefreshClicked={onRefresh}
+        onClearClicked={onClear}
+        onLoadMore={fetchNextLog}
+        hasMore={hasMore}
+        supportedCategories={supportedCategories ?? []}
+        onTabClicked={onTabClick}
+        rootBreadcrumbLabel={groupLabel!}
+        activePage={activePage}
+        changeActivePage={changeActivePage}
+        changeDateTime={changeDateTime}
+      />
+    </LoadingIndicatorOverlay>
   );
 };
 
-export default OptionsView;
+      
+so the main issue with my components is that when i am calling changeDateTime and just after that i am invoking the hook with the fetchLogs(requestData) the StartDate and the endDate have the previous value not the lateset value how
+can we fix this issue 
