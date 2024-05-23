@@ -1,8 +1,171 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useState } from "react";
+import {
+  useClearSystemLogs,
+  useDateAndTime,
+  useSystemLogCategories,
+  useSystemLogs,
+} from "../../../domain/system-logging/hooks";
+import { LogCategory, SystemLogModel } from "../../../domain/system-logging/models";
+import { useParams } from "react-router-dom";
+import { SystemLoggingView } from "./SystemLoggingView";
+import { convertLogCategorytoParamsId, paramsIdToLogtype } from "./utils";
+import { v4 as uuidv4 } from "uuid";
+import { useLocator, useNavigator } from "../../components/navigator/navigator";
+import { RouteType } from "../../../domain/misc/models";
+import dayjs from "dayjs";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicatorOverlay } from "../../components/loading-indicator/LoadingIndicator";
+
+export enum SystemLogPageType {
+  Options,
+  Settings,
+  Logs,
+}
+
+export const SystemLogging: React.FC = () => {
+  const [selectedType, setSelectedType] = useState(LogCategory.system);
+  const [offset, setOffset] = useState(0);
+  const [requestId] = useState(uuidv4());
+  const [hasMore, setHasMore] = useState(false);
+  const [appendedLogs, setAppendedLogs] = useState<SystemLogModel[]>([]);
+  const [activePage, setActivePage] = useState<SystemLogPageType>(SystemLogPageType.Logs);
+  const [dateTimeRange, setDateTimeRange] = useState({
+    start: dayjs().subtract(1, "days").toDate(),
+    end: dayjs().toDate(),
+  });
+  const navigate = useNavigator();
+  const { data: testData } = useDateAndTime();
+  const { id } = useParams<{ id: string }>();
+  const { groupLabel } = useLocator();
+  const { invoke: fetchLogs, data: logs, isError } = useSystemLogs();
+  const { invoke: clearLogs } = useClearSystemLogs();
+  const { data: supportedCategories } = useSystemLogCategories();
+
+  useEffect(() => {
+    console.log(testData); //{"localDateTime": "2024-07-01T02:10:54.528548882-05:00"}
+  }, [testData]);
+
+  const requestData = useMemo(() => {
+    return {
+      requestId,
+      logType: selectedType,
+      startDateTime: dateTimeRange.start,
+      endDateTime: dateTimeRange.end,
+      offset,
+      limit: 100,
+    };
+    //eslint-disable-next-line
+  }, [id, dateTimeRange, selectedType, offset]);
+
+  useEffect(() => {
+    if (id !== ":id" && id !== undefined) {
+      setAppendedLogs([]);
+      setOffset(0);
+      setSelectedType(paramsIdToLogtype(id));
+      setActivePage(SystemLogPageType.Logs);
+      fetchLogs({ ...requestData, logType: paramsIdToLogtype(id) });
+    } else {
+      navigate(RouteType.SYS_LOG, { pathSuffix: `/system` });
+    }
+    //eslint-disable-next-line
+  }, [id]);
+
+  useEffect(() => {
+    if (logs !== undefined) {
+      setAppendedLogs((prevLogs) => [...prevLogs, ...logs]);
+      setHasMore(logs.length >= 100);
+    } else {
+      setHasMore(false);
+    }
+  }, [logs]);
+
+  const fetchNextLog = () => {
+    setOffset((prevOffset) => prevOffset + 100);
+    fetchLogs({ ...requestData, offset: offset + 100 });
+  };
+
+  const onRefresh = () => {
+    setAppendedLogs([]);
+    fetchLogs(requestData);
+  };
+
+  const onClear = () => {
+    clearLogs({ logType: selectedType });
+    setOffset(0);
+    setAppendedLogs([]);
+    setHasMore(false);
+  };
+
+  const onTabClick = (category: LogCategory) => {
+    setOffset(0);
+    setSelectedType(category);
+    setActivePage(SystemLogPageType.Logs);
+    setDateTimeRange({
+      start: dayjs().subtract(1, "days").toDate(),
+      end: dayjs().toDate(),
+    });
+    navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
+  };
+
+  const changeActivePage = (pageType: SystemLogPageType) => {
+    setActivePage(pageType);
+  };
+
+  const changeDateTime = (optionSelected: 0 | 1 | 2, startDuration?: Date, endDuration?: Date) => {
+    if (optionSelected === 0) {
+      setDateTimeRange({
+        start: dayjs().subtract(1, "days").toDate(),
+        end: dayjs().toDate(),
+      });
+      fetchLogs({ ...requestData, startDateTime: dayjs().subtract(1, "days").toDate(), endDateTime: dayjs().toDate() });
+    } else if (optionSelected === 1) {
+      setDateTimeRange({
+        start: dayjs().subtract(7, "days").toDate(),
+        end: dayjs().toDate(),
+      });
+      fetchLogs({ ...requestData, startDateTime: dayjs().subtract(7, "days").toDate(), endDateTime: dayjs().toDate() });
+    } else {
+      setDateTimeRange({
+        start: startDuration!,
+        end: endDuration!,
+      });
+      fetchLogs({ ...requestData, startDateTime: startDuration!, endDateTime: endDuration! });
+    }
+  };
+
+  // if (supportedCategories === undefined || logs === undefined) return <LoadingIndicator />;
+  if (isError) return <ErrorIndicator />;
+
+  return (
+    <LoadingIndicatorOverlay enabled={supportedCategories === undefined}>
+      <SystemLoggingView
+        logs={appendedLogs}
+        selectedType={selectedType}
+        setSelectedType={setSelectedType}
+        onRefreshClicked={onRefresh}
+        onClearClicked={onClear}
+        onLoadMore={fetchNextLog}
+        hasMore={hasMore}
+        supportedCategories={supportedCategories ?? []}
+        onTabClicked={onTabClick}
+        rootBreadcrumbLabel={groupLabel!}
+        activePage={activePage}
+        changeActivePage={changeActivePage}
+        changeDateTime={changeDateTime}
+      />
+    </LoadingIndicatorOverlay>
+  );
+};
+
+
+Above is my main component 
+
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
 import { KEY_SYSTEM_LOGS, KEY_CLEAR_SYSTEM_LOGS, KEY_SYSTEM_CATEGORIES, KEY_FIREWALL_LOGS_FILTER } from "../keys";
 import {
   clearSystemLogs,
+  getDateAndTime,
   getFirewallLogFilters,
   getLogCategories,
   getSystemLogs,
@@ -48,18 +211,25 @@ export function useFirewallLogFilters(): AsyncHookData<FirewallLogFilterModel> {
 }
 
 export function useUpdateFirewallLogFilters(): LazyAsyncHookData<FirewallLogFilterModel, void> {
-  const client = useQueryClient();
   const { mutateAsync, status, data, error } = useMutation({
     mutationKey: ["updateFirewallLogFilters"],
     mutationFn: (request: FirewallLogFilterModel) => updateFirewallLogFilters(request),
-    onSuccess: () => {
-      // client.refetchQueries({
-      //   queryKey: [KEY_SYSTEM_LOGS],
-      // });
-    },
   });
   return lazyAsyncHookData(status, error, data, mutateAsync);
 }
 
+export function useDateAndTime(): AsyncHookData<{
+  localDateTime: string;
+}> {
+  const { status, data, error } = useQuery({
+    queryKey: ["dateAndTime"],
+    queryFn: getDateAndTime,
+  });
+  return asyncHookData(status, error, data);
+}
 
-On success of this query i want to fetch the useSystemLogs query how can i do that
+and this are all the hooks i have created now the reqirement is that initially when the page loads i want first useDateAndTime hook must be called 
+and it will return testData the format i have already given to you as a comment 
+
+initially useDateAndTime must be called then other hooks must be called and i want you to implement my date and time functionality currently i 
+was using the browsers date with the help pf dayJs but now we need to use this time
