@@ -1,23 +1,65 @@
-export const VZSmallButton = styled.button<{
-  $primary?: boolean;
-  $disabled?: boolean;
-}>`
-  min-width: 0;
-  height: min-content;
-  border-radius: 100px;
-  border: 1px solid #000;
-  padding: 5px 0;
-  width: 5.5rem;
-  vertical-align: middle;
-  background-color: ${(props) => (props.$disabled ? "#d8dada" : "white")};
-  cursor: ${(props) => (props.$disabled ? "select" : "pointer")};
-  font-size: 13.33px;
-  font-family: "Verizon NHG eTX Bold", sans-serif;
-  ${(props) => props.$primary && primaryButtonStyle}
-`;
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
+import { KEY_SYSTEM_LOGS, KEY_CLEAR_SYSTEM_LOGS, KEY_SYSTEM_CATEGORIES, KEY_FIREWALL_LOGS_FILTER } from "../keys";
+import {
+  clearSystemLogs,
+  getFirewallLogFilters,
+  getLogCategories,
+  getSystemLogs,
+  updateFirewallLogFilters,
+} from "../../data/system-logging/system_logging";
+import { asyncHookData, lazyAsyncHookData } from "../hook_data_impl";
+import { ClearLogsRequest, FirewallLogFilterModel, LogCategory, SystemLogModel, SystemLoggingRequest } from "./models";
+import { usePlatformInfo } from "../misc/hooks";
 
-        <VZSmallButton $primary $disabled={true}>
-          Save
-        </VZSmallButton>
+export function useSystemLogCategories(): AsyncHookData<LogCategory[]> {
+  const { data: platformInfo, error: platError, status: platStatus } = usePlatformInfo();
+  const { data, error, status } = useQuery({
+    queryKey: [KEY_SYSTEM_CATEGORIES],
+    queryFn: async () => getLogCategories(platformInfo!.model),
+    staleTime: Infinity,
+    enabled: platformInfo !== undefined,
+  });
+  return asyncHookData([status, platStatus], [error, platError], data);
+}
 
-my button is not getting the properties which i am applying on disable
+export function useSystemLogs(): LazyAsyncHookData<SystemLoggingRequest, SystemLogModel[]> {
+  const { mutateAsync, status, data, error } = useMutation({
+    mutationKey: [KEY_SYSTEM_LOGS],
+    mutationFn: (request: SystemLoggingRequest) => getSystemLogs(request),
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
+
+export function useClearSystemLogs(): LazyAsyncHookData<ClearLogsRequest, void> {
+  const { mutateAsync, status, data, error } = useMutation({
+    mutationKey: [KEY_CLEAR_SYSTEM_LOGS],
+    mutationFn: (request: ClearLogsRequest) => clearSystemLogs(request),
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
+
+export function useFirewallLogFilters(): AsyncHookData<FirewallLogFilterModel> {
+  const { status, data, error } = useQuery({
+    queryKey: [KEY_FIREWALL_LOGS_FILTER],
+    queryFn: getFirewallLogFilters,
+  });
+  return asyncHookData(status, error, data);
+}
+
+export function useUpdateFirewallLogFilters(): LazyAsyncHookData<FirewallLogFilterModel, void> {
+  const client = useQueryClient();
+  const { mutateAsync, status, data, error } = useMutation({
+    mutationKey: ["updateFirewallLogFilters"],
+    mutationFn: (request: FirewallLogFilterModel) => updateFirewallLogFilters(request),
+    onSuccess: () => {
+      // client.refetchQueries({
+      //   queryKey: [KEY_SYSTEM_LOGS],
+      // });
+    },
+  });
+  return lazyAsyncHookData(status, error, data, mutateAsync);
+}
+
+
+On success of this query i want to fetch the useSystemLogs query how can i do that
