@@ -1,3 +1,9 @@
+2024-07-01T02:10:54.528548882-05:00 this the format of response i am getting from the hook useDateAndTime
+
+now i want to use dayJs to set the values of dateTimeRange such that end will be the 2024-07-01T02:10:54.52854 and the start will be 2024-06-30T07:10:54.52854 
+
+here is the code i have tried writing it in the useEffect but i want you to complete it 
+
 import { useEffect, useMemo, useState } from "react";
 import {
   useClearSystemLogs,
@@ -34,7 +40,7 @@ export const SystemLogging: React.FC = () => {
     end: dayjs().toDate(),
   });
   const navigate = useNavigator();
-  const { data: testData } = useDateAndTime();
+  const { data: dateAndTime } = useDateAndTime();
   const { id } = useParams<{ id: string }>();
   const { groupLabel } = useLocator();
   const { invoke: fetchLogs, data: logs, isError } = useSystemLogs();
@@ -42,8 +48,13 @@ export const SystemLogging: React.FC = () => {
   const { data: supportedCategories } = useSystemLogCategories();
 
   useEffect(() => {
-    console.log(testData); //{"localDateTime": "2024-07-01T02:10:54.528548882-05:00"}
-  }, [testData]);
+    if(dateAndTime){
+      setDateTimeRange({
+        start:dateAndTime.localDateTime
+        end:
+      })
+    }
+  }, [dateAndTime]);
 
   const requestData = useMemo(() => {
     return {
@@ -156,80 +167,3 @@ export const SystemLogging: React.FC = () => {
     </LoadingIndicatorOverlay>
   );
 };
-
-
-Above is my main component 
-
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
-import { KEY_SYSTEM_LOGS, KEY_CLEAR_SYSTEM_LOGS, KEY_SYSTEM_CATEGORIES, KEY_FIREWALL_LOGS_FILTER } from "../keys";
-import {
-  clearSystemLogs,
-  getDateAndTime,
-  getFirewallLogFilters,
-  getLogCategories,
-  getSystemLogs,
-  updateFirewallLogFilters,
-} from "../../data/system-logging/system_logging";
-import { asyncHookData, lazyAsyncHookData } from "../hook_data_impl";
-import { ClearLogsRequest, FirewallLogFilterModel, LogCategory, SystemLogModel, SystemLoggingRequest } from "./models";
-import { usePlatformInfo } from "../misc/hooks";
-
-export function useSystemLogCategories(): AsyncHookData<LogCategory[]> {
-  const { data: platformInfo, error: platError, status: platStatus } = usePlatformInfo();
-  const { data, error, status } = useQuery({
-    queryKey: [KEY_SYSTEM_CATEGORIES],
-    queryFn: async () => getLogCategories(platformInfo!.model),
-    staleTime: Infinity,
-    enabled: platformInfo !== undefined,
-  });
-  return asyncHookData([status, platStatus], [error, platError], data);
-}
-
-export function useSystemLogs(): LazyAsyncHookData<SystemLoggingRequest, SystemLogModel[]> {
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: [KEY_SYSTEM_LOGS],
-    mutationFn: (request: SystemLoggingRequest) => getSystemLogs(request),
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useClearSystemLogs(): LazyAsyncHookData<ClearLogsRequest, void> {
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: [KEY_CLEAR_SYSTEM_LOGS],
-    mutationFn: (request: ClearLogsRequest) => clearSystemLogs(request),
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useFirewallLogFilters(): AsyncHookData<FirewallLogFilterModel> {
-  const { status, data, error } = useQuery({
-    queryKey: [KEY_FIREWALL_LOGS_FILTER],
-    queryFn: getFirewallLogFilters,
-  });
-  return asyncHookData(status, error, data);
-}
-
-export function useUpdateFirewallLogFilters(): LazyAsyncHookData<FirewallLogFilterModel, void> {
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: ["updateFirewallLogFilters"],
-    mutationFn: (request: FirewallLogFilterModel) => updateFirewallLogFilters(request),
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useDateAndTime(): AsyncHookData<{
-  localDateTime: string;
-}> {
-  const { status, data, error } = useQuery({
-    queryKey: ["dateAndTime"],
-    queryFn: getDateAndTime,
-  });
-  return asyncHookData(status, error, data);
-}
-
-and this are all the hooks i have created now the reqirement is that initially when the page loads i want first useDateAndTime hook must be called 
-and it will return testData the format i have already given to you as a comment 
-
-initially useDateAndTime must be called then other hooks must be called and i want you to implement my date and time functionality currently i 
-was using the browsers date with the help pf dayJs but now we need to use this time
