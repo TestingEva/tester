@@ -1,196 +1,237 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  useClearSystemLogs,
-  useDateAndTime,
-  useSystemLogCategories,
-  useSystemLogs,
-} from "../../../domain/system-logging/hooks";
-import { LogCategory, SystemLogModel } from "../../../domain/system-logging/models";
-import { useParams } from "react-router-dom";
-import { SystemLoggingView } from "./SystemLoggingView";
-import { convertLogCategorytoParamsId, paramsIdToLogtype } from "./utils";
-import { v4 as uuidv4 } from "uuid";
-import { useLocator, useNavigator } from "../../components/navigator/navigator";
-import { RouteType } from "../../../domain/misc/models";
-import dayjs from "dayjs";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicatorOverlay } from "../../components/loading-indicator/LoadingIndicator";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-dayjs.extend(utc);
-dayjs.extend(timezone);
+import React, { useEffect, useState } from "react";
+import styled from "styled-components";
+import { useFirewallLogFilters, useUpdateFirewallLogFilters } from "../../../../domain/system-logging/hooks";
+import { FirewallLogFilterModel } from "../../../../domain/system-logging/models";
+import { ErrorIndicator } from "../../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../../components/loading-indicator/LoadingIndicator";
+import { Col, Container, Row } from "react-bootstrap";
+import { VZCheckbox } from "../../../components/vz-checkbox/VZCheckbox";
+import { OptionsButtonCol } from "./styles";
+import { SystemLogPageType } from "../SystemLogging";
+import { VZButton } from "../../../components/vz-button/VZButton";
+import { VZApplySettingsModal } from "../../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
 
-export enum SystemLogPageType {
-  Options,
-  Settings,
-  Logs,
-}
-
-export const SystemLogging: React.FC = () => {
-  const [selectedType, setSelectedType] = useState(LogCategory.system);
-  const [offset, setOffset] = useState(0);
-  const [requestId] = useState(uuidv4());
-  const [hasMore, setHasMore] = useState(false);
-  const [appendedLogs, setAppendedLogs] = useState<SystemLogModel[]>([]);
-  const [activePage, setActivePage] = useState<SystemLogPageType>(SystemLogPageType.Logs);
-  const [dateTimeRange, setDateTimeRange] = useState<{ start: Date; end: Date }>({
-    start: new Date(),
-    end: new Date(),
-  });
-  const navigate = useNavigator();
-  const { data: dateAndTime } = useDateAndTime();
-  const { id } = useParams<{ id: string }>();
-  const { groupLabel } = useLocator();
-  const { invoke: fetchLogs, data: logs, isError } = useSystemLogs();
-  const { invoke: clearLogs } = useClearSystemLogs();
-  const { data: supportedCategories } = useSystemLogCategories();
+export const FirewallSettings: React.FC<{
+  changeActivePage: (pageType: SystemLogPageType) => void;
+  onRefreshClicked: () => void;
+}> = ({ changeActivePage, onRefreshClicked }) => {
+  const [initialData, setInitialData] = useState<FirewallLogFilterModel>();
+  const [currentData, setCurrentData] = useState<FirewallLogFilterModel>();
+  const [applyButtonDisabled, setApplyButtonDisabled] = useState(true);
+  const { data, isPending, isError } = useFirewallLogFilters();
+  const { invoke, isPending: isUpdating, isError: updateError } = useUpdateFirewallLogFilters();
 
   useEffect(() => {
-    if (dateAndTime) {
-      const serverTime = dayjs(dateAndTime.localDateTime);
-      const serverTimezone = "-05:00";
-      // const serverTimezone1 = serverTime.format("Z");
-      // console.log(serverTime, serverTimezone);
-      setDateTimeRange({
-        start: serverTime.subtract(1, "day").tz(serverTimezone).toDate(),
-        end: serverTime.tz(serverTimezone).toDate(),
-      });
+    if (data !== undefined) {
+      setInitialData(data);
+      setCurrentData(data);
     }
-  }, [dateAndTime]);
+  }, [data]);
 
   useEffect(() => {
-    console.log(dateTimeRange);
-  }, [dateTimeRange]);
-  const requestData = useMemo(() => {
-    return {
-      requestId,
-      logType: selectedType,
-      startDateTime: dateTimeRange.start,
-      endDateTime: dateTimeRange.end,
-      offset,
-      limit: 100,
-    };
-    //eslint-disable-next-line
-  }, [id, dateTimeRange, selectedType, offset]);
+    setApplyButtonDisabled(JSON.stringify(currentData) === JSON.stringify(initialData));
+  }, [currentData, initialData]);
 
-  useEffect(() => {
-    if (id !== ":id" && id !== undefined && dateAndTime) {
-      setAppendedLogs([]);
-      setOffset(0);
-      setSelectedType(paramsIdToLogtype(id));
-      setActivePage(SystemLogPageType.Logs);
-      fetchLogs({
-        ...requestData,
-        logType: paramsIdToLogtype(id),
-        startDateTime: dayjs(dateAndTime.localDateTime).tz().subtract(1, "day").toDate(),
-        endDateTime: dayjs(dateAndTime.localDateTime).tz().toDate(),
-      });
-    } else {
-      navigate(RouteType.SYS_LOG, { pathSuffix: `/system` });
-    }
-    //eslint-disable-next-line
-  }, [id, dateAndTime]);
-
-  useEffect(() => {
-    if (logs !== undefined) {
-      setAppendedLogs((prevLogs) => [...prevLogs, ...logs]);
-      setHasMore(logs.length >= 30);
-    } else {
-      setHasMore(false);
-    }
-  }, [logs]);
-
-  const fetchNextLog = () => {
-    setOffset((prevOffset) => prevOffset + 100);
-    fetchLogs({ ...requestData, offset: offset + 100 });
+  const updateFilters = async () => {
+    await invoke(currentData!);
+    onRefreshClicked();
+    changeActivePage(SystemLogPageType.Logs);
   };
 
-  const onRefresh = () => {
-    setAppendedLogs([]);
-    fetchLogs(requestData);
-  };
-
-  const onClear = () => {
-    clearLogs({ logType: selectedType });
-    setOffset(0);
-    setAppendedLogs([]);
-    setHasMore(false);
-  };
-
-  const onTabClick = (category: LogCategory) => {
-    setOffset(0);
-    setSelectedType(category);
-    setActivePage(SystemLogPageType.Logs);
-    setDateTimeRange({
-      start: dayjs(dateAndTime?.localDateTime).tz().subtract(1, "days").toDate(),
-      end: dayjs(dateAndTime?.localDateTime).tz().toDate(),
-    });
-    navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
-  };
-
-  const changeActivePage = (pageType: SystemLogPageType) => {
-    setActivePage(pageType);
-  };
-
-  const changeDateTime = (optionSelected: 0 | 1 | 2, startDuration?: Date, endDuration?: Date) => {
-    if (dateAndTime) {
-      const serverTime = dayjs(dateAndTime.localDateTime).tz();
-      if (optionSelected === 0) {
-        setDateTimeRange({
-          start: serverTime.subtract(1, "days").toDate(),
-          end: serverTime.toDate(),
-        });
-        fetchLogs({
-          ...requestData,
-          startDateTime: serverTime.subtract(1, "days").toDate(),
-          endDateTime: serverTime.toDate(),
-        });
-      } else if (optionSelected === 1) {
-        setDateTimeRange({
-          start: serverTime.subtract(7, "days").toDate(),
-          end: serverTime.toDate(),
-        });
-        fetchLogs({
-          ...requestData,
-          startDateTime: serverTime.subtract(7, "days").toDate(),
-          endDateTime: serverTime.toDate(),
-        });
-      } else {
-        setDateTimeRange({
-          start: startDuration!,
-          end: endDuration!,
-        });
-        fetchLogs({ ...requestData, startDateTime: startDuration!, endDateTime: endDuration! });
-      }
-    }
-  };
-
-  // if (supportedCategories === undefined || logs === undefined) return <LoadingIndicator />;
-  if (isError) return <ErrorIndicator />;
-
+  if (isError || updateError) {
+    return <ErrorIndicator />;
+  }
+  if (isPending || data === undefined || currentData === undefined) {
+    return <LoadingIndicator />;
+  }
   return (
-    <LoadingIndicatorOverlay enabled={supportedCategories === undefined}>
-      <SystemLoggingView
-        logs={appendedLogs}
-        selectedType={selectedType}
-        setSelectedType={setSelectedType}
-        onRefreshClicked={onRefresh}
-        onClearClicked={onClear}
-        onLoadMore={fetchNextLog}
-        hasMore={hasMore}
-        supportedCategories={supportedCategories ?? []}
-        onTabClicked={onTabClick}
-        rootBreadcrumbLabel={groupLabel!}
-        activePage={activePage}
-        changeActivePage={changeActivePage}
-        changeDateTime={changeDateTime}
-      />
-    </LoadingIndicatorOverlay>
+    <FirewallSettingsView
+      data={currentData}
+      setData={setCurrentData}
+      saveButtonDisabled={applyButtonDisabled}
+      changeActivePage={changeActivePage}
+      updateFilters={updateFilters}
+      isUpdating={isUpdating}
+    />
   );
 };
 
-I had given by default the timeZoneOffset but still it is giving the {
-    "start": "2024-06-30T07:10:54.528Z",
-    "end": "2024-07-01T07:10:54.528Z"
-}
-for the 2024-07-01T02:10:54.528548882-05:00 as the response from the date and Time hook
+export const FirewallLogFilterHeader = styled(Row)`
+  height: 64px;
+  border-bottom: 1px solid black;
+  align-items: center;
+  font-size: 20px;
+  font-family: "Verizon NHG eDS Bold", sans-serif;
+`;
+
+export const FirewallLogFilterRowComponent = styled(Row)<{ $disabled?: boolean }>`
+  font-family: "Verizon NHG eTX Bold", sans-serif;
+  height: 60px;
+  border-bottom: 1px solid #d8dada;
+  align-items: center;
+  gap: 16px;
+  color: ${(props) => (props.$disabled ? "#d8dada" : "black")};
+`;
+
+type Props = {
+  data: FirewallLogFilterModel;
+  setData: React.Dispatch<React.SetStateAction<FirewallLogFilterModel | undefined>>;
+  saveButtonDisabled: boolean;
+  changeActivePage: (pageType: SystemLogPageType) => void;
+  updateFilters: () => void;
+  isUpdating: boolean;
+};
+
+const FirewallSettingsView: React.FC<Props> = ({
+  data,
+  setData,
+  saveButtonDisabled: applyButtonDisabled,
+  changeActivePage,
+  updateFilters,
+  isUpdating,
+}) => {
+  const handleCheckboxChange = (key: keyof FirewallLogFilterModel) => {
+    setData((prevData) => ({
+      ...prevData!,
+      [key]: !prevData![key],
+    }));
+  };
+
+  return (
+    <Col>
+      <FirewallLogFilterHeader>Accepted Events</FirewallLogFilterHeader>
+      <FirewallLogFilterRowComponent>
+        <VZCheckbox
+          checked={data.acceptIncomingConnections}
+          onChange={() => handleCheckboxChange("acceptIncomingConnections")}
+        />
+        Accept Incoming Connections
+      </FirewallLogFilterRowComponent>
+      <FirewallLogFilterRowComponent>
+        <VZCheckbox
+          checked={data.acceptOutgoingConnections}
+          onChange={() => handleCheckboxChange("acceptOutgoingConnections")}
+        />
+        Accept Outgoing Connections
+      </FirewallLogFilterRowComponent>
+      <FirewallLogFilterHeader>Blocked Events</FirewallLogFilterHeader>
+      <FirewallLogFilterRowComponent>
+        <VZCheckbox
+          checked={data.allBlockedConnectionAttempts}
+          onChange={() => handleCheckboxChange("allBlockedConnectionAttempts")}
+        />
+        All blocked connections attempts
+      </FirewallLogFilterRowComponent>
+      <Row>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.winuuke} onChange={() => handleCheckboxChange("winuuke")} />
+            Winuuke
+          </FirewallLogFilterRowComponent>
+        </Col>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.mutiCastBroadCast} onChange={() => handleCheckboxChange("mutiCastBroadCast")} />
+            Multicast/Broadcast
+          </FirewallLogFilterRowComponent>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.echoChargen} onChange={() => handleCheckboxChange("echoChargen")} />
+            Echo Chargen
+          </FirewallLogFilterRowComponent>
+        </Col>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox
+              checked={data.defragmentationError}
+              onChange={() => handleCheckboxChange("defragmentationError")}
+            />
+            Defragmentation Error
+          </FirewallLogFilterRowComponent>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.icmpRedirect} onChange={() => handleCheckboxChange("icmpRedirect")} />
+            ICMP Redirect
+          </FirewallLogFilterRowComponent>
+        </Col>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.icmpMultiCast} onChange={() => handleCheckboxChange("icmpMultiCast")} />
+            ICMP Multicast
+          </FirewallLogFilterRowComponent>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.blockedFragments} onChange={() => handleCheckboxChange("blockedFragments")} />
+            Blocked Fragments
+          </FirewallLogFilterRowComponent>
+        </Col>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox
+              checked={data.packetIllegalOptions}
+              onChange={() => handleCheckboxChange("packetIllegalOptions")}
+            />
+            Packet Illegal options
+          </FirewallLogFilterRowComponent>
+        </Col>
+      </Row>
+      <Row>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.icmpFlood} onChange={() => handleCheckboxChange("icmpFlood")} />
+            ICMP Flood
+          </FirewallLogFilterRowComponent>
+        </Col>
+        <Col>
+          <FirewallLogFilterRowComponent>
+            <VZCheckbox checked={data.synFlood} onChange={() => handleCheckboxChange("synFlood")} />
+            Syn Flood
+          </FirewallLogFilterRowComponent>
+        </Col>
+      </Row>
+      <FirewallLogFilterRowComponent>
+        <VZCheckbox checked={data.udpFlood} onChange={() => handleCheckboxChange("udpFlood")} />
+        UDP Flood
+      </FirewallLogFilterRowComponent>
+      <FirewallLogFilterHeader>Other Events</FirewallLogFilterHeader>
+      <FirewallLogFilterRowComponent>
+        <VZCheckbox
+          checked={data.remoteAdministrationAttempts}
+          onChange={() => handleCheckboxChange("remoteAdministrationAttempts")}
+        />
+        Remote Administration Attempts
+      </FirewallLogFilterRowComponent>
+      <FirewallLogFilterRowComponent>
+        <VZCheckbox checked={data.connectionStates} onChange={() => handleCheckboxChange("connectionStates")} />
+        Connection States
+      </FirewallLogFilterRowComponent>
+      <FirewallLogFilterHeader>Log Buffer</FirewallLogFilterHeader>
+      {/* TODO: Change the disabled when requirement comes  */}
+      <FirewallLogFilterRowComponent $disabled>
+        <VZCheckbox checked={false} onChange={() => {}} disabled={true} />
+        Prevent Log Overrun
+      </FirewallLogFilterRowComponent>
+      <OptionsButtonCol>
+        <VZButton small={true} secondary onClick={() => changeActivePage(SystemLogPageType.Logs)}>
+          Cancel
+        </VZButton>
+        <VZButton small={true} disabled={applyButtonDisabled} onClick={updateFilters}>
+          Apply
+        </VZButton>
+      </OptionsButtonCol>
+      <VZApplySettingsModal show={isUpdating} />
+    </Col>
+  );
+};
+
+
+the main problem is that it is going out out page it must be scrollable but it makes the whole page to be scrollable 
