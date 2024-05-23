@@ -184,3 +184,23 @@ export const SystemLogging: React.FC = () => {
 };
 
 I tried the same but it wasn't working 
+
+so i recived the following 2024-07-01T02:10:54.528548882-05:00 from the date time but the request payload was {logType: "security", limit: 100, offset: 0, requestId: "8b445528-8c53-4b83-a664-cde4918bf494",…}
+endDateTime
+: 
+"7/1/2024, 12:40:54 PM"
+limit
+: 
+100
+logType
+: 
+"security"
+offset
+: 
+0
+requestId
+: 
+"8b445528-8c53-4b83-a664-cde4918bf494"
+startDateTime
+: 
+"6/30/2024, 12:40:54 PM"
