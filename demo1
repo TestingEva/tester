@@ -1,9 +1,3 @@
-2024-07-01T02:10:54.528548882-05:00 this the format of response i am getting from the hook useDateAndTime
-
-now i want to use dayJs to set the values of dateTimeRange such that end will be the 2024-07-01T02:10:54.52854 and the start will be 2024-06-30T07:10:54.52854 
-
-here is the code i have tried writing it in the useEffect but i want you to complete it 
-
 import { useEffect, useMemo, useState } from "react";
 import {
   useClearSystemLogs,
@@ -21,6 +15,10 @@ import { RouteType } from "../../../domain/misc/models";
 import dayjs from "dayjs";
 import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
 import { LoadingIndicatorOverlay } from "../../components/loading-indicator/LoadingIndicator";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export enum SystemLogPageType {
   Options,
@@ -36,8 +34,8 @@ export const SystemLogging: React.FC = () => {
   const [appendedLogs, setAppendedLogs] = useState<SystemLogModel[]>([]);
   const [activePage, setActivePage] = useState<SystemLogPageType>(SystemLogPageType.Logs);
   const [dateTimeRange, setDateTimeRange] = useState({
-    start: dayjs().subtract(1, "days").toDate(),
-    end: dayjs().toDate(),
+    start: new Date(),
+    end: new Date(),
   });
   const navigate = useNavigator();
   const { data: dateAndTime } = useDateAndTime();
@@ -48,11 +46,12 @@ export const SystemLogging: React.FC = () => {
   const { data: supportedCategories } = useSystemLogCategories();
 
   useEffect(() => {
-    if(dateAndTime){
+    if (dateAndTime) {
+      const serverTime = dayjs(dateAndTime.localDateTime).tz();
       setDateTimeRange({
-        start:dateAndTime.localDateTime
-        end:
-      })
+        start: serverTime.subtract(1, "day").toDate(),
+        end: serverTime.toDate(),
+      });
     }
   }, [dateAndTime]);
 
@@ -69,22 +68,27 @@ export const SystemLogging: React.FC = () => {
   }, [id, dateTimeRange, selectedType, offset]);
 
   useEffect(() => {
-    if (id !== ":id" && id !== undefined) {
+    if (id !== ":id" && id !== undefined && dateAndTime) {
       setAppendedLogs([]);
       setOffset(0);
       setSelectedType(paramsIdToLogtype(id));
       setActivePage(SystemLogPageType.Logs);
-      fetchLogs({ ...requestData, logType: paramsIdToLogtype(id) });
+      fetchLogs({
+        ...requestData,
+        logType: paramsIdToLogtype(id),
+        startDateTime: dayjs(dateAndTime.localDateTime).tz().subtract(1, "day").toDate(),
+        endDateTime: dayjs(dateAndTime.localDateTime).tz().toDate(),
+      });
     } else {
       navigate(RouteType.SYS_LOG, { pathSuffix: `/system` });
     }
     //eslint-disable-next-line
-  }, [id]);
+  }, [id, dateAndTime]);
 
   useEffect(() => {
     if (logs !== undefined) {
       setAppendedLogs((prevLogs) => [...prevLogs, ...logs]);
-      setHasMore(logs.length >= 100);
+      setHasMore(logs.length >= 30);
     } else {
       setHasMore(false);
     }
@@ -112,8 +116,8 @@ export const SystemLogging: React.FC = () => {
     setSelectedType(category);
     setActivePage(SystemLogPageType.Logs);
     setDateTimeRange({
-      start: dayjs().subtract(1, "days").toDate(),
-      end: dayjs().toDate(),
+      start: dayjs(dateAndTime?.localDateTime).tz().subtract(1, "days").toDate(),
+      end: dayjs(dateAndTime?.localDateTime).tz().toDate(),
     });
     navigate(RouteType.SYS_LOG, { pathSuffix: `/${convertLogCategorytoParamsId(category)}` });
   };
@@ -123,24 +127,35 @@ export const SystemLogging: React.FC = () => {
   };
 
   const changeDateTime = (optionSelected: 0 | 1 | 2, startDuration?: Date, endDuration?: Date) => {
-    if (optionSelected === 0) {
-      setDateTimeRange({
-        start: dayjs().subtract(1, "days").toDate(),
-        end: dayjs().toDate(),
-      });
-      fetchLogs({ ...requestData, startDateTime: dayjs().subtract(1, "days").toDate(), endDateTime: dayjs().toDate() });
-    } else if (optionSelected === 1) {
-      setDateTimeRange({
-        start: dayjs().subtract(7, "days").toDate(),
-        end: dayjs().toDate(),
-      });
-      fetchLogs({ ...requestData, startDateTime: dayjs().subtract(7, "days").toDate(), endDateTime: dayjs().toDate() });
-    } else {
-      setDateTimeRange({
-        start: startDuration!,
-        end: endDuration!,
-      });
-      fetchLogs({ ...requestData, startDateTime: startDuration!, endDateTime: endDuration! });
+    if (dateAndTime) {
+      const serverTime = dayjs(dateAndTime.localDateTime).tz();
+      if (optionSelected === 0) {
+        setDateTimeRange({
+          start: serverTime.subtract(1, "days").toDate(),
+          end: serverTime.toDate(),
+        });
+        fetchLogs({
+          ...requestData,
+          startDateTime: serverTime.subtract(1, "days").toDate(),
+          endDateTime: serverTime.toDate(),
+        });
+      } else if (optionSelected === 1) {
+        setDateTimeRange({
+          start: serverTime.subtract(7, "days").toDate(),
+          end: serverTime.toDate(),
+        });
+        fetchLogs({
+          ...requestData,
+          startDateTime: serverTime.subtract(7, "days").toDate(),
+          endDateTime: serverTime.toDate(),
+        });
+      } else {
+        setDateTimeRange({
+          start: startDuration!,
+          end: endDuration!,
+        });
+        fetchLogs({ ...requestData, startDateTime: startDuration!, endDateTime: endDuration! });
+      }
     }
   };
 
@@ -167,3 +182,5 @@ export const SystemLogging: React.FC = () => {
     </LoadingIndicatorOverlay>
   );
 };
+
+I tried the same but it wasn't working 
