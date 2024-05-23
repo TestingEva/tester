@@ -33,7 +33,7 @@ export const SystemLogging: React.FC = () => {
   const [hasMore, setHasMore] = useState(false);
   const [appendedLogs, setAppendedLogs] = useState<SystemLogModel[]>([]);
   const [activePage, setActivePage] = useState<SystemLogPageType>(SystemLogPageType.Logs);
-  const [dateTimeRange, setDateTimeRange] = useState({
+  const [dateTimeRange, setDateTimeRange] = useState<{ start: Date; end: Date }>({
     start: new Date(),
     end: new Date(),
   });
@@ -47,14 +47,20 @@ export const SystemLogging: React.FC = () => {
 
   useEffect(() => {
     if (dateAndTime) {
-      const serverTime = dayjs(dateAndTime.localDateTime).tz();
+      const serverTime = dayjs(dateAndTime.localDateTime);
+      const serverTimezone = "-05:00";
+      // const serverTimezone1 = serverTime.format("Z");
+      // console.log(serverTime, serverTimezone);
       setDateTimeRange({
-        start: serverTime.subtract(1, "day").toDate(),
-        end: serverTime.toDate(),
+        start: serverTime.subtract(1, "day").tz(serverTimezone).toDate(),
+        end: serverTime.tz(serverTimezone).toDate(),
       });
     }
   }, [dateAndTime]);
 
+  useEffect(() => {
+    console.log(dateTimeRange);
+  }, [dateTimeRange]);
   const requestData = useMemo(() => {
     return {
       requestId,
@@ -183,24 +189,8 @@ export const SystemLogging: React.FC = () => {
   );
 };
 
-I tried the same but it wasn't working 
-
-so i recived the following 2024-07-01T02:10:54.528548882-05:00 from the date time but the request payload was {logType: "security", limit: 100, offset: 0, requestId: "8b445528-8c53-4b83-a664-cde4918bf494",…}
-endDateTime
-: 
-"7/1/2024, 12:40:54 PM"
-limit
-: 
-100
-logType
-: 
-"security"
-offset
-: 
-0
-requestId
-: 
-"8b445528-8c53-4b83-a664-cde4918bf494"
-startDateTime
-: 
-"6/30/2024, 12:40:54 PM"
+I had given by default the timeZoneOffset but still it is giving the {
+    "start": "2024-06-30T07:10:54.528Z",
+    "end": "2024-07-01T07:10:54.528Z"
+}
+for the 2024-07-01T02:10:54.528548882-05:00 as the response from the date and Time hook
