@@ -1,1 +1,2 @@
-write a javascript function to convert the request -->  7/5/2024, 12:40:54 PM  to ->2024-07-05T02:10:54.528548882
+write a javascript function to convert the request -->  Thu Jul 04 2024 12:40:54 GMT+0530 (India Standard Time)  to ->2024-07-05T02:10:54.528548882
+ using dayjs
