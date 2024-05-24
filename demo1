@@ -1,1 +1,239 @@
-2024-07-05T02:10:54.528548882-05:00 suppose this is the time i am getting from the API and i need to get the timeZone using dayjs how can i do it
+import React, { useEffect, useState } from "react";
+import { useFirewallLogFilters, useUpdateFirewallLogFilters } from "../../../../domain/system-logging/hooks";
+import { FirewallLogFilterModel } from "../../../../domain/system-logging/models";
+import { ErrorIndicator } from "../../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../../components/loading-indicator/LoadingIndicator";
+import { Col, Row } from "react-bootstrap";
+import { VZCheckbox } from "../../../components/vz-checkbox/VZCheckbox";
+import {
+  FirewallLogFilterContainer,
+  FirewallLogFilterContent,
+  FirewallLogFilterHeader,
+  FirewallLogFilterRowComponent,
+  OptionsButtonCol,
+} from "./styles";
+import { SystemLogPageType } from "../SystemLogging";
+import { VZButton } from "../../../components/vz-button/VZButton";
+import { VZApplySettingsModal } from "../../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
+
+export const FirewallSettings: React.FC<{
+  changeActivePage: (pageType: SystemLogPageType) => void;
+  onRefreshClicked: () => void;
+}> = ({ changeActivePage, onRefreshClicked }) => {
+  const [initialData, setInitialData] = useState<FirewallLogFilterModel>();
+  const [currentData, setCurrentData] = useState<FirewallLogFilterModel>();
+  const [applyButtonDisabled, setApplyButtonDisabled] = useState(true);
+  const { data, isPending, isError } = useFirewallLogFilters();
+  const { invoke, isPending: isUpdating, isError: updateError } = useUpdateFirewallLogFilters();
+
+  useEffect(() => {
+    if (data !== undefined) {
+      setInitialData(data);
+      setCurrentData(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    setApplyButtonDisabled(JSON.stringify(currentData) === JSON.stringify(initialData));
+  }, [currentData, initialData]);
+
+  const updateFilters = async () => {
+    await invoke(currentData!);
+    onRefreshClicked();
+    changeActivePage(SystemLogPageType.Logs);
+  };
+
+  if (isError || updateError) {
+    return <ErrorIndicator />;
+  }
+  if (isPending || data === undefined || currentData === undefined) {
+    return <LoadingIndicator />;
+  }
+  return (
+    <FirewallSettingsView
+      data={currentData}
+      setData={setCurrentData}
+      saveButtonDisabled={applyButtonDisabled}
+      changeActivePage={changeActivePage}
+      updateFilters={updateFilters}
+      isUpdating={isUpdating}
+    />
+  );
+};
+
+type Props = {
+  data: FirewallLogFilterModel;
+  setData: React.Dispatch<React.SetStateAction<FirewallLogFilterModel | undefined>>;
+  saveButtonDisabled: boolean;
+  changeActivePage: (pageType: SystemLogPageType) => void;
+  updateFilters: () => void;
+  isUpdating: boolean;
+};
+
+const FirewallSettingsView: React.FC<Props> = ({
+  data,
+  setData,
+  saveButtonDisabled: applyButtonDisabled,
+  changeActivePage,
+  updateFilters,
+  isUpdating,
+}) => {
+  const handleCheckboxChange = (key: keyof FirewallLogFilterModel) => {
+    setData((prevData) => ({
+      ...prevData!,
+      [key]: !prevData![key],
+    }));
+  };
+
+  return (
+    <FirewallLogFilterContainer>
+      <FirewallLogFilterContent>
+        <FirewallLogFilterHeader>Accepted Events</FirewallLogFilterHeader>
+        <FirewallLogFilterRowComponent>
+          <VZCheckbox
+            checked={data.acceptIncomingConnections}
+            onChange={() => handleCheckboxChange("acceptIncomingConnections")}
+          />
+          Accept Incoming Connections
+        </FirewallLogFilterRowComponent>
+        <FirewallLogFilterRowComponent>
+          <VZCheckbox
+            checked={data.acceptOutgoingConnections}
+            onChange={() => handleCheckboxChange("acceptOutgoingConnections")}
+          />
+          Accept Outgoing Connections
+        </FirewallLogFilterRowComponent>
+        <FirewallLogFilterHeader>Blocked Events</FirewallLogFilterHeader>
+        <FirewallLogFilterRowComponent>
+          <VZCheckbox
+            checked={data.allBlockedConnectionAttempts}
+            onChange={() => handleCheckboxChange("allBlockedConnectionAttempts")}
+          />
+          All blocked connections attempts
+        </FirewallLogFilterRowComponent>
+        <Row>
+          <Col md={6}>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.winuuke} onChange={() => handleCheckboxChange("winuuke")} />
+              Winuuke
+            </FirewallLogFilterRowComponent>
+          </Col>
+          <Col md={6}>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.mutiCastBroadCast} onChange={() => handleCheckboxChange("mutiCastBroadCast")} />
+              Multicast/Broadcast
+            </FirewallLogFilterRowComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.echoChargen} onChange={() => handleCheckboxChange("echoChargen")} />
+              Echo Chargen
+            </FirewallLogFilterRowComponent>
+          </Col>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox
+                checked={data.defragmentationError}
+                onChange={() => handleCheckboxChange("defragmentationError")}
+              />
+              Defragmentation Error
+            </FirewallLogFilterRowComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.icmpRedirect} onChange={() => handleCheckboxChange("icmpRedirect")} />
+              ICMP Redirect
+            </FirewallLogFilterRowComponent>
+          </Col>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.icmpMultiCast} onChange={() => handleCheckboxChange("icmpMultiCast")} />
+              ICMP Multicast
+            </FirewallLogFilterRowComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.blockedFragments} onChange={() => handleCheckboxChange("blockedFragments")} />
+              Blocked Fragments
+            </FirewallLogFilterRowComponent>
+          </Col>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox
+                checked={data.packetIllegalOptions}
+                onChange={() => handleCheckboxChange("packetIllegalOptions")}
+              />
+              Packet Illegal options
+            </FirewallLogFilterRowComponent>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.icmpFlood} onChange={() => handleCheckboxChange("icmpFlood")} />
+              ICMP Flood
+            </FirewallLogFilterRowComponent>
+          </Col>
+          <Col>
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox checked={data.synFlood} onChange={() => handleCheckboxChange("synFlood")} />
+              Syn Flood
+            </FirewallLogFilterRowComponent>
+          </Col>
+        </Row>
+        <FirewallLogFilterRowComponent>
+          <VZCheckbox checked={data.udpFlood} onChange={() => handleCheckboxChange("udpFlood")} />
+          UDP Flood
+        </FirewallLogFilterRowComponent>
+        <FirewallLogFilterHeader>Other Events</FirewallLogFilterHeader>
+        <FirewallLogFilterRowComponent>
+          <VZCheckbox
+            checked={data.remoteAdministrationAttempts}
+            onChange={() => handleCheckboxChange("remoteAdministrationAttempts")}
+          />
+          Remote Administration Attempts
+        </FirewallLogFilterRowComponent>
+        <FirewallLogFilterRowComponent>
+          <VZCheckbox checked={data.connectionStates} onChange={() => handleCheckboxChange("connectionStates")} />
+          Connection States
+        </FirewallLogFilterRowComponent>
+        <FirewallLogFilterHeader>Log Buffer</FirewallLogFilterHeader>
+        {/* TODO: Change the disabled when requirement comes  --------------------------------------*/}
+        <FirewallLogFilterRowComponent $disabled>
+          <VZCheckbox checked={false} onChange={() => {}} disabled={true} />
+          Prevent Log Overrun
+        </FirewallLogFilterRowComponent>
+        <OptionsButtonCol>
+          <VZButton small={true} secondary onClick={() => changeActivePage(SystemLogPageType.Logs)}>
+            Cancel
+          </VZButton>
+          <VZButton small={true} disabled={applyButtonDisabled} onClick={updateFilters}>
+            Apply
+          </VZButton>
+        </OptionsButtonCol>
+      </FirewallLogFilterContent>
+      <VZApplySettingsModal show={isUpdating} />
+    </FirewallLogFilterContainer>
+  );
+};
+
+
+My team leads want me to change refractor the code in FirewallSettingsView as i am doing mostly the same things could you do that such that it could be readable 
+
+so what my team lead wants to 
+
+            <FirewallLogFilterRowComponent>
+              <VZCheckbox
+                checked={data.packetIllegalOptions}
+                onChange={() => handleCheckboxChange("packetIllegalOptions")}
+              />
+              Packet Illegal options
+            </FirewallLogFilterRowComponent>
+
+            replace the above component with a single component which accepts checked and onChange as props
