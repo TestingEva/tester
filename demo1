@@ -1,68 +1,7 @@
-import React from "react";
-import { Col, Row } from "react-bootstrap";
-import {
-  FirewallLogFilterContainer,
-  FirewallLogFilterContent,
-  FirewallLogFilterHeader,
-  OptionsButtonCol,
-} from "./styles";
-import { SystemLogPageType } from "../SystemLogging";
-import { VZButton } from "../../../components/vz-button/VZButton";
-import { VZApplySettingsModal } from "../../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
-import CheckboxRow from "./CheckboxRow";
-import { FirewallLogFilterModel } from "../../../../domain/system-logging/models";
 
-type Props = {
-  data: FirewallLogFilterModel;
-  setData: React.Dispatch<React.SetStateAction<FirewallLogFilterModel | undefined>>;
-  saveButtonDisabled: boolean;
-  changeActivePage: (pageType: SystemLogPageType) => void;
-  updateFilters: () => void;
-  isUpdating: boolean;
-};
-
-const FirewallSettingsView: React.FC<Props> = ({
-  data,
-  setData,
-  saveButtonDisabled: applyButtonDisabled,
-  changeActivePage,
-  updateFilters,
-  isUpdating,
-}) => {
-  const handleCheckboxChange = (key: keyof FirewallLogFilterModel) => {
-    setData((prevData) => ({
-      ...prevData!,
-      [key]: !prevData![key],
-    }));
-  };
-
-  return (
-    <FirewallLogFilterContainer>
-      <FirewallLogFilterContent>
-        <FirewallLogFilterHeader>Accepted Events</FirewallLogFilterHeader>
-        <CheckboxRow
-          checked={data.acceptIncomingConnections}
-          onChange={() => handleCheckboxChange("acceptIncomingConnections")}
-          label="Accept Incoming Connections"
-        />
-        <CheckboxRow
-          checked={data.acceptOutgoingConnections}
-          onChange={() => handleCheckboxChange("acceptOutgoingConnections")}
-          label="Accept Outgoing Connections"
-        />
-        <FirewallLogFilterHeader>Blocked Events</FirewallLogFilterHeader>
-        <CheckboxRow
-          checked={data.allBlockedConnectionAttempts}
-          onChange={() => handleCheckboxChange("allBlockedConnectionAttempts")}
-          label="All blocked connections attempts"
-        />
         <Row>
           <Col md={6}>
-            <CheckboxRow
-              checked={data.winuuke}
-              onChange={() => handleCheckboxChange("winuuke")}
-              label="Winuuke"
-            />
+            <CheckboxRow checked={data.winuuke} onChange={() => handleCheckboxChange("winuuke")} label="Winuuke" />
           </Col>
           <Col md={6}>
             <CheckboxRow
@@ -73,14 +12,14 @@ const FirewallSettingsView: React.FC<Props> = ({
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.echoChargen}
               onChange={() => handleCheckboxChange("echoChargen")}
               label="Echo Chargen"
             />
           </Col>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.defragmentationError}
               onChange={() => handleCheckboxChange("defragmentationError")}
@@ -89,14 +28,14 @@ const FirewallSettingsView: React.FC<Props> = ({
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.icmpRedirect}
               onChange={() => handleCheckboxChange("icmpRedirect")}
               label="ICMP Redirect"
             />
           </Col>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.icmpMultiCast}
               onChange={() => handleCheckboxChange("icmpMultiCast")}
@@ -105,14 +44,14 @@ const FirewallSettingsView: React.FC<Props> = ({
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.blockedFragments}
               onChange={() => handleCheckboxChange("blockedFragments")}
               label="Blocked Fragments"
             />
           </Col>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.packetIllegalOptions}
               onChange={() => handleCheckboxChange("packetIllegalOptions")}
@@ -121,55 +60,16 @@ const FirewallSettingsView: React.FC<Props> = ({
           </Col>
         </Row>
         <Row>
-          <Col>
+          <Col md={6}>
             <CheckboxRow
               checked={data.icmpFlood}
               onChange={() => handleCheckboxChange("icmpFlood")}
               label="ICMP Flood"
             />
           </Col>
-          <Col>
-            <CheckboxRow
-              checked={data.synFlood}
-              onChange={() => handleCheckboxChange("synFlood")}
-              label="Syn Flood"
-            />
+          <Col md={6}>
+            <CheckboxRow checked={data.synFlood} onChange={() => handleCheckboxChange("synFlood")} label="Syn Flood" />
           </Col>
         </Row>
-        <CheckboxRow
-          checked={data.udpFlood}
-          onChange={() => handleCheckboxChange("udpFlood")}
-          label="UDP Flood"
-        />
-        <FirewallLogFilterHeader>Other Events</FirewallLogFilterHeader>
-        <CheckboxRow
-          checked={data.remoteAdministrationAttempts}
-          onChange={() => handleCheckboxChange("remoteAdministrationAttempts")}
-          label="Remote Administration Attempts"
-        />
-        <CheckboxRow
-          checked={data.connectionStates}
-          onChange={() => handleCheckboxChange("connectionStates")}
-          label="Connection States"
-        />
-        <FirewallLogFilterHeader>Log Buffer</FirewallLogFilterHeader>
-        {/* TODO: Change the disabled when requirement comes */}
-        <FirewallLogFilterRowComponent $disabled>
-          <VZCheckbox checked={false} onChange={() => {}} disabled={true} />
-          Prevent Log Overrun
-        </FirewallLogFilterRowComponent>
-        <OptionsButtonCol>
-          <VZButton small={true} secondary onClick={() => changeActivePage(SystemLogPageType.Logs)}>
-            Cancel
-          </VZButton>
-          <VZButton small={true} disabled={applyButtonDisabled} onClick={updateFilters}>
-            Apply
-          </VZButton>
-        </OptionsButtonCol>
-      </FirewallLogFilterContent>
-      <VZApplySettingsModal show={isUpdating} />
-    </FirewallLogFilterContainer>
-  );
-};
 
-export default FirewallSettingsView;
+could this be further refactored 
