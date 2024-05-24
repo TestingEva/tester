@@ -1,163 +1,57 @@
-import React from "react";
-import { Col, Row } from "react-bootstrap";
-import {
-  FirewallLogFilterContainer,
-  FirewallLogFilterContent,
-  FirewallLogFilterHeader,
-  OptionsButtonCol,
-} from "./styles";
+import { OptionViewContainer, OptionsButtonCol, OptionsViewHeader, OptionsViewRow, RadioButton } from "./styles";
 import { SystemLogPageType } from "../SystemLogging";
+import { OptionalComponent } from "../../../components/OffStageComponent";
+import { useState } from "react";
 import { VZButton } from "../../../components/vz-button/VZButton";
-import { VZApplySettingsModal } from "../../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
-import CheckboxRow from "./CheckboxRow";
-import CheckboxRowPair from "./CheckboxRowPair";
-import { FirewallLogFilterModel } from "../../../../domain/system-logging/models";
-
 type Props = {
-  data: FirewallLogFilterModel;
-  setData: React.Dispatch<React.SetStateAction<FirewallLogFilterModel | undefined>>;
-  saveButtonDisabled: boolean;
   changeActivePage: (pageType: SystemLogPageType) => void;
-  updateFilters: () => void;
-  isUpdating: boolean;
+  changeDateTime: (optionSelected: 0 | 1 | 2, start?: Date, end?: Date) => void;
 };
-
-const FirewallSettingsView: React.FC<Props> = ({
-  data,
-  setData,
-  saveButtonDisabled: applyButtonDisabled,
-  changeActivePage,
-  updateFilters,
-  isUpdating,
-}) => {
-  const handleCheckboxChange = (key: keyof FirewallLogFilterModel) => {
-    setData((prevData) => ({
-      ...prevData!,
-      [key]: !prevData![key],
-    }));
+export const OptionsView: React.FC<Props> = ({ changeActivePage, changeDateTime }) => {
+  const [selectedDateOption, setSelectedDateOption] = useState<0 | 1 | 2>(0);
+  const localDateTime = "2024-05-24T07:44:44.369355675-04:00"
+  const temp = new Date(); //TODO: Will be replaced by the Date Selected by the User
+  const onSaveButtonClicked = () => {
+    if (selectedDateOption === 2) {
+      changeDateTime(selectedDateOption, temp, temp);
+    } else {
+      changeDateTime(selectedDateOption as 0 | 1);
+    }
+    changeActivePage(SystemLogPageType.Logs);
   };
-
   return (
-    <FirewallLogFilterContainer>
-      <FirewallLogFilterContent>
-        <FirewallLogFilterHeader>Accepted Events</FirewallLogFilterHeader>
-        <CheckboxRow
-          checked={data.acceptIncomingConnections}
-          onChange={() => handleCheckboxChange("acceptIncomingConnections")}
-          label="Accept Incoming Connections"
-        />
-        <CheckboxRow
-          checked={data.acceptOutgoingConnections}
-          onChange={() => handleCheckboxChange("acceptOutgoingConnections")}
-          label="Accept Outgoing Connections"
-        />
-        <FirewallLogFilterHeader>Blocked Events</FirewallLogFilterHeader>
-        <CheckboxRow
-          checked={data.allBlockedConnectionAttempts}
-          onChange={() => handleCheckboxChange("allBlockedConnectionAttempts")}
-          label="All blocked connections attempts"
-        />
-        <CheckboxRowPair
-          items={[
-            { checked: data.winuuke, onChange: () => handleCheckboxChange("winuuke"), label: "Winuuke" },
-            {
-              checked: data.mutiCastBroadCast,
-              onChange: () => handleCheckboxChange("mutiCastBroadCast"),
-              label: "Multicast/Broadcast",
-            },
-          ]}
-        />
-        <CheckboxRowPair
-          items={[
-            { checked: data.echoChargen, onChange: () => handleCheckboxChange("echoChargen"), label: "Echo Chargen" },
-            {
-              checked: data.defragmentationError,
-              onChange: () => handleCheckboxChange("defragmentationError"),
-              label: "Defragmentation Error",
-            },
-          ]}
-        />
-        <CheckboxRowPair
-          items={[
-            { checked: data.icmpRedirect, onChange: () => handleCheckboxChange("icmpRedirect"), label: "ICMP Redirect" },
-            {
-              checked: data.icmpMultiCast,
-              onChange: () => handleCheckboxChange("icmpMultiCast"),
-              label: "ICMP Multicast",
-            },
-          ]}
-        />
-        <CheckboxRowPair
-          items={[
-            { checked: data.blockedFragments, onChange: () => handleCheckboxChange("blockedFragments"), label: "Blocked Fragments" },
-            {
-              checked: data.packetIllegalOptions,
-              onChange: () => handleCheckboxChange("packetIllegalOptions"),
-              label: "Packet Illegal options",
-            },
-          ]}
-        />
-        <CheckboxRowPair
-          items={[
-            { checked: data.icmpFlood, onChange: () => handleCheckboxChange("icmpFlood"), label: "ICMP Flood" },
-            { checked: data.synFlood, onChange: () => handleCheckboxChange("synFlood"), label: "Syn Flood" },
-          ]}
-        />
-        <CheckboxRow
-          checked={data.udpFlood}
-          onChange={() => handleCheckboxChange("udpFlood")}
-          label="UDP Flood"
-        />
-        <FirewallLogFilterHeader>Other Events</FirewallLogFilterHeader>
-        <CheckboxRow
-          checked={data.remoteAdministrationAttempts}
-          onChange={() => handleCheckboxChange("remoteAdministrationAttempts")}
-          label="Remote Administration Attempts"
-        />
-        <CheckboxRow
-          checked={data.connectionStates}
-          onChange={() => handleCheckboxChange("connectionStates")}
-          label="Connection States"
-        />
-        <FirewallLogFilterHeader>Log Buffer</FirewallLogFilterHeader>
-        {/* TODO: Change the disabled when requirement comes */}
-        <FirewallLogFilterRowComponent $disabled>
-          <VZCheckbox checked={false} onChange={() => {}} disabled={true} />
-          Prevent Log Overrun
-        </FirewallLogFilterRowComponent>
-        <OptionsButtonCol>
-          <VZButton small={true} secondary onClick={() => changeActivePage(SystemLogPageType.Logs)}>
-            Cancel
-          </VZButton>
-          <VZButton small={true} disabled={applyButtonDisabled} onClick={updateFilters}>
-            Apply
-          </VZButton>
-        </OptionsButtonCol>
-      </FirewallLogFilterContent>
-      <VZApplySettingsModal show={isUpdating} />
-    </FirewallLogFilterContainer>
+    <OptionViewContainer>
+      <OptionsViewHeader>Logging view options</OptionsViewHeader>
+      <OptionsViewRow>
+        <RadioButton name="radio" checked={selectedDateOption === 0} onChange={() => setSelectedDateOption(0)} />
+        Past day
+      </OptionsViewRow>
+      <OptionsViewRow>
+        <RadioButton name="radio" checked={selectedDateOption === 1} onChange={() => setSelectedDateOption(1)} />
+        Past week
+      </OptionsViewRow>
+      <OptionsViewRow>
+        <RadioButton name="radio" checked={selectedDateOption === 2} onChange={() => setSelectedDateOption(2)} />
+        Custom range
+      </OptionsViewRow>
+      <OptionalComponent show={selectedDateOption === 2}>
+        {/* TODO: Add a date Picker here and set the date Accordingly  */}
+      </OptionalComponent>
+      <OptionsButtonCol>
+        <VZButton small secondary onClick={() => changeActivePage(SystemLogPageType.Logs)}>Cancel</VZButton>
+        <VZButton small onClick={onSaveButtonClicked}>
+          Save
+        </VZButton>
+      </OptionsButtonCol>
+    </OptionViewContainer>
   );
 };
 
-export default FirewallSettingsView;
+export default OptionsView;
 
+Did you see there is a todo to add a date Picker so the requirement is like that there are startDateTime and EndDateTime for now we are sending Temp Time of the browser 
+but we need to replace the temp with the Date and Time of the format 2024-05-24T07:00:00.00 I have attached few images of the UI how it should look like
+initially the date and time from the localDateTime should be selected 
 
-
-
-import React from "react";
-import { Col, Row } from "react-bootstrap";
-import CheckboxRow from "./CheckboxRow";
-
-const CheckboxRowPair: React.FC<{
-  items: { checked: boolean; onChange: () => void; label: string }[];
-}> = ({ items }) => (
-  <Row>
-    {items.map((item, index) => (
-      <Col key={index} md={6}>
-        <CheckboxRow checked={item.checked} onChange={item.onChange} label={item.label} />
-      </Col>
-    ))}
-  </Row>
-);
-
-export default CheckboxRowPair;
+create a DatePicker and Time Picker DropDown and one more thing Time Picker will be using 12 hour time but when we are sending the time 
+it should be converted to 24 hour
