@@ -13,7 +13,7 @@ export const parseBackhaulLogApiResponse = (data: string, platformType: Platform
   const splitList = trimmedData
     .split(lineSeparator)
     .slice(0, trimmedData[trimmedData.length - 1] === lineSeparator ? -1 : undefined);
-  return splitList
+  const temp = splitList
     .map((val) => {
       const splitVal = val.split(valueSeparator);
       const dateTimeString = splitVal[0].trim();
@@ -39,6 +39,8 @@ export const parseBackhaulLogApiResponse = (data: string, platformType: Platform
         connectionRate: splitVal?.[2]?.trim(),
       };
     })
+    .filter((entry): entry is BackhaulLogModel => entry !== null);
+  return temp;
 };
 
 export const convertStringToBackhaulType = (string: string): BackhaulType => {
@@ -55,8 +57,13 @@ export const convertStringToBackhaulType = (string: string): BackhaulType => {
 };
 
 
-So i am getting the following error 
+I am getting the following errors 
+1. at line where we have given entry is BackhaulLogModel i am getting the following error 
+A type predicate's type must be assignable to its parameter's type.
+  Type 'BackhaulLogModel' is not assignable to type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null'.
+    Type 'BackhaulLogModel' is not assignable to type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; }'.
+      Property 'type' is missing in type 'BackhaulLogModel' but required in type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; }'.
 
-Type '({ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null)[]' is not assignable to type 'BackhaulLogModel[]'.
+2.At return temp i am getting this error Type  '({ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null)[]' is not assignable to type 'BackhaulLogModel[]'.
   Type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null' is not assignable to type 'BackhaulLogModel'.
-    Type 'null' is not assignable to type 'BackhaulLogModel'
+    Type 'null' is not assignable to type 'BackhaulLogModel'.
