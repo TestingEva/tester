@@ -13,7 +13,8 @@ export const parseBackhaulLogApiResponse = (data: string, platformType: Platform
   const splitList = trimmedData
     .split(lineSeparator)
     .slice(0, trimmedData[trimmedData.length - 1] === lineSeparator ? -1 : undefined);
-  const temp = splitList
+  
+  return splitList
     .map((val) => {
       const splitVal = val.split(valueSeparator);
       const dateTimeString = splitVal[0].trim();
@@ -23,24 +24,21 @@ export const parseBackhaulLogApiResponse = (data: string, platformType: Platform
       const dateTime = dayjs(dateTimeString);
       const date = dateTime.format("MM / DD / YY");
       const time = dateTime.format("hh:mm A").toLowerCase();
-      if (platformType === PlatformType.Router) {
-        return {
-          date: date,
-          time: time,
-          type: convertStringToBackhaulType(splitVal?.[1]?.trim()),
-          connectionRate: splitVal?.[2]?.trim(),
-          macAddress: splitVal?.[3]?.trim(),
-        };
-      }
-      return {
+      const commonFields = {
         date: date,
         time: time,
-        type: convertStringToBackhaulType(splitVal?.[1]?.trim()),
-        connectionRate: splitVal?.[2]?.trim(),
+        backhaulType: convertStringToBackhaulType(splitVal[1]?.trim()),
+        connectionRate: splitVal[2]?.trim(),
       };
+      if (platformType === PlatformType.Router) {
+        return {
+          ...commonFields,
+          macAddress: splitVal[3]?.trim(),
+        };
+      }
+      return commonFields;
     })
     .filter((entry): entry is BackhaulLogModel => entry !== null);
-  return temp;
 };
 
 export const convertStringToBackhaulType = (string: string): BackhaulType => {
@@ -55,15 +53,3 @@ export const convertStringToBackhaulType = (string: string): BackhaulType => {
       throw new Error(`Unsupported BackhaulType ${string}`);
   }
 };
-
-
-I am getting the following errors 
-1. at line where we have given entry is BackhaulLogModel i am getting the following error 
-A type predicate's type must be assignable to its parameter's type.
-  Type 'BackhaulLogModel' is not assignable to type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null'.
-    Type 'BackhaulLogModel' is not assignable to type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; }'.
-      Property 'type' is missing in type 'BackhaulLogModel' but required in type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; }'.
-
-2.At return temp i am getting this error Type  '({ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null)[]' is not assignable to type 'BackhaulLogModel[]'.
-  Type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null' is not assignable to type 'BackhaulLogModel'.
-    Type 'null' is not assignable to type 'BackhaulLogModel'.
