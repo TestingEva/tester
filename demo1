@@ -1,44 +1,44 @@
-type BackhaulLogModel = {
-    time: string;
-    date: string;
-    backhaulType: BackhaulType;
-    connectionRate: string;
-    macAddress?: string | undefined;
-}
-export const parseBackhaulLogApiResponse = (data: string): BackhaulLogModel[] => {
+import dayjs from "dayjs";
+import { BackhaulLogModel } from "../../domain/backhaul-logging/models";
+import { PlatformType } from "../../domain/misc/models";
+import { BackhaulType } from "../../domain/system-status/models";
+
+export const parseBackhaulLogApiResponse = (data: string, platformType: PlatformType): BackhaulLogModel[] => {
   if (data.length === 0) {
     return [];
   }
   const lineSeparator = "\u2551";
   const valueSeparator = "\u2588";
-  const trimmedData = data?.trim();
+  const trimmedData = data.trim();
   const splitList = trimmedData
-    ?.split(lineSeparator)
-    ?.slice(0, trimmedData?.[trimmedData?.length - 1] === lineSeparator ? -1 : undefined);
+    .split(lineSeparator)
+    .slice(0, trimmedData[trimmedData.length - 1] === lineSeparator ? -1 : undefined);
   return splitList
     .map((val) => {
-      const splitVal = val?.split(valueSeparator);
-      const dateTimeString = splitVal?.[0]?.trim();
-      if (!dateTimeString || isNaN(Date?.parse(dateTimeString))) {
-        return [];
+      const splitVal = val.split(valueSeparator);
+      const dateTimeString = splitVal[0].trim();
+      if (!dateTimeString || !dayjs(dateTimeString).isValid()) {
+        return null;
       }
-      const dateTime = new Date(dateTimeString);
-      const date = dateTime
-        ?.toLocaleDateString("en-US", { year: "2-digit", month: "2-digit", day: "2-digit" })
-        .replace(/\//g, " / ");
-      const time = dateTime
-        ?.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
-        .replace(/\u200E/g, "")
-        .toLowerCase();
+      const dateTime = dayjs(dateTimeString);
+      const date = dateTime.format("MM / DD / YY");
+      const time = dateTime.format("hh:mm A").toLowerCase();
+      if (platformType === PlatformType.Router) {
+        return {
+          date: date,
+          time: time,
+          type: convertStringToBackhaulType(splitVal?.[1]?.trim()),
+          connectionRate: splitVal?.[2]?.trim(),
+          macAddress: splitVal?.[3]?.trim(),
+        };
+      }
       return {
         date: date,
         time: time,
         type: convertStringToBackhaulType(splitVal?.[1]?.trim()),
         connectionRate: splitVal?.[2]?.trim(),
-        macAddress: splitVal?.[3]?.trim(),
       };
     })
-    .filter((entry) => entry !== null);
 };
 
 export const convertStringToBackhaulType = (string: string): BackhaulType => {
@@ -55,8 +55,8 @@ export const convertStringToBackhaulType = (string: string): BackhaulType => {
 };
 
 
-the errror i am getting 
+So i am getting the following error 
 
-Type '(never[] | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; })[]' is not assignable to type 'BackhaulLogModel[]'.
-  Type 'never[] | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; }' is not assignable to type 'BackhaulLogModel'.
-    Type 'never[]' is missing the following properties from type 'BackhaulLogModel': time, date, backhaulType, connectionRate
+Type '({ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null)[]' is not assignable to type 'BackhaulLogModel[]'.
+  Type '{ date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; } | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress?: undefined; } | null' is not assignable to type 'BackhaulLogModel'.
+    Type 'null' is not assignable to type 'BackhaulLogModel'
