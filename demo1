@@ -1,57 +1,62 @@
-import { OptionViewContainer, OptionsButtonCol, OptionsViewHeader, OptionsViewRow, RadioButton } from "./styles";
-import { SystemLogPageType } from "../SystemLogging";
-import { OptionalComponent } from "../../../components/OffStageComponent";
-import { useState } from "react";
-import { VZButton } from "../../../components/vz-button/VZButton";
-type Props = {
-  changeActivePage: (pageType: SystemLogPageType) => void;
-  changeDateTime: (optionSelected: 0 | 1 | 2, start?: Date, end?: Date) => void;
-};
-export const OptionsView: React.FC<Props> = ({ changeActivePage, changeDateTime }) => {
-  const [selectedDateOption, setSelectedDateOption] = useState<0 | 1 | 2>(0);
-  const localDateTime = "2024-05-24T07:44:44.369355675-04:00"
-  const temp = new Date(); //TODO: Will be replaced by the Date Selected by the User
-  const onSaveButtonClicked = () => {
-    if (selectedDateOption === 2) {
-      changeDateTime(selectedDateOption, temp, temp);
-    } else {
-      changeDateTime(selectedDateOption as 0 | 1);
-    }
-    changeActivePage(SystemLogPageType.Logs);
-  };
-  return (
-    <OptionViewContainer>
-      <OptionsViewHeader>Logging view options</OptionsViewHeader>
-      <OptionsViewRow>
-        <RadioButton name="radio" checked={selectedDateOption === 0} onChange={() => setSelectedDateOption(0)} />
-        Past day
-      </OptionsViewRow>
-      <OptionsViewRow>
-        <RadioButton name="radio" checked={selectedDateOption === 1} onChange={() => setSelectedDateOption(1)} />
-        Past week
-      </OptionsViewRow>
-      <OptionsViewRow>
-        <RadioButton name="radio" checked={selectedDateOption === 2} onChange={() => setSelectedDateOption(2)} />
-        Custom range
-      </OptionsViewRow>
-      <OptionalComponent show={selectedDateOption === 2}>
-        {/* TODO: Add a date Picker here and set the date Accordingly  */}
-      </OptionalComponent>
-      <OptionsButtonCol>
-        <VZButton small secondary onClick={() => changeActivePage(SystemLogPageType.Logs)}>Cancel</VZButton>
-        <VZButton small onClick={onSaveButtonClicked}>
-          Save
-        </VZButton>
-      </OptionsButtonCol>
-    </OptionViewContainer>
-  );
+type BackhaulLogModel = {
+    time: string;
+    date: string;
+    backhaulType: BackhaulType;
+    connectionRate: string;
+    macAddress?: string | undefined;
+}
+export const parseBackhaulLogApiResponse = (data: string): BackhaulLogModel[] => {
+  if (data.length === 0) {
+    return [];
+  }
+  const lineSeparator = "\u2551";
+  const valueSeparator = "\u2588";
+  const trimmedData = data?.trim();
+  const splitList = trimmedData
+    ?.split(lineSeparator)
+    ?.slice(0, trimmedData?.[trimmedData?.length - 1] === lineSeparator ? -1 : undefined);
+  return splitList
+    .map((val) => {
+      const splitVal = val?.split(valueSeparator);
+      const dateTimeString = splitVal?.[0]?.trim();
+      if (!dateTimeString || isNaN(Date?.parse(dateTimeString))) {
+        return [];
+      }
+      const dateTime = new Date(dateTimeString);
+      const date = dateTime
+        ?.toLocaleDateString("en-US", { year: "2-digit", month: "2-digit", day: "2-digit" })
+        .replace(/\//g, " / ");
+      const time = dateTime
+        ?.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+        .replace(/\u200E/g, "")
+        .toLowerCase();
+      return {
+        date: date,
+        time: time,
+        type: convertStringToBackhaulType(splitVal?.[1]?.trim()),
+        connectionRate: splitVal?.[2]?.trim(),
+        macAddress: splitVal?.[3]?.trim(),
+      };
+    })
+    .filter((entry) => entry !== null);
 };
 
-export default OptionsView;
+export const convertStringToBackhaulType = (string: string): BackhaulType => {
+  switch (string) {
+    case "0":
+      return BackhaulType.Ethernet;
+    case "1":
+      return BackhaulType.Wifi;
+    case "2":
+      return BackhaulType.Coax;
+    default:
+      throw new Error(`Unsupported BackhaulType ${string}`);
+  }
+};
 
-Did you see there is a todo to add a date Picker so the requirement is like that there are startDateTime and EndDateTime for now we are sending Temp Time of the browser 
-but we need to replace the temp with the Date and Time of the format 2024-05-24T07:00:00.00 I have attached few images of the UI how it should look like
-initially the date and time from the localDateTime should be selected 
 
-create a DatePicker and Time Picker DropDown and one more thing Time Picker will be using 12 hour time but when we are sending the time 
-it should be converted to 24 hour
+the errror i am getting 
+
+Type '(never[] | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; })[]' is not assignable to type 'BackhaulLogModel[]'.
+  Type 'never[] | { date: string; time: string; type: BackhaulType; connectionRate: string; macAddress: string; }' is not assignable to type 'BackhaulLogModel'.
+    Type 'never[]' is missing the following properties from type 'BackhaulLogModel': time, date, backhaulType, connectionRate
