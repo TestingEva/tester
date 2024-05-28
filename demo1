@@ -1,55 +1,26 @@
-import dayjs from "dayjs";
-import { BackhaulLogModel } from "../../domain/backhaul-logging/models";
-import { PlatformType } from "../../domain/misc/models";
-import { BackhaulType } from "../../domain/system-status/models";
+import { BackhaulCategory } from "../../domain/backhaul-logging/models";
+import { mapAndThrowError } from "../api_error";
+import { GET_BACKHAUL_LOGS_URL } from "../endpoints";
+import httpClient from "../http/http_client_impl";
+import { httpRequest } from "../http/request_builder";
+import { BackhaulLoggingApiResponse } from "./models";
+import { BackhaulLoggingResponseSchema } from "./schemas";
 
-export const parseBackhaulLogApiResponse = (data: string, platformType: PlatformType): BackhaulLogModel[] => {
-  if (data.length === 0) {
-    return [];
+export async function getBackhaulLogsApi(
+  authToken: string,
+  request: BackhaulCategory
+): Promise<BackhaulLoggingApiResponse> {
+  try {
+    const response = await httpClient.send(
+      httpRequest(GET_BACKHAUL_LOGS_URL).authToken(authToken).jsonBodyOf({ deviceType: request }).build()
+    );
+    if (response.code === 204) {
+      return { logs: "" };
+    }
+    return BackhaulLoggingResponseSchema.parse(response.body) as BackhaulLoggingApiResponse;
+  } catch (e) {
+    mapAndThrowError(e);
   }
-  const lineSeparator = "\u2551";
-  const valueSeparator = "\u2588";
-  const trimmedData = data.trim();
-  const splitList = trimmedData
-    .split(lineSeparator)
-    .slice(0, trimmedData[trimmedData.length - 1] === lineSeparator ? -1 : undefined);
-  
-  return splitList
-    .map((val) => {
-      const splitVal = val.split(valueSeparator);
-      const dateTimeString = splitVal[0].trim();
-      if (!dateTimeString || !dayjs(dateTimeString).isValid()) {
-        return null;
-      }
-      const dateTime = dayjs(dateTimeString);
-      const date = dateTime.format("MM / DD / YY");
-      const time = dateTime.format("hh:mm A").toLowerCase();
-      const commonFields = {
-        date: date,
-        time: time,
-        backhaulType: convertStringToBackhaulType(splitVal[1]?.trim()),
-        connectionRate: splitVal[2]?.trim(),
-      };
-      if (platformType === PlatformType.Router) {
-        return {
-          ...commonFields,
-          macAddress: splitVal[3]?.trim(),
-        };
-      }
-      return commonFields;
-    })
-    .filter((entry): entry is BackhaulLogModel => entry !== null);
-};
+}
 
-export const convertStringToBackhaulType = (string: string): BackhaulType => {
-  switch (string) {
-    case "0":
-      return BackhaulType.Ethernet;
-    case "1":
-      return BackhaulType.Wifi;
-    case "2":
-      return BackhaulType.Coax;
-    default:
-      throw new Error(`Unsupported BackhaulType ${string}`);
-  }
-};
+I want that if the request is BackhaulCategory.none then we do not need to send the body of request it should be empty and in other cases it should have body
