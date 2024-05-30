@@ -1,130 +1,41 @@
-This is my BackhaulLogging.tsx
-import { useEffect, useState } from "react";
-import {
-  useBackhaulLogCategories,
-  useBackhaulLogs,
-  useClearBackhaulLogs,
-  useSaveBackhaulLogs,
-} from "../../../domain/backhaul-logging/hooks";
-import { BackhaulCategory } from "../../../domain/backhaul-logging/models";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicator, LoadingIndicatorOverlay } from "../../components/loading-indicator/LoadingIndicator";
-import { BackhaulLoggingView } from "./BackhaulLoggingView";
-import { useLocator } from "../../components/navigator/navigator";
-import { usePlatformInfo } from "../../../domain/misc/hooks";
-
-export const BackhaulLogging: React.FC = () => {
-  const { data: platformInfo, error: platError } = usePlatformInfo();
-  const { data: backhaulLogCategories } = useBackhaulLogCategories();
-  const [selectedTab, setSelectedTab] = useState<BackhaulCategory>();
-  const { data, isError, isPending } = useBackhaulLogs(selectedTab!);
-  const { groupLabel } = useLocator();
-  const { invoke: clearLogs } = useClearBackhaulLogs();
-  const { invoke: saveLogs } = useSaveBackhaulLogs();
-
-  useEffect(() => {
-    if (backhaulLogCategories !== undefined) {
-      setSelectedTab(backhaulLogCategories[0]);
-    }
-  }, [backhaulLogCategories]);
-
-  const onTabClick = (category: BackhaulCategory) => {
-    setSelectedTab(category);
-  };
-
-  const onRefreshClick = () => {
-    console.log("first")
-  };
-
-  const onClearClick = () => {
-    clearLogs();
-  };
-
-  const onSaveClick = () => {
-    saveLogs(selectedTab!);
-  };
-
-  if (isError || platError) {
-    return <ErrorIndicator />;
-  }
-  if (isPending) {
-    return <LoadingIndicator />;
-  }
-  return (
-    <LoadingIndicatorOverlay enabled={backhaulLogCategories === undefined}>
-      <BackhaulLoggingView
-        data={data ?? []}
-        rootBreadcrumbLabel={groupLabel!}
-        selectedTab={selectedTab!}
-        backhaulLogCategories={backhaulLogCategories ?? []}
-        onTabClick={onTabClick}
-        isRouter={platformInfo!.isRouter}
-        onClearClick={onClearClick}
-        onSaveClick={onSaveClick}
-        onRefreshClick={onRefreshClick}
-      />
-    </LoadingIndicatorOverlay>
-  );
+export type BackhaulLogEntry = {
+  dateTime: Dayjs;
+  backhaulType: BackhaulType;
+  connectionRateMbps: number;
+  macAddress?: string;
 };
 
-And this one is my hooks for this file
+export const convertBackhaulLogApiResponse = (data: string, platformType: PlatformType): BackhaulLogEntry[] => {
+  if (data.length === 0) {
+    return [];
+  }
+  const lineSeparator = "\u2551";
+  const valueSeparator = "\u2588";
+  const trimmedData = data.trim();
+  const splitList = trimmedData.split(lineSeparator).slice(0, trimmedData.endsWith(lineSeparator) ? -1 : undefined);
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AsyncHookData, LazyAsyncHookData } from "../hook_data";
-import { KEY_BACKHAUL_CATEGORIES, KEY_BACKHAUL_LOGS } from "../keys";
-import { usePlatformInfo } from "../misc/hooks";
-import { BackhaulCategory, BackhaulLogModel } from "./models";
-import {
-  clearBackhaulLogs,
-  getBackhaulLogCategories,
-  getBackhaulLogs,
-  saveBackhaulLogs,
-} from "../../data/backhaul-logging/backhaul_logging";
-import { asyncHookData, lazyAsyncHookData } from "../hook_data_impl";
+  return splitList
+    .map((val) => {
+      const splitVal = val.split(valueSeparator);
+      const dateTimeString = splitVal[0].trim();
+      if (!dateTimeString || !dayjs(dateTimeString).isValid()) {
+        return null;
+      }
+ 
+      const commonFields = {
+        dateTime: dayjs(dateTimeString),
+        backhaulType: convertStringToBackhaulType(splitVal[1]?.trim()),
+        connectionRate: convertMbpsToGbps(splitVal[2]?.trim()),
+      };
+      if (platformType === PlatformType.Router) {
+        return {
+          ...commonFields,
+          macAddress: splitVal[3]?.trim(),
+        };
+      }
+      return commonFields;
+    })
+    .filter((entry): entry is BackhaulLogEntry => entry !== null);
+};
 
-export function useBackhaulLogCategories(): AsyncHookData<BackhaulCategory[]> {
-  const { data: platformInfo, error: platError, status: platStatus } = usePlatformInfo();
-  const { data, error, status } = useQuery({
-    queryKey: [KEY_BACKHAUL_CATEGORIES],
-    queryFn: async () => getBackhaulLogCategories(platformInfo!.model),
-    staleTime: Infinity,
-    enabled: platformInfo !== undefined,
-  });
-  return asyncHookData([status, platStatus], [error, platError], data);
-}
-
-export function useBackhaulLogs(request: BackhaulCategory): AsyncHookData<BackhaulLogModel[]> {
-  const { data: platformInfo, error: platError, status: platStatus } = usePlatformInfo();
-  const { data, error, status } = useQuery({
-    queryKey: [KEY_BACKHAUL_LOGS, request],
-    queryFn: () => getBackhaulLogs(platformInfo!.type, request),
-    enabled: platformInfo !== undefined && request !== undefined,
-  });
-  return asyncHookData([status, platStatus], [error, platError], data);
-}
-
-export function useClearBackhaulLogs(): LazyAsyncHookData<void, void> {
-  const client = useQueryClient();
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: ["clearBackhaulLogs"],
-    mutationFn: clearBackhaulLogs,
-    onSuccess: () => {
-      client.invalidateQueries({
-        queryKey: [KEY_BACKHAUL_LOGS],
-      });
-    },
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-export function useSaveBackhaulLogs(): LazyAsyncHookData<BackhaulCategory, void> {
-  const { mutateAsync, status, data, error } = useMutation({
-    mutationKey: ["saveBackhaulLogs"],
-    mutationFn: saveBackhaulLogs,
-  });
-  return lazyAsyncHookData(status, error, data, mutateAsync);
-}
-
-now i have a requirement that when ever the refresh is clicked i need to call the useBackhaulLogs hook but the twist is that we cannot use mutation here we only can use useQuery
-
-could you suggest something
+the following error i am getting
