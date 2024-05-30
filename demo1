@@ -1,3 +1,7 @@
+import dayjs, { Dayjs } from 'dayjs';
+import { BackhaulType } from "../../domain/system-status/models";
+import { PlatformType } from "../../domain/misc/models";
+
 export type BackhaulLogEntry = {
   dateTime: Dayjs;
   backhaulType: BackhaulType;
@@ -5,10 +9,29 @@ export type BackhaulLogEntry = {
   macAddress?: string;
 };
 
+const convertStringToBackhaulType = (string: string): BackhaulType => {
+  switch (string) {
+    case "0":
+      return BackhaulType.Ethernet;
+    case "1":
+      return BackhaulType.Wifi;
+    case "2":
+      return BackhaulType.Coax;
+    default:
+      throw new Error(`Unsupported BackhaulType ${string}`);
+  }
+};
+
+const convertMbpsToGbps = (rateString: string): number => {
+  const rate = parseFloat(rateString);
+  return rate >= 1000 ? rate / 1000 : rate;  // Convert to Gbps if >= 1000 Mbps
+};
+
 export const convertBackhaulLogApiResponse = (data: string, platformType: PlatformType): BackhaulLogEntry[] => {
   if (data.length === 0) {
     return [];
   }
+
   const lineSeparator = "\u2551";
   const valueSeparator = "\u2588";
   const trimmedData = data.trim();
@@ -18,24 +41,25 @@ export const convertBackhaulLogApiResponse = (data: string, platformType: Platfo
     .map((val) => {
       const splitVal = val.split(valueSeparator);
       const dateTimeString = splitVal[0].trim();
+
       if (!dateTimeString || !dayjs(dateTimeString).isValid()) {
         return null;
       }
- 
+
       const commonFields = {
         dateTime: dayjs(dateTimeString),
         backhaulType: convertStringToBackhaulType(splitVal[1]?.trim()),
-        connectionRate: convertMbpsToGbps(splitVal[2]?.trim()),
+        connectionRateMbps: convertMbpsToGbps(splitVal[2]?.trim()),
       };
+
       if (platformType === PlatformType.Router) {
         return {
           ...commonFields,
           macAddress: splitVal[3]?.trim(),
-        };
+        } as BackhaulLogEntry;
       }
-      return commonFields;
+
+      return commonFields as BackhaulLogEntry;
     })
     .filter((entry): entry is BackhaulLogEntry => entry !== null);
 };
-
-the following error i am getting
