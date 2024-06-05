@@ -1,42 +1,29 @@
-input->
-connDHCPList: [
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "test",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "testing",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "sdf",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "",
-  },
-];
-Reponse-
+this will be the data and i want you to convert the data in the format mentioned 
 [
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "test",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "testing",
-  },
-  {
-    hostName: "CW64G9QJNX",
-    ipAddress: "sdf",
-  },
-];
+    {
+        "hostName": "VIN0019ALKKW1DA",
+        "ipAddress": "fe80::5cc4:efff:fef6:e2d1",
+        "macAddress": "5E:C4:EF:F6:E2:D1"
+    },
+    {
+        "hostName": "VIN0019ALKKW1D4",
+        "ipAddress": "fe80::5cc4:efff:fef6:e2d3",
+        "macAddress": "5E:C4:EF:F6:E2:D2"
+    },
+    {
+        "hostName": "VIN0019ALKKW1D2",
+        "ipAddress": "fe80::5cc4:efff:fef6:e2d1",
+        "macAddress": "5E:C4:EF:F6:E2:D3"
+    }
+]
+
+to the format 
+
+[
+"fe80::5cc4:efff:fef6:e2d1-VIN0019ALKKW1DA",
+"fe80::5cc4:efff:fef6:e2d3-VIN0019ALKKW1D4" and so on 
+]
+
+complete this requirement in the following function 
+export function convertIpv6InfoToDropdown(data: Ipv6HostInfo[]):string[] {
+}
