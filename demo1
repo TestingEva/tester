@@ -27,7 +27,7 @@ export const DMZHost: React.FC = () => {
       const tempIpv4 = data.ipv4HostInfo.find((host) => host.ipAddress === data.ipv4Address);
       if (tempIpv4) {
         setSelectedIpv4Address(`${tempIpv4.hostName}-${tempIpv4.ipAddress}`);
-        setIpv4Octets(tempIpv4.ipAddress.split('.'));
+        setIpv4Octets(tempIpv4.ipAddress.split("."));
       }
     }
   }, [data]);
@@ -36,9 +36,9 @@ export const DMZHost: React.FC = () => {
     if (currentData !== undefined && data !== undefined) {
       setDisableApplyButton(
         currentData.ipv4Enabled === data.ipv4Enabled &&
-        currentData.ipv6Enabled === data.ipv6Enabled &&
-        currentData.ipv4Address === data.ipv4Address &&
-        currentData.ipv6Address === data.ipv6Address
+          currentData.ipv6Enabled === data.ipv6Enabled &&
+          currentData.ipv4Address === data.ipv4Address &&
+          currentData.ipv6Address === data.ipv6Address
       );
     }
   }, [data, currentData]);
@@ -54,14 +54,14 @@ export const DMZHost: React.FC = () => {
   };
 
   const handleIpv4Change = (value: string) => {
-    const [hostName, ipAddress] = value.split('-');
+    const [hostName, ipAddress] = value.split(/-(?=[^-]+$)/);
     setSelectedIpv4Address(value);
-    setIpv4Octets(ipAddress.split('.'));
+    setIpv4Octets(ipAddress.split("."));
     handleChange("ipv4Address", ipAddress);
   };
 
   const handleIpv6Change = (value: string) => {
-    const [macAddress, hostName] = value.split(/-(.+)/);
+    const [macAddress, _] = value.split(/-(.+)/);
     const selectedHost = currentData!.ipv6HostInfo.find((host) => host.macAddress === macAddress);
     setMacAddress(selectedHost!.macAddress ?? "");
     setIpv6Address(selectedHost!.ipAddress ?? "");
@@ -92,8 +92,6 @@ export const DMZHost: React.FC = () => {
     />
   );
 };
-
-
 import { Col } from "react-bootstrap";
 import { DMZHostPageInfo } from "../../../domain/dmz-host/models";
 import { RouteType } from "../../../domain/misc/models";
@@ -180,10 +178,10 @@ export const DMZHostView: React.FC<Props> = ({
         <DMZHostDetailsSection>
           <Col className="col-3 b ps-0">Address </Col>
           <Col>
-            <VZInputTextField value={ipv4Octets[0]} disabled style={customCSS} error={false} />
-            <VZInputTextField value={ipv4Octets[1]} disabled style={customCSS} error={false} />
-            <VZInputTextField value={ipv4Octets[2]} disabled style={customCSS} error={false} />
-            <VZInputTextField value={ipv4Octets[3]} disabled style={customCSS} error={false} />
+            <VZInputTextField value={ipv4Octets[0]} onChange={() => {}} disabled style={customCSS} error={false} />
+            <VZInputTextField value={ipv4Octets[1]} onChange={() => {}} disabled style={customCSS} error={false} />
+            <VZInputTextField value={ipv4Octets[2]} onChange={() => {}} disabled style={customCSS} error={false} />
+            <VZInputTextField value={ipv4Octets[3]} onChange={() => {}} disabled style={customCSS} error={false} />
           </Col>
         </DMZHostDetailsSection>
         <ToggleContainer>
@@ -217,3 +215,8 @@ export const DMZHostView: React.FC<Props> = ({
     </>
   );
 };
+
+
+This is working fine as expected but now there is an scenario if data.ipAddress is "" then we will add the defaultOctets as an string like if this are my default octets then defaultOctets:[392,168,1,1]
+add this as 392.168.1. in the dropdown menu in the last and also this is will be default selected and the last input field will be editable now and suppose in the last feild suppose if i typed 23 then it
+should also depict the same on the dropdown menu as 392.168.1.23
