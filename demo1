@@ -1,3 +1,79 @@
+import { useEffect, useState } from "react";
+import { useDMZPageInfo } from "../../../domain/dmz-host/hooks";
+import { DMZHostPageInfo } from "../../../domain/dmz-host/models";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { DMZHostView } from "./DMZHostView";
+
+export const DMZHost: React.FC = () => {
+  const { data, isPending, isError } = useDMZPageInfo();
+  const [currentData, setCurrentData] = useState<DMZHostPageInfo>();
+  const [disableApplyButton, setDisableApplyButton] = useState(false);
+  const [selectedIpv6Address, setSelectedIpv6Address] = useState("");
+  const [macAddress, setMacAddress] = useState("");
+  const [ipv6Address, setIpv6Address] = useState("");
+
+  useEffect(() => {
+    if (data !== undefined) {
+      setCurrentData(data);
+      const temp = data.ipv6HostInfo.find((host) => host.ipAddress === data.ipv6Address);
+      setSelectedIpv6Address(`${temp?.macAddress}-${temp?.hostName}` ?? "Menu");
+      setMacAddress(temp?.macAddress ?? "");
+      setIpv6Address(temp?.ipAddress ?? "");
+    }
+  }, [data]);
+
+  useEffect(() => {
+    if (currentData !== undefined && data !== undefined) {
+      setDisableApplyButton(
+        currentData.ipv4Enabled === data.ipv4Enabled && currentData.ipv6Enabled === data.ipv6Enabled
+      );
+    }
+  }, [data, currentData]);
+
+  const handleChange = (key: keyof DMZHostPageInfo, value?: string) => {
+    if (currentData !== undefined) {
+      if (key === "ipv4Enabled" || key === "ipv6Enabled") {
+        setCurrentData({ ...currentData, [key]: !currentData[key] });
+      } else {
+        setCurrentData({ ...currentData, [key]: value });
+      }
+    }
+  };
+
+
+  const handleIpv6Change = (value: string) => {
+    const temp = value.split(/-(.+)/);
+    const test = currentData!.ipv6HostInfo.find((host) => host.macAddress === temp[0]);
+    setMacAddress(test!.macAddress ?? "");
+    setIpv6Address(test!.ipAddress ?? "");
+    setSelectedIpv6Address(`${test?.macAddress}-${test?.hostName}`);
+    handleChange("ipv6Address", test!.ipAddress ?? "");
+  };
+
+  if (isPending || currentData === undefined) {
+    return <LoadingIndicator />;
+  }
+
+  if (isError) {
+    return <ErrorIndicator />;
+  }
+
+  return (
+    <DMZHostView
+      data={currentData}
+      disableApplyButton={disableApplyButton}
+      handleChange={handleChange}
+      selectedIpv6Address={selectedIpv6Address}
+      handleIpv6Change={handleIpv6Change}
+      macAddress={macAddress}
+      ipv6Address={ipv6Address}
+    />
+  );
+};
+
+This is my main component and below is the View 
+
 import { Col } from "react-bootstrap";
 import { DMZHostPageInfo } from "../../../domain/dmz-host/models";
 import { RouteType } from "../../../domain/misc/models";
@@ -8,16 +84,16 @@ import { VZHeader } from "../../components/vz-header/VZHeader";
 import { VZInputTextField } from "../../components/vz-input/VZInput";
 import { VZToggleButton } from "../../components/vz-toggle-button/VZToggleButton";
 import { DMZHostDesc, DMZHostDetailsSection, DMZHostHeader, ToggleContainer } from "./styles";
-import { convertIpv4InfoToDropdownInfo, convertIpv6InfoToDropdownInfo } from "./utils";
+import { convertIpv6InfoToDropdownInfo } from "./utils";
 
 type Props = {
   data: DMZHostPageInfo;
   disableApplyButton: boolean;
   handleChange: (key: keyof DMZHostPageInfo, value?: string) => void;
-  ipv4Octets: string[];
-  disableEditInteraction: boolean;
-  selectedIpv4Address: string;
   selectedIpv6Address: string;
+  handleIpv6Change: (value: string) => void;
+  macAddress: string;
+  ipv6Address: string;
 };
 
 const customCSS = {
@@ -29,12 +105,11 @@ export const DMZHostView: React.FC<Props> = ({
   data,
   disableApplyButton,
   handleChange,
-  ipv4Octets,
-  disableEditInteraction,
-  selectedIpv4Address,
   selectedIpv6Address,
+  handleIpv6Change,
+  macAddress,
+  ipv6Address,
 }) => {
-  console.log(data);
   return (
     <>
       <VZHeader
@@ -67,29 +142,16 @@ export const DMZHostView: React.FC<Props> = ({
         <DMZHostDetailsSection $needDivider>
           <Col className="col-3 b ps-0">Local Host </Col>
           <Col className="col-3">
-            <VZDropdown
-              selectedItem={selectedIpv4Address}
-              options={convertIpv4InfoToDropdownInfo(data.ipv4HostInfo)}
-              onSelect={(val) => handleChange("ipv4Address", val)}
-              getOptionAsString={(e) => e}
-              disabled={!data.ipv4Enabled}
-            />
+            <VZDropdown selectedItem={} options={} onSelect={() => {}} getOptionAsString={(e) => e} />
           </Col>
         </DMZHostDetailsSection>
         <DMZHostDetailsSection>
           <Col className="col-3 b ps-0">Address </Col>
           <Col>
-            <VZInputTextField value={ipv4Octets[0]} onChange={() => {}} disabled style={customCSS} error={false} />
-            <VZInputTextField value={ipv4Octets[1]} onChange={() => {}} disabled style={customCSS} error={false} />
-            <VZInputTextField value={ipv4Octets[2]} onChange={() => {}} disabled style={customCSS} error={false} />
-            <VZInputTextField
-              value={ipv4Octets[3]}
-              onChange={(e) => handleChange("ipv4Address", e)}
-              disabled={!data.ipv4Enabled || disableEditInteraction}
-              style={customCSS}
-              error={false}
-              placeHolder={"0"}
-            />
+            <VZInputTextField value={} onChange={() => {}} disabled style={customCSS} error={false} />
+            <VZInputTextField value={} onChange={() => {}} disabled style={customCSS} error={false} />
+            <VZInputTextField value={} onChange={() => {}} disabled style={customCSS} error={false} />
+            <VZInputTextField value={} onChange={() => {}} style={customCSS} error={false} placeHolder={"0"} />
           </Col>
         </DMZHostDetailsSection>
         <ToggleContainer>
@@ -103,31 +165,30 @@ export const DMZHostView: React.FC<Props> = ({
           <Col className="col-3 b ps-0">Local Host </Col>
           <Col className="col-3">
             <VZDropdown
-              disabled={data.ipv6Enabled}
-              selectedItem={selectedIpv6Address}
-              onSelect={(val) => handleChange("ipv6Address", val)}
+              disabled={!data.ipv6Enabled}
+              selectedItem={selectedIpv6Address === "" ? "Menu" : selectedIpv6Address}
+              onSelect={(val) => handleIpv6Change(val)}
               options={convertIpv6InfoToDropdownInfo(data.ipv6HostInfo)}
               getOptionAsString={(e) => e}
-              placeHolder="Menu"
             />
           </Col>
         </DMZHostDetailsSection>
         <DMZHostDetailsSection $needDivider>
           <Col className="col-3 b ps-0">Address </Col>
-          <Col>{data.ipv6Address}</Col>
+          <Col>{ipv6Address}</Col>
         </DMZHostDetailsSection>
         <DMZHostDetailsSection $needDivider>
           <Col className="col-3 b ps-0">MAC Address </Col>
-          <Col>MAC Address</Col>
+          <Col>{macAddress}</Col>
         </DMZHostDetailsSection>
       </VZBody>
     </>
   );
 };
 
-So i want you to work on the last Mac Address Field 
-so I want you to use the data.ipv6Address and find the Mac address from the following set
-data ={
+
+The Data coming from the hook is 
+{
     "defaultOctets": [
         392,
         168,
@@ -135,9 +196,9 @@ data ={
         1
     ],
     "ipv4Enabled": false,
-    "ipv4Address": "",
-    "ipv6Enabled": false,
-    "ipv6Address": "",
+    "ipv4Address": "192.168.1.6",
+    "ipv6Enabled": true,
+    "ipv6Address": "fe82",
     "ipv4HostInfo": [
         {
             "hostName": "A220090-PC1",
@@ -166,7 +227,7 @@ data ={
     ],
     "ipv6HostInfo": [
         {
-            "hostName": "VIN0019ALKKW1DA",
+            "hostName": "VIN0019ALKKW1DA-12314eqw-321reqa",
             "ipAddress": "fe80::5cc4:efff:fef6:e2d1",
             "macAddress": "5E:C4:EF:F6:E2:D1"
         },
@@ -183,7 +244,10 @@ data ={
         {
             "hostName": "test3",
             "ipAddress": "fe83",
-            "macAddress": "5E:C4:EF:F6:E2:D3"
+            "macAddress": "5E:C4:EF:F6:E2:D6"
         }
     ]
 }
+
+now the Requirement is that there is a dropdown in the DMZ IPv4 Host where we will be having options like from "ipv4HostInfo" in the format of `hostname-ipAddress` and something is selected from the dropdown we need to 
+fill the same ipAddress in the below 4 input fields and they are uneeditable
