@@ -1,116 +1,60 @@
-currentData
-{
-    "ipv4Enabled": true,
-    "ipv6Enabled": true,
-    "ipv4HostInfo": [
-        {
-            "hostName": "A220090-PC1",
-            "ipAddress": "192.168.1.154"
-        },
-        {
-            "hostName": "unknown_1c: 61:b4:b8:13",
-            "ipAddress": "192.168.0.50"
-        },
-        {
-            "hostName": "E3200-64CC22736BAE",
-            "ipAddress": "192.168.1.100"
-        },
-        {
-            "hostName": "CE1000A-A82376BEA88",
-            "ipAddress": "192.168.1.101"
-        },
-        {
-            "hostName": "VIN0019ALKKW1DD",
-            "ipAddress": "192.168.1.3"
-        },
-        {
-            "hostName": "CW64G9QJNX",
-            "ipAddress": "192.168.1.6"
-        },
-        {
-            "hostName": "",
-            "ipAddress": "192.168.1.1"
-        }
-    ],
-    "ipv6HostInfo": [
-        {
-            "hostName": "VIN0019ALKKW1DA-12314eqw-321reqa",
-            "ipAddress": "fe80::5cc4:efff:fef6:e2d1",
-            "macAddress": "5E:C4:EF:F6:E2:D1"
-        },
-        {
-            "hostName": "test1",
-            "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888",
-            "macAddress": "5E:C4:EF:F6:E2:D2"
-        }
-    ],
-    "activeIpv4Address": {
-        "hostName": "CW64G9QJNX",
-        "ipAddress": "192.168.1.6"
-    },
-    "activeIpv6Address": {
-        "hostName": "test1",
-        "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888",
-        "macAddress": "5E:C4:EF:F6:E2:D2"
-    },
-    "timestamp": 1717155305191
-}
-data
-{
-    "ipv4Enabled": false,
-    "ipv6Enabled": true,
-    "ipv4HostInfo": [
-        {
-            "hostName": "A220090-PC1",
-            "ipAddress": "192.168.1.154"
-        },
-        {
-            "hostName": "unknown_1c: 61:b4:b8:13",
-            "ipAddress": "192.168.0.50"
-        },
-        {
-            "hostName": "E3200-64CC22736BAE",
-            "ipAddress": "192.168.1.100"
-        },
-        {
-            "hostName": "CE1000A-A82376BEA88",
-            "ipAddress": "192.168.1.101"
-        },
-        {
-            "hostName": "VIN0019ALKKW1DD",
-            "ipAddress": "192.168.1.3"
-        },
-        {
-            "hostName": "CW64G9QJNX",
-            "ipAddress": "192.168.1.6"
-        },
-        {
-            "hostName": "",
-            "ipAddress": "192.168.1.1"
-        }
-    ],
-    "ipv6HostInfo": [
-        {
-            "hostName": "VIN0019ALKKW1DA-12314eqw-321reqa",
-            "ipAddress": "fe80::5cc4:efff:fef6:e2d1",
-            "macAddress": "5E:C4:EF:F6:E2:D1"
-        },
-        {
-            "hostName": "test1",
-            "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888",
-            "macAddress": "5E:C4:EF:F6:E2:D2"
-        }
-    ],
-    "activeIpv4Address": {
-        "hostName": "CW64G9QJNX",
-        "ipAddress": "192.168.1.6"
-    },
-    "activeIpv6Address": {
-        "hostName": "test1",
-        "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888",
-        "macAddress": "5E:C4:EF:F6:E2:D2"
-    },
-    "timestamp": 1717155305191
+function getDifferences(currentData, data) {
+  const keysToCheck = ['activeIpv4Address', 'activeIpv6Address', 'ipv4Enabled', 'ipv6Enabled'];
+  const differences = {};
+
+  keysToCheck.forEach(key => {
+    if (JSON.stringify(currentData[key]) !== JSON.stringify(data[key])) {
+      differences[key] = {
+        currentData: currentData[key],
+        data: data[key]
+      };
+    }
+  });
+
+  return differences;
 }
 
-I want you to write a function which accepts the data and current Data and return the things which are changed it should not check whether the timestamp has been changed or not
+// Example usage:
+const currentData = {
+  "ipv4Enabled": true,
+  "ipv6Enabled": true,
+  "ipv4HostInfo": [
+    { "hostName": "A220090-PC1", "ipAddress": "192.168.1.154" },
+    { "hostName": "unknown_1c: 61:b4:b8:13", "ipAddress": "192.168.0.50" },
+    { "hostName": "E3200-64CC22736BAE", "ipAddress": "192.168.1.100" },
+    { "hostName": "CE1000A-A82376BEA88", "ipAddress": "192.168.1.101" },
+    { "hostName": "VIN0019ALKKW1DD", "ipAddress": "192.168.1.3" },
+    { "hostName": "CW64G9QJNX", "ipAddress": "192.168.1.6" },
+    { "hostName": "", "ipAddress": "192.168.1.1" }
+  ],
+  "ipv6HostInfo": [
+    { "hostName": "VIN0019ALKKW1DA-12314eqw-321reqa", "ipAddress": "fe80::5cc4:efff:fef6:e2d1", "macAddress": "5E:C4:EF:F6:E2:D1" },
+    { "hostName": "test1", "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888", "macAddress": "5E:C4:EF:F6:E2:D2" }
+  ],
+  "activeIpv4Address": { "hostName": "CW64G9QJNX", "ipAddress": "192.168.1.6" },
+  "activeIpv6Address": { "hostName": "test1", "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888", "macAddress": "5E:C4:EF:F6:E2:D2" },
+  "timestamp": 1717155305191
+};
+
+const data = {
+  "ipv4Enabled": false,
+  "ipv6Enabled": true,
+  "ipv4HostInfo": [
+    { "hostName": "A220090-PC1", "ipAddress": "192.168.1.154" },
+    { "hostName": "unknown_1c: 61:b4:b8:13", "ipAddress": "192.168.0.50" },
+    { "hostName": "E3200-64CC22736BAE", "ipAddress": "192.168.1.100" },
+    { "hostName": "CE1000A-A82376BEA88", "ipAddress": "192.168.1.101" },
+    { "hostName": "VIN0019ALKKW1DD", "ipAddress": "192.168.1.3" },
+    { "hostName": "CW64G9QJNX", "ipAddress": "192.168.1.6" },
+    { "hostName": "", "ipAddress": "192.168.1.1" }
+  ],
+  "ipv6HostInfo": [
+    { "hostName": "VIN0019ALKKW1DA-12314eqw-321reqa", "ipAddress": "fe80::5cc4:efff:fef6:e2d1", "macAddress": "5E:C4:EF:F6:E2:D1" },
+    { "hostName": "test1", "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888", "macAddress": "5E:C4:EF:F6:E2:D2" }
+  ],
+  "activeIpv4Address": { "hostName": "CW64G9QJNX", "ipAddress": "192.168.1.6" },
+  "activeIpv6Address": { "hostName": "test1", "ipAddress": "2001:db8:3333:4444:5555:6666:7777:8888", "macAddress": "5E:C4:EF:F6:E2:D2" },
+  "timestamp": 1717155305191
+};
+
+console.log(getDifferences(currentData, data));
