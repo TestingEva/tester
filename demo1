@@ -6,6 +6,7 @@ import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator"
 import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
 import { findDifferencesBetweenObjects } from "../../utils";
 import { RoutingView } from "./RoutingView";
+import { AddRoute } from "./AddRoute";
 
 export enum RoutingPageType {
   RoutingHomePage,
@@ -18,7 +19,8 @@ export const Routing: React.FC = () => {
   const { invoke, isError: updateError, isPending: isUpdating } = useUpdateRoutingInfo();
   const { invoke: updateIgmpInfo, isError: isIgmpUpdateError, isPending: isIgmpUpdating } = useUpdateIGMPInfo();
   const [currentData, setCurrentData] = useState<IGMPInfo>();
-  const [activePage, setActivePage] = useState<RoutingPageType>(RoutingPageType.AddRoutePage);
+  const [activePage, setActivePage] = useState<RoutingPageType>(RoutingPageType.RoutingHomePage);
+  const [editingGateway, setEditingGateway] = useState<string | undefined>();
 
   const isApplyButtonEnabled = useMemo(() => {
     if (currentData !== undefined && igmpInfo !== undefined) {
@@ -52,7 +54,23 @@ export const Routing: React.FC = () => {
   };
 
   const onNewRouteButtonClicked = () => {
+    setEditingGateway(undefined);
     setActivePage(RoutingPageType.AddRoutePage);
+  };
+
+  const onEditButtonClick = (gateway: string) => {
+    setEditingGateway(gateway);
+    setActivePage(RoutingPageType.AddRoutePage);
+  };
+
+  const handleSaveRoute = (gateway: string) => {
+    // Handle save logic here, e.g., call an API to save the new route
+    console.log("Saved Gateway:", gateway);
+    setActivePage(RoutingPageType.RoutingHomePage);
+  };
+
+  const handleCancel = () => {
+    setActivePage(RoutingPageType.RoutingHomePage);
   };
 
   if (isError || updateError || isIgmpError || isIgmpUpdateError) {
@@ -63,7 +81,9 @@ export const Routing: React.FC = () => {
     return <LoadingIndicator />;
   }
 
-  return (
+  return activePage === RoutingPageType.AddRoutePage ? (
+    <AddRoute initialGateway={editingGateway} onSave={handleSaveRoute} onCancel={handleCancel} />
+  ) : (
     <RoutingView
       routingTableData={data}
       igmpData={currentData}
@@ -73,169 +93,52 @@ export const Routing: React.FC = () => {
       isUpdating={isUpdating || isIgmpUpdating}
       onRemoveButtonClick={onRemoveButtonClick}
       onNewRouteButtonClicked={onNewRouteButtonClicked}
+      onEditButtonClick={onEditButtonClick}
     />
   );
 };
 
-import { Col, Table } from "react-bootstrap";
-import { IGMPInfo } from "../../../data/tr181/models";
-import { RouteType } from "../../../domain/misc/models";
-import { RoutingPageInfo } from "../../../domain/routing/models";
-import { VZBody } from "../../components/vz-body/VZBody";
-import { VZButton } from "../../components/vz-button/VZButton";
-import { VZCheckbox } from "../../components/vz-checkbox/VZCheckbox";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { VZApplySettingsModal } from "../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
-import {
-  DescText,
-  IGMPHeader,
-  IGMPRow,
-  RoutingActions,
-  RoutingTableAction,
-  RoutingTableHeader,
-  RoutingTableRow,
-} from "./styles";
-import { convertRoutingStatusToString } from "./utils";
 
-type Props = {
-  routingTableData: RoutingPageInfo;
-  igmpData: IGMPInfo;
-  onCheckboxChange: (key: keyof IGMPInfo) => void;
-  isApplyButtonEnabled: boolean;
-  isUpdating: boolean;
-  onRemoveButtonClick: (index: number) => void;
-  onApplyButtonClicked: () => void;
-  onNewRouteButtonClicked: () => void;
+import React, { useState, useEffect } from "react";
+import { VZButton } from "../../components/vz-button/VZButton";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { VZBody } from "../../components/vz-body/VZBody";
+import { Col, Form } from "react-bootstrap";
+
+type AddRouteProps = {
+  initialGateway?: string;
+  onSave: (gateway: string) => void;
+  onCancel: () => void;
 };
 
-export const RoutingView: React.FC<Props> = ({
-  routingTableData,
-  igmpData,
-  onCheckboxChange,
-  isApplyButtonEnabled,
-  isUpdating,
-  onRemoveButtonClick,
-  onApplyButtonClicked,
-  onNewRouteButtonClicked,
-}) => {
+export const AddRoute: React.FC<AddRouteProps> = ({ initialGateway, onSave, onCancel }) => {
+  const [gateway, setGateway] = useState<string>(initialGateway || "");
+
+  const handleSave = () => {
+    onSave(gateway);
+  };
+
   return (
     <>
-      <VZHeader
-        title="Routing"
-        breadcrumbData={[{ label: "Network Settings" }, { label: "Routing", destType: RouteType.ROUTING }]}
-        rightBody={
-          <VZButton onClick={onApplyButtonClicked} disabled={isApplyButtonEnabled}>
-            Apply Changes
-          </VZButton>
-        }
-      />
+      <VZHeader title="Add/Edit Route" />
       <VZBody>
-        <DescText>This page provides the ability to add, edit, or delete routing rules.</DescText>
-        <RoutingTableHeader className="hb">Routing Table</RoutingTableHeader>
-        <Table>
-          <thead className="b">
-            <RoutingTableRow style={{ borderBottom: "0px solid black" }}>
-              <td className="col-2 ps-0">Name</td>
-              <td className="col-3">Destination</td>
-              <td className="col-2">Gateway</td>
-              <td className="col-2">Netmask</td>
-              <td className="col-1">Metric</td>
-              <td className="col-1">Status</td>
-              <td className="col-1">Action</td>
-            </RoutingTableRow>
-          </thead>
-          <tbody>
-            {routingTableData.ipv4Info && (
-              <>
-                {routingTableData.ipv4Info.map((item, index) => (
-                  <RoutingTableRow key={index + 1}>
-                    <td className="col-2 ps-0">{routingTableData.name}</td>
-                    <td className="col-3">{item.destination}</td>
-                    <td className="col-2">{item.gateway}</td>
-                    <td className="col-2">{item.netmask}</td>
-                    <td className="col-1">{item.metric}</td>
-                    <td className={`col-1 ${item.status !== 1 ? "vz--orange" : ""}`}>
-                      {convertRoutingStatusToString(item.status)}
-                    </td>
-                    <RoutingTableAction className="col-1">
-                      <div className="d-flex flex-column">
-                        <RoutingActions>Edit</RoutingActions>
-                        <RoutingActions onClick={() => onRemoveButtonClick(item.id)}>Remove</RoutingActions>
-                      </div>
-                    </RoutingTableAction>
-                  </RoutingTableRow>
-                ))}
-              </>
-            )}
-            {routingTableData.ipv6Info && (
-              <>
-                {routingTableData.ipv6Info.map((item, index) => (
-                  <RoutingTableRow key={index + 1}>
-                    <td className="col-2 ps-0">{routingTableData.name}</td>
-                    <td className="col-3">{item.destination}</td>
-                    <td className="col-4">{item.gateway}</td>
-                    <td className="col-1">{item.metric}</td>
-                    <td className={`col-1 ${item.status !== 1 ? "vz--orange" : ""}`}>
-                      {convertRoutingStatusToString(item.status)}
-                    </td>
-                    <RoutingTableAction className="col-1">
-                      <div className="d-flex flex-column">
-                        <RoutingActions>Edit</RoutingActions>
-                        <RoutingActions onClick={() => onRemoveButtonClick(item.id)}>Remove</RoutingActions>
-                      </div>
-                    </RoutingTableAction>
-                  </RoutingTableRow>
-                ))}
-              </>
-            )}
-          </tbody>
-        </Table>
-        <Col className="my-4">
-          <VZButton onClick={onNewRouteButtonClicked} secondary>
-            New Route
-          </VZButton>
-        </Col>
-        <IGMPHeader className="hb">Internet Group Management Protocol (IGMP) </IGMPHeader>
-        <IGMPRow>
-          <Col className="flex-grow-0">
-            <VZCheckbox checked={igmpData.ethernetEnable!} onChange={() => onCheckboxChange("ethernetEnable")} />
+        <Form>
+          <Form.Group controlId="formGateway">
+            <Form.Label>Gateway</Form.Label>
+            <Form.Control
+              type="text"
+              value={gateway}
+              onChange={(e) => setGateway(e.target.value)}
+            />
+          </Form.Group>
+          <Col className="my-4">
+            <VZButton onClick={handleSave}>Save</VZButton>
+            <VZButton onClick={onCancel} secondary>
+              Cancel
+            </VZButton>
           </Col>
-          <Col className="b">Enable Ethernet</Col>
-        </IGMPRow>
-        <IGMPRow>
-          <Col className="flex-grow-0">
-            <VZCheckbox checked={igmpData.moCAEnable!} onChange={() => onCheckboxChange("moCAEnable")} />
-          </Col>
-          <Col className="b">Enable MoCA - Coax</Col>
-        </IGMPRow>
-        <IGMPRow>
-          <Col className="flex-grow-0">
-            <VZCheckbox checked={igmpData.wiFi24GEnable!} onChange={() => onCheckboxChange("wiFi24GEnable")} />
-          </Col>
-          <Col className="b">Enable 2.4 GHz Wi-Fi</Col>
-        </IGMPRow>
-        <IGMPRow>
-          <Col className="flex-grow-0">
-            <VZCheckbox checked={igmpData.wiFi5GEnable!} onChange={() => onCheckboxChange("wiFi5GEnable")} />
-          </Col>
-          <Col className="b">Enable 5 GHz Wi-Fi</Col>
-        </IGMPRow>
-        <IGMPRow>
-          <Col className="flex-grow-0">
-            <VZCheckbox checked={igmpData.wiFi6GEnable!} onChange={() => onCheckboxChange("wiFi6GEnable")} />
-          </Col>
-          <Col className="b">Enable 6 GHz Wi-Fi</Col>
-        </IGMPRow>
+        </Form>
       </VZBody>
-      <VZApplySettingsModal show={isUpdating} />
     </>
   );
 };
-
-
-
-so now i got the new requirement did you see the New Route button so on Click of new route button we need to open a new component named AddRoute 
-which will be having a label = Gateway and a input field to accept a string 
-
-now the catch is that we must use the same component in update also as there is an edit button for each table data and on click of edit we need to open the same AddRoute Page and 
-in the input field the data will be the table data gateway
