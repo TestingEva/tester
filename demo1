@@ -1,38 +1,28 @@
+import diff from "microdiff";
 import { useEffect, useMemo, useState } from "react";
 import { IGMPInfo } from "../../../data/tr181/models";
-import {
-  useIGMPInfo,
-  useRoutingInfo,
-  useUpdateIGMPInfo,
-  useUpdateRoutingInfo,
-} from "../../../domain/routing/hooks";
+import { useIGMPInfo, useRoutingInfo, useUpdateIGMPInfo, useUpdateRoutingInfo } from "../../../domain/routing/hooks";
 import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
 import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { findDifferencesBetweenObjects } from "../../utils";
 import { RoutingView } from "./RoutingView";
+
+export enum RoutingPageType {
+  RoutingHomePage,
+  AddRoutePage,
+}
 
 export const Routing: React.FC = () => {
   const { data, isPending, isError } = useRoutingInfo();
-  const {
-    data: igmpInfo,
-    isPending: isIgmpPending,
-    isError: isIgmpError,
-    isFetching: isIgmpFetching,
-  } = useIGMPInfo();
-  const {
-    invoke,
-    isError: updateError,
-    isPending: isUpdating,
-  } = useUpdateRoutingInfo();
-  const {
-    invoke: updateIgmpInfo,
-    isError: isIgmpUpdateError,
-    isPending: isIgmpUpdating,
-  } = useUpdateIGMPInfo();
+  const { data: igmpInfo, isPending: isIgmpPending, isError: isIgmpError, isFetching: isIgmpFetching } = useIGMPInfo();
+  const { invoke, isError: updateError, isPending: isUpdating } = useUpdateRoutingInfo();
+  const { invoke: updateIgmpInfo, isError: isIgmpUpdateError, isPending: isIgmpUpdating } = useUpdateIGMPInfo();
   const [currentData, setCurrentData] = useState<IGMPInfo>();
+  const [activePage, setActivePage] = useState<RoutingPageType>(RoutingPageType.AddRoutePage);
 
   const isApplyButtonEnabled = useMemo(() => {
     if (currentData !== undefined && igmpInfo !== undefined) {
-      return Object.keys(findDifferences(currentData, igmpInfo)).length !== 0;
+      return diff(currentData, igmpInfo).length !== 0;
     } else {
       return true;
     }
@@ -57,21 +47,19 @@ export const Routing: React.FC = () => {
 
   const onApplyButtonClicked = () => {
     if (currentData !== undefined && igmpInfo !== undefined) {
-      const changes = findDifferences(currentData, igmpInfo);
-      updateIgmpInfo(changes);
+      updateIgmpInfo(findDifferencesBetweenObjects(currentData, igmpInfo));
     }
+  };
+
+  const onNewRouteButtonClicked = () => {
+    setActivePage(RoutingPageType.AddRoutePage);
   };
 
   if (isError || updateError || isIgmpError || isIgmpUpdateError) {
     return <ErrorIndicator />;
   }
 
-  if (
-    isPending ||
-    currentData === undefined ||
-    data === undefined ||
-    isIgmpPending
-  ) {
+  if (isPending || currentData === undefined || data === undefined || isIgmpPending) {
     return <LoadingIndicator />;
   }
 
@@ -84,17 +72,170 @@ export const Routing: React.FC = () => {
       isApplyButtonEnabled={!isApplyButtonEnabled}
       isUpdating={isUpdating || isIgmpUpdating}
       onRemoveButtonClick={onRemoveButtonClick}
+      onNewRouteButtonClicked={onNewRouteButtonClicked}
     />
   );
 };
 
-// Helper function to find differences between two objects
-function findDifferences<T extends object>(obj1: T, obj2: T): Partial<T> {
-  const changes: Partial<T> = {};
-  (Object.keys(obj1) as (keyof T)[]).forEach((key) => {
-    if (obj1[key] !== obj2[key]) {
-      changes[key] = obj1[key];
-    }
-  });
-  return changes;
-}
+import { Col, Table } from "react-bootstrap";
+import { IGMPInfo } from "../../../data/tr181/models";
+import { RouteType } from "../../../domain/misc/models";
+import { RoutingPageInfo } from "../../../domain/routing/models";
+import { VZBody } from "../../components/vz-body/VZBody";
+import { VZButton } from "../../components/vz-button/VZButton";
+import { VZCheckbox } from "../../components/vz-checkbox/VZCheckbox";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { VZApplySettingsModal } from "../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
+import {
+  DescText,
+  IGMPHeader,
+  IGMPRow,
+  RoutingActions,
+  RoutingTableAction,
+  RoutingTableHeader,
+  RoutingTableRow,
+} from "./styles";
+import { convertRoutingStatusToString } from "./utils";
+
+type Props = {
+  routingTableData: RoutingPageInfo;
+  igmpData: IGMPInfo;
+  onCheckboxChange: (key: keyof IGMPInfo) => void;
+  isApplyButtonEnabled: boolean;
+  isUpdating: boolean;
+  onRemoveButtonClick: (index: number) => void;
+  onApplyButtonClicked: () => void;
+  onNewRouteButtonClicked: () => void;
+};
+
+export const RoutingView: React.FC<Props> = ({
+  routingTableData,
+  igmpData,
+  onCheckboxChange,
+  isApplyButtonEnabled,
+  isUpdating,
+  onRemoveButtonClick,
+  onApplyButtonClicked,
+  onNewRouteButtonClicked,
+}) => {
+  return (
+    <>
+      <VZHeader
+        title="Routing"
+        breadcrumbData={[{ label: "Network Settings" }, { label: "Routing", destType: RouteType.ROUTING }]}
+        rightBody={
+          <VZButton onClick={onApplyButtonClicked} disabled={isApplyButtonEnabled}>
+            Apply Changes
+          </VZButton>
+        }
+      />
+      <VZBody>
+        <DescText>This page provides the ability to add, edit, or delete routing rules.</DescText>
+        <RoutingTableHeader className="hb">Routing Table</RoutingTableHeader>
+        <Table>
+          <thead className="b">
+            <RoutingTableRow style={{ borderBottom: "0px solid black" }}>
+              <td className="col-2 ps-0">Name</td>
+              <td className="col-3">Destination</td>
+              <td className="col-2">Gateway</td>
+              <td className="col-2">Netmask</td>
+              <td className="col-1">Metric</td>
+              <td className="col-1">Status</td>
+              <td className="col-1">Action</td>
+            </RoutingTableRow>
+          </thead>
+          <tbody>
+            {routingTableData.ipv4Info && (
+              <>
+                {routingTableData.ipv4Info.map((item, index) => (
+                  <RoutingTableRow key={index + 1}>
+                    <td className="col-2 ps-0">{routingTableData.name}</td>
+                    <td className="col-3">{item.destination}</td>
+                    <td className="col-2">{item.gateway}</td>
+                    <td className="col-2">{item.netmask}</td>
+                    <td className="col-1">{item.metric}</td>
+                    <td className={`col-1 ${item.status !== 1 ? "vz--orange" : ""}`}>
+                      {convertRoutingStatusToString(item.status)}
+                    </td>
+                    <RoutingTableAction className="col-1">
+                      <div className="d-flex flex-column">
+                        <RoutingActions>Edit</RoutingActions>
+                        <RoutingActions onClick={() => onRemoveButtonClick(item.id)}>Remove</RoutingActions>
+                      </div>
+                    </RoutingTableAction>
+                  </RoutingTableRow>
+                ))}
+              </>
+            )}
+            {routingTableData.ipv6Info && (
+              <>
+                {routingTableData.ipv6Info.map((item, index) => (
+                  <RoutingTableRow key={index + 1}>
+                    <td className="col-2 ps-0">{routingTableData.name}</td>
+                    <td className="col-3">{item.destination}</td>
+                    <td className="col-4">{item.gateway}</td>
+                    <td className="col-1">{item.metric}</td>
+                    <td className={`col-1 ${item.status !== 1 ? "vz--orange" : ""}`}>
+                      {convertRoutingStatusToString(item.status)}
+                    </td>
+                    <RoutingTableAction className="col-1">
+                      <div className="d-flex flex-column">
+                        <RoutingActions>Edit</RoutingActions>
+                        <RoutingActions onClick={() => onRemoveButtonClick(item.id)}>Remove</RoutingActions>
+                      </div>
+                    </RoutingTableAction>
+                  </RoutingTableRow>
+                ))}
+              </>
+            )}
+          </tbody>
+        </Table>
+        <Col className="my-4">
+          <VZButton onClick={onNewRouteButtonClicked} secondary>
+            New Route
+          </VZButton>
+        </Col>
+        <IGMPHeader className="hb">Internet Group Management Protocol (IGMP) </IGMPHeader>
+        <IGMPRow>
+          <Col className="flex-grow-0">
+            <VZCheckbox checked={igmpData.ethernetEnable!} onChange={() => onCheckboxChange("ethernetEnable")} />
+          </Col>
+          <Col className="b">Enable Ethernet</Col>
+        </IGMPRow>
+        <IGMPRow>
+          <Col className="flex-grow-0">
+            <VZCheckbox checked={igmpData.moCAEnable!} onChange={() => onCheckboxChange("moCAEnable")} />
+          </Col>
+          <Col className="b">Enable MoCA - Coax</Col>
+        </IGMPRow>
+        <IGMPRow>
+          <Col className="flex-grow-0">
+            <VZCheckbox checked={igmpData.wiFi24GEnable!} onChange={() => onCheckboxChange("wiFi24GEnable")} />
+          </Col>
+          <Col className="b">Enable 2.4 GHz Wi-Fi</Col>
+        </IGMPRow>
+        <IGMPRow>
+          <Col className="flex-grow-0">
+            <VZCheckbox checked={igmpData.wiFi5GEnable!} onChange={() => onCheckboxChange("wiFi5GEnable")} />
+          </Col>
+          <Col className="b">Enable 5 GHz Wi-Fi</Col>
+        </IGMPRow>
+        <IGMPRow>
+          <Col className="flex-grow-0">
+            <VZCheckbox checked={igmpData.wiFi6GEnable!} onChange={() => onCheckboxChange("wiFi6GEnable")} />
+          </Col>
+          <Col className="b">Enable 6 GHz Wi-Fi</Col>
+        </IGMPRow>
+      </VZBody>
+      <VZApplySettingsModal show={isUpdating} />
+    </>
+  );
+};
+
+
+
+so now i got the new requirement did you see the New Route button so on Click of new route button we need to open a new component named AddRoute 
+which will be having a label = Gateway and a input field to accept a string 
+
+now the catch is that we must use the same component in update also as there is an edit button for each table data and on click of edit we need to open the same AddRoute Page and 
+in the input field the data will be the table data gateway
