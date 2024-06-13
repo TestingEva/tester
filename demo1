@@ -57,8 +57,12 @@ export const Routing: React.FC = () => {
   };
 
   const onApplyButtonClicked = () => {
-    if (currentData !== undefined) {
-      updateIgmpInfo(currentData);
+    if (currentData !== undefined && igmpInfo !== undefined) {
+      const changes = diff(currentData, igmpInfo).reduce((acc, { path, value }) => {
+        acc[path[0] as keyof IGMPInfo] = value;
+        return acc;
+      }, {} as Partial<IGMPInfo>);
+      updateIgmpInfo(changes);
     }
   };
 
@@ -87,30 +91,3 @@ export const Routing: React.FC = () => {
     />
   );
 };
-
-did you see we are sending the full current Data when we click the Apply Button but instead of that i want to just send the data which is only Changed
-
-for example my 
-igmpInfo is {
-    "ethernetEnable": false,
-    "moCAEnable": false,
-    "wiFi24GEnable": false,
-    "wiFi5GEnable": false,
-    "wiFi6GEnable": false
-}
-
-and my current Data is 
-{
-    "ethernetEnable": true,
-    "moCAEnable": true,
-    "wiFi24GEnable": false,
-    "wiFi5GEnable": false,
-    "wiFi6GEnable": false
-}
-
-then i need to send only the things which are changed in this case 
-
-{
-    "ethernetEnable": true,
-    "moCAEnable": true,
-}
