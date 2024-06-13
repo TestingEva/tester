@@ -1,3 +1,5 @@
+This is my Routing.tsx
+
 import diff from "microdiff";
 import { useEffect, useMemo, useState } from "react";
 import { IGMPInfo } from "../../../data/tr181/models";
@@ -5,8 +7,8 @@ import { useIGMPInfo, useRoutingInfo, useUpdateIGMPInfo, useUpdateRoutingInfo } 
 import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
 import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
 import { findDifferencesBetweenObjects } from "../../utils";
+import { AddRoute, RoutingEntryTypes } from "./AddRoute";
 import { RoutingView } from "./RoutingView";
-import { AddRoute } from "./AddRoute";
 
 export enum RoutingPageType {
   RoutingHomePage,
@@ -20,7 +22,7 @@ export const Routing: React.FC = () => {
   const { invoke: updateIgmpInfo, isError: isIgmpUpdateError, isPending: isIgmpUpdating } = useUpdateIGMPInfo();
   const [currentData, setCurrentData] = useState<IGMPInfo>();
   const [activePage, setActivePage] = useState<RoutingPageType>(RoutingPageType.RoutingHomePage);
-  const [editingGateway, setEditingGateway] = useState<string | undefined>();
+  const [isNewRoute, setIsNewRoute] = useState(false);
 
   const isApplyButtonEnabled = useMemo(() => {
     if (currentData !== undefined && igmpInfo !== undefined) {
@@ -54,23 +56,8 @@ export const Routing: React.FC = () => {
   };
 
   const onNewRouteButtonClicked = () => {
-    setEditingGateway(undefined);
+    setIsNewRoute(true);
     setActivePage(RoutingPageType.AddRoutePage);
-  };
-
-  const onEditButtonClick = (gateway: string) => {
-    setEditingGateway(gateway);
-    setActivePage(RoutingPageType.AddRoutePage);
-  };
-
-  const handleSaveRoute = (gateway: string) => {
-    // Handle save logic here, e.g., call an API to save the new route
-    console.log("Saved Gateway:", gateway);
-    setActivePage(RoutingPageType.RoutingHomePage);
-  };
-
-  const handleCancel = () => {
-    setActivePage(RoutingPageType.RoutingHomePage);
   };
 
   if (isError || updateError || isIgmpError || isIgmpUpdateError) {
@@ -82,7 +69,12 @@ export const Routing: React.FC = () => {
   }
 
   return activePage === RoutingPageType.AddRoutePage ? (
-    <AddRoute initialGateway={editingGateway} onSave={handleSaveRoute} onCancel={handleCancel} />
+    <AddRoute
+      isNewRoute={isNewRoute}
+      name={data.name}
+      breadCrumbLabel={"Routing"}
+      routingEntry={RoutingEntryTypes.Ipv6}
+    />
   ) : (
     <RoutingView
       routingTableData={data}
@@ -93,52 +85,194 @@ export const Routing: React.FC = () => {
       isUpdating={isUpdating || isIgmpUpdating}
       onRemoveButtonClick={onRemoveButtonClick}
       onNewRouteButtonClicked={onNewRouteButtonClicked}
-      onEditButtonClick={onEditButtonClick}
     />
   );
 };
 
 
-import React, { useState, useEffect } from "react";
-import { VZButton } from "../../components/vz-button/VZButton";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { VZBody } from "../../components/vz-body/VZBody";
-import { Col, Form } from "react-bootstrap";
+and This is my AddRoute.tsx
 
-type AddRouteProps = {
-  initialGateway?: string;
-  onSave: (gateway: string) => void;
-  onCancel: () => void;
+import { useState } from "react";
+import { Col } from "react-bootstrap";
+import styled from "styled-components";
+import { RouteType } from "../../../domain/misc/models";
+import { useLocator } from "../../components/navigator/navigator";
+import { VZBody } from "../../components/vz-body/VZBody";
+import { VZButton } from "../../components/vz-button/VZButton";
+import { VZDropdown } from "../../components/vz-dropdown/VZDropdown";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { VZInputTextField } from "../../components/vz-input/VZInput";
+
+export enum RoutingEntryTypes {
+  Ipv4,
+  Ipv6,
+}
+
+type Props = {
+  isNewRoute: boolean;
+  name: string;
+  breadCrumbLabel: string;
+  routingEntry?: RoutingEntryTypes;
 };
 
-export const AddRoute: React.FC<AddRouteProps> = ({ initialGateway, onSave, onCancel }) => {
-  const [gateway, setGateway] = useState<string>(initialGateway || "");
+export const AddRoute: React.FC<Props> = ({ isNewRoute, name, breadCrumbLabel, routingEntry }) => {
+  const { groupLabel, routeType } = useLocator();
+  const [currentRoutingEntry, setCurrentRoutingEntry] = useState<RoutingEntryTypes>(
+    routingEntry ?? RoutingEntryTypes.Ipv4
+  );
 
-  const handleSave = () => {
-    onSave(gateway);
+  const onDropdownChange = (e: RoutingEntryTypes) => {
+    setCurrentRoutingEntry(e);
   };
 
   return (
+    <AddRouteView
+      rootBreadcrumbData={groupLabel!}
+      routeType={routeType!}
+      breadCrumbLabel={breadCrumbLabel}
+      name={name}
+      currentRoutingEntry={currentRoutingEntry}
+      onDropdownChange={onDropdownChange}
+      isNewRoute={!isNewRoute}
+    />
+  );
+};
+
+export const RouteSettingsRow = styled(Col)`
+  height: 60px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #d8dada;
+`;
+
+type Props1 = {
+  rootBreadcrumbData: string;
+  breadCrumbLabel: string;
+  routeType: RouteType;
+  name: string;
+  currentRoutingEntry: RoutingEntryTypes;
+  isNewRoute: boolean;
+  onDropdownChange: (e: RoutingEntryTypes) => void;
+};
+
+const AddRouteView: React.FC<Props1> = ({
+  rootBreadcrumbData,
+  routeType,
+  breadCrumbLabel,
+  currentRoutingEntry,
+  isNewRoute,
+  name,
+  onDropdownChange,
+}) => {
+  return (
     <>
-      <VZHeader title="Add/Edit Route" />
-      <VZBody>
-        <Form>
-          <Form.Group controlId="formGateway">
-            <Form.Label>Gateway</Form.Label>
-            <Form.Control
-              type="text"
-              value={gateway}
-              onChange={(e) => setGateway(e.target.value)}
-            />
-          </Form.Group>
-          <Col className="my-4">
-            <VZButton onClick={handleSave}>Save</VZButton>
-            <VZButton onClick={onCancel} secondary>
-              Cancel
-            </VZButton>
-          </Col>
-        </Form>
+      <VZHeader
+        title="Routing"
+        breadcrumbData={[
+          { label: rootBreadcrumbData },
+          { label: breadCrumbLabel, destType: routeType },
+          { label: "Route Settings" },
+        ]}
+      />
+      <VZBody noTopPadding>
+        <RouteSettingsRow>
+          <Col className="col-3 b">Routing Entry:</Col>
+          <VZDropdown
+            selectedItem={currentRoutingEntry}
+            onSelect={(e) => onDropdownChange(e)}
+            id="RouteSettings-Dropdown"
+            options={[RoutingEntryTypes.Ipv4, RoutingEntryTypes.Ipv6]}
+            getOptionAsString={(e) => convertRoutingEntryToString(e)}
+            disabled={isNewRoute}
+          />
+        </RouteSettingsRow>
+        <RouteSettingsRow>
+          <Col className="col-3 b">Name:</Col>
+          <Col>{name}</Col>
+        </RouteSettingsRow>
+        {currentRoutingEntry === RoutingEntryTypes.Ipv4 ? (
+          <>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Destination:</Col>
+              <Col>
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+              </Col>
+            </RouteSettingsRow>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Netmask:</Col>
+              <Col>
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+              </Col>
+            </RouteSettingsRow>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Gateway:</Col>
+              <Col>
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+              </Col>
+            </RouteSettingsRow>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Metric:</Col>
+              <Col>
+                <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+              </Col>
+            </RouteSettingsRow>
+          </>
+        ) : (
+          <>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Destination Prefix:</Col>
+              <VZInputTextField value="" error={false} onChange={() => {}} />
+            </RouteSettingsRow>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Gateway:</Col>
+              <VZInputTextField value="" error={false} onChange={() => {}} />
+            </RouteSettingsRow>
+            <RouteSettingsRow>
+              <Col className="col-3 b">Metric:</Col>
+              <VZInputTextField value="" error={false} onChange={() => {}} style={customInputCSS} />
+            </RouteSettingsRow>
+          </>
+        )}
+        <VZButton small onClick={() => {}} disabled={true}>
+          Apply
+        </VZButton>
       </VZBody>
     </>
   );
 };
+
+export function convertRoutingEntryToString(data: RoutingEntryTypes): string {
+  switch (data) {
+    case RoutingEntryTypes.Ipv4:
+      return `Ipv4`;
+    case RoutingEntryTypes.Ipv6:
+      return `Ipv6`;
+    default:
+      throw new Error(`Unknown Routing Entry ${data}`);
+  }
+}
+
+export const customInputCSS = {
+  width: "3.75rem",
+  paddingRight: "0 !important",
+};
+
+Now the requirement is that i have created dummy model of the page and i want you to complete the page 
+
+so when i click on newRoute we need to display this page and it when ipv4 is selected then we need to display the default destination for now it is 
+0.0.0.0 so this will be splited in to 4 and each textbox will have 0 
+same as for netmask default is 0.0.0.0 , for gateway the default is 0.0.0.0  and for metric the default is 0 
+
+now suppose user selected ipv6 from the dropdown and the params changed 
+so for ipv6 the default destinationPrefix is 0 , gateway is 0, metric is 0 in ipv6 we would not be splitting 
+
+write functions to maintain these states and on click of Apply you need to console the data based on routingEntry if it is ipv6 then the destinationPrefix,gateway and Metric should be consoled and viz verza
