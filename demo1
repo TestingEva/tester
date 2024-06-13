@@ -1,35 +1,116 @@
-const lanConnectionNameSchema = z.object({
-  "Device.IP.Interface.[Alias == 'lan'].X_PRPL-COM_Description": z.string(),
-});
+import diff from "microdiff";
+import { useEffect, useMemo, useState } from "react";
+import { IGMPInfo } from "../../../data/tr181/models";
+import {
+  useIGMPInfo,
+  useRoutingInfo,
+  useUpdateIGMPInfo,
+  useUpdateRoutingInfo,
+} from "../../../domain/routing/hooks";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { RoutingView } from "./RoutingView";
 
-export async function getLanConnectionName(): Promise<{ lanConnectionName: string }> {
-  const { token } = await requireSession();
-  const response = await getParameterValuesApi(buildRequestForSchema(lanConnectionNameSchema), token);
-  const typedResponse = readResponseWithSchema(lanConnectionNameSchema, response);
-  return { lanConnectionName: typedResponse["Device.IP.Interface.[Alias == 'lan'].X_PRPL-COM_Description"] };
-}
+export const Routing: React.FC = () => {
+  const { data, isPending, isError } = useRoutingInfo();
+  const {
+    data: igmpInfo,
+    isPending: isIgmpPending,
+    isError: isIgmpError,
+    isFetching: isIgmpFetching,
+  } = useIGMPInfo();
+  const {
+    invoke,
+    isError: updateError,
+    isPending: isUpdating,
+  } = useUpdateRoutingInfo();
+  const {
+    invoke: updateIgmpInfo,
+    isError: isIgmpUpdateError,
+    isPending: isIgmpUpdating,
+  } = useUpdateIGMPInfo();
+  const [currentData, setCurrentData] = useState<IGMPInfo>();
 
-const IGMPResponseSchema = z.object({
-  "Device.Services.X_VZ-COM_DeviceConfig.IGMP.EthernetEnable": z.number().min(0).max(1),
-  "Device.Services.X_VZ-COM_DeviceConfig.IGMP.MoCAEnable": z.number().min(0).max(1),
-  "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi24GEnable": z.number().min(0).max(1),
-  "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi5GEnable": z.number().min(0).max(1),
-  "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi6GEnable": z.any(),//here
-});
+  const isApplyButtonEnabled = useMemo(() => {
+    if (currentData !== undefined && igmpInfo !== undefined) {
+      return diff(currentData, igmpInfo).length !== 0;
+    } else {
+      return true;
+    }
+  }, [igmpInfo, currentData]);
 
-export async function getIGMP(): Promise<IGMPInfo> {
-  const key = "Device.Services.X_VZ-COM_DeviceConfig.IGMP.";
-  const { token } = await requireSession();
-  const response = await getParameterValuesApi(buildRequestForKeys([key]), token);
-  const typedResponse = readResponseWithSchema(IGMPResponseSchema, response);
-  return {
-    ethernetEnable: typedResponse["Device.Services.X_VZ-COM_DeviceConfig.IGMP.EthernetEnable"],
-    moCAEnable: typedResponse["Device.Services.X_VZ-COM_DeviceConfig.IGMP.MoCAEnable"],
-    WiFi24GEnable: typedResponse["Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi24GEnable"],
-    WiFi5GEnable: typedResponse["Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi5GEnable"],
-    WiFi6GEnable: typedResponse["Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi6GEnable"],
+  useEffect(() => {
+    if (igmpInfo !== undefined) {
+      setCurrentData(igmpInfo);
+    }
+  }, [isIgmpFetching, igmpInfo]);
+
+  const onCheckboxChange = (key: keyof IGMPInfo) => {
+    setCurrentData((prevData) => ({
+      ...prevData!,
+      [key]: !prevData![key],
+    }));
   };
+
+  const onRemoveButtonClick = (index: number) => {
+    invoke({ id: index, type: 1 });
+  };
+
+  const onApplyButtonClicked = () => {
+    if (currentData !== undefined) {
+      updateIgmpInfo(currentData);
+    }
+  };
+
+  if (isError || updateError || isIgmpError || isIgmpUpdateError) {
+    return <ErrorIndicator />;
+  }
+
+  if (
+    isPending ||
+    currentData === undefined ||
+    data === undefined ||
+    isIgmpPending
+  ) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <RoutingView
+      routingTableData={data}
+      igmpData={currentData}
+      onCheckboxChange={onCheckboxChange}
+      onApplyButtonClicked={onApplyButtonClicked}
+      isApplyButtonEnabled={!isApplyButtonEnabled}
+      isUpdating={isUpdating || isIgmpUpdating}
+      onRemoveButtonClick={onRemoveButtonClick}
+    />
+  );
+};
+
+did you see we are sending the full current Data when we click the Apply Button but instead of that i want to just send the data which is only Changed
+
+for example my 
+igmpInfo is {
+    "ethernetEnable": false,
+    "moCAEnable": false,
+    "wiFi24GEnable": false,
+    "wiFi5GEnable": false,
+    "wiFi6GEnable": false
 }
 
-the here mentioned in the code where i am stuck 
-so from the backend the response there can be two scenarios from the response we wouldnt get the "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi6GEnable" and i we get the key its value will be 0 or 1  how to write the ZOD schema for this scenario
+and my current Data is 
+{
+    "ethernetEnable": true,
+    "moCAEnable": true,
+    "wiFi24GEnable": false,
+    "wiFi5GEnable": false,
+    "wiFi6GEnable": false
+}
+
+then i need to send only the things which are changed in this case 
+
+{
+    "ethernetEnable": true,
+    "moCAEnable": true,
+}
