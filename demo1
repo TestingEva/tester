@@ -1,24 +1,74 @@
+so this is my hook 
+
+export function usePortForwardingRulesInfo(): AsyncHookData<PortForwardingRulesInfo[]> {
+  const query = useQuery({
+    queryKey: [KEY_PORT_FORWARDING_RULES],
+    queryFn: getPortForwardingRules,
+  });
+  return asyncHookData(query);
+}
+
+which i have used in the following component 
+
+import { useNavigate } from "react-router-dom";
+import { RouteType } from "../../../domain/misc/models";
+import {
+  useDeletePortForwardingRuleInfo,
+  usePortForwardingRulesInfo,
+} from "../../../domain/port-forwarding-rules/hooks";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { useNavigator } from "../../components/navigator/navigator";
+import { PortForwardingRulesView } from "./PortForwardingRulesView";
+
+export const PortForwardingRules: React.FC = () => {
+  const { data, isError, isPending, isFetching } = usePortForwardingRulesInfo();
+  const { invoke, isError: isDeletingRulesError } = useDeletePortForwardingRuleInfo();
+  const navigate = useNavigate();
+  const navigator = useNavigator();
+
+  const onAddNewButtonClick = () => {
+    navigator(RouteType.PORT_FWD_RULES_EDIT);
+  };
+
+  const onEditClick = (index: number) => {
+    navigate("/adv/firewall/portrules/editservice", { state: { index } });
+  };
+
+  const onRemoveClick = (id: string) => {
+    invoke(id);
+  };
+
+  if (isError || isDeletingRulesError) {
+    return <ErrorIndicator />;
+  }
+
+  if (isPending || isFetching || data === undefined) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <PortForwardingRulesView
+      data={data}
+      onRemoveClick={onRemoveClick}
+      onEditClick={onEditClick}
+      onAddNewButtonClick={onAddNewButtonClick}
+    />
+  );
+};
+
+now i want the data from the usePortForwardingRulesInfo hook in the the following page how to get that 
+
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { CreateEditPortForwardingRuleInfo } from "../../../domain/port-forwarding-rules/models";
 
 export const AddEditPortForwardingRules = () => {
   const location = useLocation();
-  const { index } = location.state as { index: number };
+  const index = location.state?.index ?? undefined;
 
-  return <>Hello aagya mein {index}</>;
+
+return <></>;
 };
 
-Here i am getting following Error :
-Cannot destructure property 'index' of 'location.state' as it is null.
-TypeError: Cannot destructure property 'index' of 'location.state' as it is null.
-    at AddEditPortForwardingRules (http://localhost:3000/main.8054cb4c85911c65b67e.hot-update.js:26:5)
-    at renderWithHooks (http://localhost:3000/static/js/bundle.js:66403:22)
-    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:69687:17)
-    at beginWork (http://localhost:3000/static/js/bundle.js:70983:20)
-    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:55999:18)
-    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:56043:20)
-    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:56100:35)
-    at beginWork$1 (http://localhost:3000/static/js/bundle.js:75964:11)
-    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:75212:16)
-    at workLoopSync (http://localhost:3000/static/js/bundle.js:75135:9)
-
-I want it to make the index to be undefined when there is not index present or any error is there 
+could you help me in this
