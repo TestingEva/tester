@@ -1,45 +1,19 @@
-so this is my hook 
-
-export function usePortForwardingRulesInfo(): AsyncHookData<PortForwardingRulesInfo[]> {
-  const query = useQuery({
-    queryKey: [KEY_PORT_FORWARDING_RULES],
-    queryFn: getPortForwardingRules,
-  });
-  return asyncHookData(query);
-}
-
-which i have used in the following component 
-
-import { useNavigate } from "react-router-dom";
-import { RouteType } from "../../../domain/misc/models";
-import {
-  useDeletePortForwardingRuleInfo,
-  usePortForwardingRulesInfo,
-} from "../../../domain/port-forwarding-rules/hooks";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+import { usePortForwardingRulesInfo } from "../../../domain/port-forwarding-rules/hooks";
+import { CreateEditPortForwardingRuleInfo } from "../../../domain/port-forwarding-rules/models";
 import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
 import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
-import { useNavigator } from "../../components/navigator/navigator";
-import { PortForwardingRulesView } from "./PortForwardingRulesView";
 
-export const PortForwardingRules: React.FC = () => {
+export const AddEditPortForwardingRules = () => {
+  const location = useLocation();
+  const index = location.state?.index ?? undefined;
+
+  // Use the hook to get the data
   const { data, isError, isPending, isFetching } = usePortForwardingRulesInfo();
-  const { invoke, isError: isDeletingRulesError } = useDeletePortForwardingRuleInfo();
-  const navigate = useNavigate();
-  const navigator = useNavigator();
 
-  const onAddNewButtonClick = () => {
-    navigator(RouteType.PORT_FWD_RULES_EDIT);
-  };
-
-  const onEditClick = (index: number) => {
-    navigate("/adv/firewall/portrules/editservice", { state: { index } });
-  };
-
-  const onRemoveClick = (id: string) => {
-    invoke(id);
-  };
-
-  if (isError || isDeletingRulesError) {
+  // Handle errors and loading states
+  if (isError) {
     return <ErrorIndicator />;
   }
 
@@ -47,28 +21,24 @@ export const PortForwardingRules: React.FC = () => {
     return <LoadingIndicator />;
   }
 
+  // Extract the specific rule to edit if index is defined
+  const ruleToEdit = index !== undefined ? data[index] : null;
+
+  // Render the component based on whether we are adding or editing
   return (
-    <PortForwardingRulesView
-      data={data}
-      onRemoveClick={onRemoveClick}
-      onEditClick={onEditClick}
-      onAddNewButtonClick={onAddNewButtonClick}
-    />
+    <div>
+      {index !== undefined ? (
+        <div>
+          <h2>Edit Port Forwarding Rule</h2>
+          <pre>{JSON.stringify(ruleToEdit, null, 2)}</pre>
+          {/* Add your form for editing here */}
+        </div>
+      ) : (
+        <div>
+          <h2>Add New Port Forwarding Rule</h2>
+          {/* Add your form for creating here */}
+        </div>
+      )}
+    </div>
   );
 };
-
-now i want the data from the usePortForwardingRulesInfo hook in the the following page how to get that 
-
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { CreateEditPortForwardingRuleInfo } from "../../../domain/port-forwarding-rules/models";
-
-export const AddEditPortForwardingRules = () => {
-  const location = useLocation();
-  const index = location.state?.index ?? undefined;
-
-
-return <></>;
-};
-
-could you help me in this
