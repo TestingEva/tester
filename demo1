@@ -1,34 +1,24 @@
-import {
-  useDeletePortForwardingRuleInfo,
-  usePortForwardingRulesInfo,
-} from "../../../domain/port-forwarding-rules/hooks";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
-import { PortForwardingRulesView } from "./PortForwardingRulesView";
+import { useLocation } from "react-router-dom";
 
-export const PortForwardingRules: React.FC = () => {
-  const { data, isError, isPending, isFetching } = usePortForwardingRulesInfo();
-  const { invoke, isError: isDeletingRulesError } = useDeletePortForwardingRuleInfo();
+export const AddEditPortForwardingRules = () => {
+  const location = useLocation();
+  const { index } = location.state as { index: number };
 
-  const onEditClick = (index: number) => {
-    console.log(index);
-  };
-
-  const onRemoveClick = (id: string) => {
-    invoke(id);
-  };
-
-  if (isError || isDeletingRulesError) {
-    return <ErrorIndicator />;
-  }
-
-  if (isPending || isFetching || data === undefined) {
-    return <LoadingIndicator />;
-  }
-
-  return <PortForwardingRulesView data={data} onRemoveClick={onRemoveClick} onEditClick={onEditClick} />;
+  return <>Hello aagya mein {index}</>;
 };
 
-so in this component there is a edit button on click of the edit button onEditClick is being called and i want 
-route to http://localhost:3000/#/adv/firewall/portrules/editservice on the click of edit button and also i want to send the 
-index too how can i do that 
+Here i am getting following Error :
+Cannot destructure property 'index' of 'location.state' as it is null.
+TypeError: Cannot destructure property 'index' of 'location.state' as it is null.
+    at AddEditPortForwardingRules (http://localhost:3000/main.8054cb4c85911c65b67e.hot-update.js:26:5)
+    at renderWithHooks (http://localhost:3000/static/js/bundle.js:66403:22)
+    at mountIndeterminateComponent (http://localhost:3000/static/js/bundle.js:69687:17)
+    at beginWork (http://localhost:3000/static/js/bundle.js:70983:20)
+    at HTMLUnknownElement.callCallback (http://localhost:3000/static/js/bundle.js:55999:18)
+    at Object.invokeGuardedCallbackDev (http://localhost:3000/static/js/bundle.js:56043:20)
+    at invokeGuardedCallback (http://localhost:3000/static/js/bundle.js:56100:35)
+    at beginWork$1 (http://localhost:3000/static/js/bundle.js:75964:11)
+    at performUnitOfWork (http://localhost:3000/static/js/bundle.js:75212:16)
+    at workLoopSync (http://localhost:3000/static/js/bundle.js:75135:9)
+
+I want it to make the index to be undefined when there is not index present or any error is there 
