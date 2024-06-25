@@ -1,44 +1,141 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { usePortForwardingRulesInfo } from "../../../domain/port-forwarding-rules/hooks";
-import { CreateEditPortForwardingRuleInfo } from "../../../domain/port-forwarding-rules/models";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+[
+    {
+        "id": "64e31c90-5835-4f79-bc21-e5e2e95c01ce",
+        "description": "",
+        "name": "teeeeest",
+        "ports": [
+            {
+                "protocol": 0,
+                "sourcePort": {
+                    "port": [
+                        1
+                    ]
+                },
+                "destinationPort": {
+                    "portRange": [
+                        1,
+                        65535
+                    ]
+                }
+            }
+        ]
+    },
+    {
+        "id": "5bba2a39-f2a9-4e37-b8b2-85b06f18500e",
+        "description": "",
+        "name": "test",
+        "ports": [
+            {
+                "protocol": 0,
+                "sourcePort": {
+                    "port": [
+                        1
+                    ]
+                }
+            },
+            {
+                "protocol": 2,
+                "icmpMessage": "Redirect for Host"
+            },
+            {
+                "protocol": 2,
+                "icmpMessage": "Echo Request"
+            },
+            {
+                "protocol": 2,
+                "icmpMessage": "Other",
+                "icmpType": 12,
+                "icmpCode": 123
+            },
+            {
+                "protocol": 3
+            },
+            {
+                "protocol": 4
+            },
+            {
+                "protocol": 5
+            },
+            {
+                "protocol": 2,
+                "icmpMessage": "Echo Reply"
+            },
+            {
+                "protocol": 0,
+                "sourcePort": {
+                    "portRange": [
+                        1,
+                        65534
+                    ]
+                }
+            },
+            {
+                "protocol": 0,
+                "destinationPort": {
+                    "port": [
+                        1
+                    ]
+                }
+            },
+            {
+                "protocol": 0,
+                "destinationPort": {
+                    "portRange": [
+                        1,
+                        21414
+                    ]
+                }
+            },
+            {
+                "protocol": 1,
+                "sourcePort": {
+                    "port": [
+                        143
+                    ]
+                }
+            },
+            {
+                "protocol": 1,
+                "sourcePort": {
+                    "portRange": [
+                        1,
+                        43
+                    ]
+                }
+            },
+            {
+                "protocol": 1,
+                "destinationPort": {
+                    "port": [
+                        1
+                    ]
+                }
+            },
+            {
+                "protocol": 1,
+                "sourcePort": {
+                    "port": [
+                        1
+                    ]
+                },
+                "destinationPort": {
+                    "port": [
+                        1
+                    ]
+                }
+            },
+            {
+                "protocol": 2,
+                "icmpMessage": "Echo Reply"
+            },
+            {
+                "protocol": 6,
+                "protocolNumber": 112
+            }
+        ]
+    }
+]
 
-export const AddEditPortForwardingRules = () => {
-  const location = useLocation();
-  const index = location.state?.index ?? undefined;
+suppose i have this as data and i just want to create another array which will be having only the names how to do that 
 
-  // Use the hook to get the data
-  const { data, isError, isPending, isFetching } = usePortForwardingRulesInfo();
-
-  // Handle errors and loading states
-  if (isError) {
-    return <ErrorIndicator />;
-  }
-
-  if (isPending || isFetching || data === undefined) {
-    return <LoadingIndicator />;
-  }
-
-  // Extract the specific rule to edit if index is defined
-  const ruleToEdit = index !== undefined ? data[index] : null;
-
-  // Render the component based on whether we are adding or editing
-  return (
-    <div>
-      {index !== undefined ? (
-        <div>
-          <h2>Edit Port Forwarding Rule</h2>
-          <pre>{JSON.stringify(ruleToEdit, null, 2)}</pre>
-          {/* Add your form for editing here */}
-        </div>
-      ) : (
-        <div>
-          <h2>Add New Port Forwarding Rule</h2>
-          {/* Add your form for creating here */}
-        </div>
-      )}
-    </div>
-  );
-};
+write a function in js which returns the response here the response should be ["teeeeest","test"]
