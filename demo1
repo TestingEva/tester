@@ -1,8 +1,10 @@
-const getMaxJValue = (array) => {
+//   "Device\.WiFi\.Radio\.1\.X_SOFTATHOME-COM_ChannelMgt\.ChannelChanges\.16\.TimeStamp"
+  
+  const getMaxJValue = (array) => {
   let maxJ = -Infinity;
 
   array.forEach((item) => {
-    // Extract j from the item using regex to match the pattern
+
     const match = item.match(/Device\.WiFi\.Radio\.1\.X_SOFTATHOME-COM_ChannelMgt\.ChannelChanges\.(\d+)\.TimeStamp/);
     
     if (match) {
@@ -15,16 +17,7 @@ const getMaxJValue = (array) => {
 
   return maxJ;
 };
+const data = ['Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.ChannelChangeReason', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.ChannelChangeReasonExt', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.NewBandwidth', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.NewChannel', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.NrSta', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.NrVideoSta', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.OldBandwidth', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.OldChannel', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.TargetBandwidth', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.TargetChangeTime', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.TargetChannel', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.TimeStamp', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.ChannelChangeReason', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.ChannelChangeReasonExt', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.NewBandwidth', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.NewChannel', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.NrSta', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.NrVideoSta', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.OldBandwidth', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.OldChannel', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.TargetBandwidth', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.TargetChangeTime', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.TargetChannel', 'Device.WiFi.Radio.2.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.TimeStamp']
+console.log(getMaxJValue(data))
 
-// Example usage:
-const array = [
-  "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.2.TimeStamp",
-  "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.5.TimeStamp",
-  "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.3.TimeStamp",
-  "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.4.TimeStamp",
-  "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.8.TimeStamp",
-  "Device.WiFi.Radio.1.X_SOFTATHOME-COM_ChannelMgt.ChannelChanges.6.TimeStamp"
-];
-
-const maxJ = getMaxJValue(array);
-console.log("Max value of j:", maxJ); // Output: Max value of j: 8
+for this its coming as -Infinity which it should come 
