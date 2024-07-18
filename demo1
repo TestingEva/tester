@@ -1,69 +1,46 @@
-function validateIPRange(ipAddress: string, subnetMask: string, startIpAddress: string, endIpAddress: string): string[] {
-    const errors: string[] = [];
+export function validateDhcpIPRange(
+  ipAddress: string,
+  subnetMask: string,
+  startIpAddress: string,
+  endIpAddress: string
+): string[] {
+  const errors: string[] = [];
 
-    // Helper functions
-    function ipToInt(ip: string): number {
-        return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
-    }
+  function ipToInt(ip: string): number {
+    return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
+  }
 
-    function intToIp(int: number): string {
-        return ((int >>> 24) + '.' + (int >> 16 & 255) + '.' + (int >> 8 & 255) + '.' + (int & 255));
-    }
+  const ipInt = ipToInt(ipAddress);
+  const subnetMaskInt = ipToInt(subnetMask);
+  const networkAddressInt = ipInt & subnetMaskInt;
 
-    function validateIPAddress(ip: string): boolean {
-        const octets = ip.split('.');
-        return octets.length === 4 && octets.every(octet => {
-            const num = parseInt(octet, 10);
-            return num >= 0 && num <= 255;
-        });
-    }
+  const startIpInt = ipToInt(startIpAddress);
+  const endIpInt = ipToInt(endIpAddress);
 
-    if (!validateIPAddress(ipAddress)) {
-        errors.push("Invalid IP address format.");
-    }
+  const startNetworkInt = startIpInt & subnetMaskInt;
+  const endNetworkInt = endIpInt & subnetMaskInt;
 
-    if (!validateIPAddress(subnetMask)) {
-        errors.push("Invalid subnet mask format.");
-    }
+  if (startNetworkInt !== networkAddressInt && endNetworkInt !== networkAddressInt) {
+    errors.push(
+      "Start IP Address, End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
+    );
+  } else if (endNetworkInt !== networkAddressInt) {
+    errors.push(
+      "End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
+    );
+  } else if (startNetworkInt !== networkAddressInt) {
+    errors.push(
+      "Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
+    );
+  }
+  if (endIpInt - startIpInt + 1 > 256) {
+    errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
+  }
 
-    if (!validateIPAddress(startIpAddress)) {
-        errors.push("Invalid start IP address format.");
-    }
-
-    if (!validateIPAddress(endIpAddress)) {
-        errors.push("Invalid end IP address format.");
-    }
-
-    const ipInt = ipToInt(ipAddress);
-    const subnetMaskInt = ipToInt(subnetMask);
-    const networkAddressInt = ipInt & subnetMaskInt;
-
-    const startIpInt = ipToInt(startIpAddress);
-    const endIpInt = ipToInt(endIpAddress);
-
-    const startNetworkInt = startIpInt & subnetMaskInt;
-    const endNetworkInt = endIpInt & subnetMaskInt;
-
-    if (startNetworkInt !== networkAddressInt || endNetworkInt !== networkAddressInt) {
-        errors.push("The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
-    }
-
-    if ((endIpInt - startIpInt + 1) > 256) {
-        errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
-    }
-
-    return errors;
+  return errors;
 }
 
-// Example usage:
-const ipAddress = "192.168.1.1";
-const subnetMask = "255.255.255.0";
-const startIpAddress = "192.168.1.10";
-const endIpAddress = "192.168.1.20";
 
-const errors = validateIPRange(ipAddress, subnetMask, startIpAddress, endIpAddress);
-if (errors.length > 0) {
-    console.log("Validation errors:", errors);
-} else {
-    console.log("IP range is valid");
-}
+so i have a function can we also include the validation of 
+IP Addresses: The Device's IP address should not be in the range of the IP pool.
+here
