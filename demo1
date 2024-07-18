@@ -1,5 +1,5 @@
 export function validateDhcpIPRange(
-  ipAddress: string,
+  deviceIpAddress: string,
   subnetMask: string,
   startIpAddress: string,
   endIpAddress: string
@@ -10,13 +10,13 @@ export function validateDhcpIPRange(
     return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
   }
 
-  const ipInt = ipToInt(ipAddress);
+  const deviceIpInt = ipToInt(deviceIpAddress);
   const subnetMaskInt = ipToInt(subnetMask);
-  const networkAddressInt = ipInt & subnetMaskInt;
 
   const startIpInt = ipToInt(startIpAddress);
   const endIpInt = ipToInt(endIpAddress);
 
+  const networkAddressInt = deviceIpInt & subnetMaskInt;
   const startNetworkInt = startIpInt & subnetMaskInt;
   const endNetworkInt = endIpInt & subnetMaskInt;
 
@@ -33,14 +33,27 @@ export function validateDhcpIPRange(
       "Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
     );
   }
+
   if (endIpInt - startIpInt + 1 > 256) {
     errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
+  }
+
+  if (deviceIpInt >= startIpInt && deviceIpInt <= endIpInt) {
+    errors.push("The Device's IP address should not be in the range of the IP pool.");
   }
 
   return errors;
 }
 
+// Example usage:
+const deviceIpAddress = "192.168.1.1";
+const subnetMask = "255.255.255.0";
+const startIpAddress = "192.168.1.10";
+const endIpAddress = "192.168.1.20";
 
-so i have a function can we also include the validation of 
-IP Addresses: The Device's IP address should not be in the range of the IP pool.
-here
+const errors = validateDhcpIPRange(deviceIpAddress, subnetMask, startIpAddress, endIpAddress);
+if (errors.length > 0) {
+  console.log("Validation errors:", errors);
+} else {
+  console.log("IP range is valid");
+}
