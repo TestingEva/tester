@@ -1,59 +1,60 @@
-export function validateDhcpIPRange(
-  deviceIpAddress: string,
-  subnetMask: string,
-  startIpAddress: string,
-  endIpAddress: string
-): string[] {
-  const errors: string[] = [];
+: Element implicitly has an 'any' type because expression of type '0' can't be used to index type 'PortInfo'.
+  Property '0' does not exist on type 'PortInfo'.
+    311 |         <Col className="d-flex gap-2">
+    312 |           <VZInputTextField
+  > 313 |             value={data[label] !== "Any" && typeof data[label] !== "number" ? data[label][0].toString() : ""}
+        |                                                                               ^^^^^^^^^^^^^^
+    314 |             onChange={(e) => onTcpUdpPortRangeChange(e, 0, label)}
+    315 |             error={false}
+    316 |             style={{ width: "4.5rem" }}
+ERROR in src/ui/pages/port-forwarding-rules/AddEditPortForwardingRulesEditView.tsx:319:79
+TS7053: Element implicitly has an 'any' type because expression of type '1' can't be used to index type 'PortInfo'.
+  Property '1' does not exist on type 'PortInfo'.
+    317 |           />
+    318 |           <VZInputTextField
+  > 319 |             value={data[label] !== "Any" && typeof data[label] !== "number" ? data[label][1].toString() : ""}
+        |                                                                               ^^^^^^^^^^^^^^
+    320 |             onChange={(e) => onTcpUdpPortRangeChange(e, 1, label)}
+    321 |             error={false}
+    322 |             style={{ width: "4.5rem" }}
 
-  function ipToInt(ip: string): number {
-    return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
-  }
+I am getting the above error could you fix this 
 
-  const deviceIpInt = ipToInt(deviceIpAddress);
-  const subnetMaskInt = ipToInt(subnetMask);
-
-  const startIpInt = ipToInt(startIpAddress);
-  const endIpInt = ipToInt(endIpAddress);
-
-  const networkAddressInt = deviceIpInt & subnetMaskInt;
-  const startNetworkInt = startIpInt & subnetMaskInt;
-  const endNetworkInt = endIpInt & subnetMaskInt;
-
-  if (startNetworkInt !== networkAddressInt && endNetworkInt !== networkAddressInt) {
-    errors.push(
-      "Start IP Address, End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
-    );
-  } else if (endNetworkInt !== networkAddressInt) {
-    errors.push(
-      "End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
-    );
-  } else if (startNetworkInt !== networkAddressInt) {
-    errors.push(
-      "Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
-    );
-  }
-
-  if (endIpInt - startIpInt + 1 > 256) {
-    errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
-  }
-
-  if (deviceIpInt >= startIpInt && deviceIpInt <= endIpInt) {
-    errors.push("The Device's IP address should not be in the range of the IP pool.");
-  }
-
-  return errors;
-}
-
-// Example usage:
-const deviceIpAddress = "192.168.1.1";
-const subnetMask = "255.255.255.0";
-const startIpAddress = "192.168.1.10";
-const endIpAddress = "192.168.1.20";
-
-const errors = validateDhcpIPRange(deviceIpAddress, subnetMask, startIpAddress, endIpAddress);
-if (errors.length > 0) {
-  console.log("Validation errors:", errors);
-} else {
-  console.log("IP range is valid");
-}
+const TcpUdpSingleRangeOptionalView: React.FC<TcpUdpSingleRangeOptionalViewProps> = ({
+  data,
+  onTcpUdpPortChange,
+  onTcpUdpPortRangeChange,
+  label,
+}) => {
+  return (
+    <AddEditPortForwardingRulesDataRow>
+      <Col className="col-3"></Col>
+      <OptionalComponent show={getPortDropdownSelectedValue(data[label]) === "Single"}>
+        <Col className="col-1">
+          <VZInputTextField
+            value={typeof data[label] === "number" ? data[label]!.toString() : ""}
+            onChange={(e) => onTcpUdpPortChange(e, label)}
+            error={false}
+            style={{ width: "4.5rem" }}
+          />
+        </Col>
+      </OptionalComponent>
+      <OptionalComponent show={getPortDropdownSelectedValue(data[label]) === "Range"}>
+        <Col className="d-flex gap-2">
+          <VZInputTextField
+            value={data[label] !== "Any" && typeof data[label] !== "number" ? data[label][0].toString() : ""}
+            onChange={(e) => onTcpUdpPortRangeChange(e, 0, label)}
+            error={false}
+            style={{ width: "4.5rem" }}
+          />
+          <VZInputTextField
+            value={data[label] !== "Any" && typeof data[label] !== "number" ? data[label][1].toString() : ""}
+            onChange={(e) => onTcpUdpPortRangeChange(e, 1, label)}
+            error={false}
+            style={{ width: "4.5rem" }}
+          />
+        </Col>
+      </OptionalComponent>
+    </AddEditPortForwardingRulesDataRow>
+  );
+};
