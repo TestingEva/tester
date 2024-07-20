@@ -1,120 +1,13 @@
-{
-    "connDHCPList": [
-        {
-            "deviceName": "C02D1672MD6M",
-            "deviceType": "",
-            "hostName": "C02D1672MD6M",
-            "ipAddress": "192.168.1.2",
-            "isStatic": 0,
-            "leaseTime": "2024-07-21T08:53:44Z",
-            "physAddress": "00:24:32:A0:D8:BE",
-            "status": 1
-        },
-        {
-            "deviceName": "C02D1672MD6M",
-            "deviceType": "",
-            "hostName": "C02D1672MD6M",
-            "ipAddress": "",
-            "isStatic": 0,
-            "leaseTime": "",
-            "physAddress": "3C:22:FB:E4:4F:62",
-            "status": 0
-        },
-        {
-            "deviceName": "F8:8B:37:F3:DD:07",
-            "deviceType": "",
-            "hostName": "F8:8B:37:F3:DD:07",
-            "ipAddress": "",
-            "isStatic": 0,
-            "leaseTime": "",
-            "physAddress": "F8:8B:37:F3:DD:07",
-            "status": 0
-        },
-        {
-            "deviceName": "F8:8B:37:F3:C3:B2",
-            "deviceType": "",
-            "hostName": "F8:8B:37:F3:C3:B2",
-            "ipAddress": "",
-            "isStatic": 0,
-            "leaseTime": "",
-            "physAddress": "F8:8B:37:F3:C3:B2",
-            "status": 0
-        }
-    ],
-    "connStaticList": [
-        {
-            "hostName": "yrs",
-            "hostnameObjPath": "Device.DNS.X_PRPL-COM_Host.5.IPAddress.1.",
-            "ipAddress": "192.168.1.22",
-            "ipObjPath": "Device.DHCPv4.Server.Pool.1.StaticAddress.1.",
-            "isStatic": 1,
-            "physAddress": "00:B0:D0:62:25:44"
-        }
-    ],
-    "defGateway": "192.168.1.1",
-    "timestamp": 1721466870701
-}
+2024-07-21T08:53:44Z
 
-suppose this is the response i am getting from the Api and i need to convert the response in the format of 
-{
-    connectionsList: Ipv4DhcpConnectionsList[];
-    defaultIpAddress: string;
-}
-In which connection List consist of all the array 
+suppose this the format of the date i am reciviing and i want you to calculate the difference as done in the function below 
 
-in the above case it should be 
+const timeRemaining = (val) => {
+        const timeLeft = Math.round((Date.parse(val) - timestamp) / 1000);
+        return timeLeft <= 0 ? "Expired" : timeLeft;
+    }
 
-{
-connectionsList:[{
-            "deviceName": "C02D1672MD6M",
-            "deviceType": "",
-            "hostName": "C02D1672MD6M",
-            "ipAddress": "192.168.1.2",
-            "isStatic": 0,
-            "leaseTime": "2024-07-21T08:53:44Z",
-            "physAddress": "00:24:32:A0:D8:BE",
-            "status": 1
-        },
-        {
-            "deviceName": "C02D1672MD6M",
-            "deviceType": "",
-            "hostName": "C02D1672MD6M",
-            "ipAddress": "",
-            "isStatic": 0,
-            "leaseTime": "",
-            "physAddress": "3C:22:FB:E4:4F:62",
-            "status": 0
-        },
-        {
-            "deviceName": "F8:8B:37:F3:DD:07",
-            "deviceType": "",
-            "hostName": "F8:8B:37:F3:DD:07",
-            "ipAddress": "",
-            "isStatic": 0,
-            "leaseTime": "",
-            "physAddress": "F8:8B:37:F3:DD:07",
-            "status": 0
-        },
-        {
-            "deviceName": "F8:8B:37:F3:C3:B2",
-            "deviceType": "",
-            "hostName": "F8:8B:37:F3:C3:B2",
-            "ipAddress": "",
-            "isStatic": 0,
-            "leaseTime": "",
-            "physAddress": "F8:8B:37:F3:C3:B2",
-            "status": 0
-        },
-         {
-            "hostName": "yrs",
-            "hostnameObjPath": "Device.DNS.X_PRPL-COM_Host.5.IPAddress.1.",
-            "ipAddress": "192.168.1.22",
-            "ipObjPath": "Device.DHCPv4.Server.Pool.1.StaticAddress.1.",
-            "isStatic": 1,
-            "physAddress": "00:B0:D0:62:25:44"
-        }
-],
-defaultIpAddress:"192.168.1.1"
-}
 
-now one more catch is there in connectionsList we must include only those from connDHCPList whose status is 1 and ipAddress should not be empty string
+
+
+I want you to use Dayjs to calculate the difference and the output should in the same unit as done in the above function 
