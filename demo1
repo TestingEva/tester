@@ -1,3 +1,12 @@
+/**
+ * Validates the DHCP IP address range based on the given IP address, subnet mask, start IP address, and end IP address.
+ * 
+ * @param ipAddress - The device's IP address.
+ * @param subnetMask - The subnet mask.
+ * @param startIpAddress - The start IP address of the DHCP range.
+ * @param endIpAddress - The end IP address of the DHCP range.
+ * @returns An array of error messages if validation fails, otherwise an empty array.
+ */
 function validateDhcpIPRange(
   ipAddress: string,
   subnetMask: string,
@@ -6,46 +15,54 @@ function validateDhcpIPRange(
 ): string[] {
   const errors: string[] = [];
 
+  /**
+   * Converts an IP address string to an integer.
+   * 
+   * @param ip - The IP address string.
+   * @returns The integer representation of the IP address.
+   */
   function ipToInt(ip: string): number {
-    return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+    return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
   }
 
+  // Convert IP addresses and subnet mask to integers.
   const ipInt = ipToInt(ipAddress);
   const subnetMaskInt = ipToInt(subnetMask);
-  const networkAddressInt = ipInt & subnetMaskInt;
+  const networkAddressInt = ipInt & subnetMaskInt; // Calculate network address.
 
   const startIpInt = ipToInt(startIpAddress);
   const endIpInt = ipToInt(endIpAddress);
-  const startNetworkInt = startIpInt & subnetMaskInt;
-  const endNetworkInt = endIpInt & subnetMaskInt;
+  const startNetworkInt = startIpInt & subnetMaskInt; // Calculate network address of start IP.
+  const endNetworkInt = endIpInt & subnetMaskInt; // Calculate network address of end IP.
 
+  // Validate that start IP address is less than end IP address.
   if (startIpInt > endIpInt) {
     errors.push("IP Addresses: Start IP address is greater than End IP address.");
   } else {
+    // Validate that end IP address conforms to the network address.
     if (endNetworkInt !== networkAddressInt) {
-      errors.push(
-        "End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
-      );
-    } else if (startNetworkInt !== networkAddressInt) {
-      errors.push(
-        "Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
-      );
+      errors.push("End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
+    }
+    // Validate that start IP address conforms to the network address.
+    if (startNetworkInt !== networkAddressInt) {
+      errors.push("Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
     }
   }
+
+  // Validate that both start and end IP addresses conform to the network address.
   if (startNetworkInt !== networkAddressInt && endNetworkInt !== networkAddressInt) {
-    errors.push(
-      "Start IP Address, End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
-    );
+    errors.push("Start IP Address, End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
   }
 
+  // Validate that the number of IP addresses in the range does not exceed 256.
   if (endIpInt - startIpInt + 1 > 256) {
     errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
   }
+
+  // Validate that the device's IP address is not within the DHCP range.
   if (ipInt >= startIpInt && ipInt <= endIpInt) {
     errors.push("The Device's IP address should not be in the range of the IP pool.");
   }
 
   return errors;
 }
-
-I just want to document this properly so that if someone comes and see the code they understand it line by line
