@@ -1,13 +1,51 @@
-2024-07-21T08:53:44Z
+function validateDhcpIPRange(
+  ipAddress: string,
+  subnetMask: string,
+  startIpAddress: string,
+  endIpAddress: string
+): string[] {
+  const errors: string[] = [];
 
-suppose this the format of the date i am reciviing and i want you to calculate the difference as done in the function below 
+  function ipToInt(ip: string): number {
+    return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet), 0);
+  }
 
-const timeRemaining = (val) => {
-        const timeLeft = Math.round((Date.parse(val) - timestamp) / 1000);
-        return timeLeft <= 0 ? "Expired" : timeLeft;
+  const ipInt = ipToInt(ipAddress);
+  const subnetMaskInt = ipToInt(subnetMask);
+  const networkAddressInt = ipInt & subnetMaskInt;
+
+  const startIpInt = ipToInt(startIpAddress);
+  const endIpInt = ipToInt(endIpAddress);
+  const startNetworkInt = startIpInt & subnetMaskInt;
+  const endNetworkInt = endIpInt & subnetMaskInt;
+
+  if (startIpInt > endIpInt) {
+    errors.push("IP Addresses: Start IP address is greater than End IP address.");
+  } else {
+    if (endNetworkInt !== networkAddressInt) {
+      errors.push(
+        "End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
+      );
+    } else if (startNetworkInt !== networkAddressInt) {
+      errors.push(
+        "Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
+      );
     }
+  }
+  if (startNetworkInt !== networkAddressInt && endNetworkInt !== networkAddressInt) {
+    errors.push(
+      "Start IP Address, End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask."
+    );
+  }
 
+  if (endIpInt - startIpInt + 1 > 256) {
+    errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
+  }
+  if (ipInt >= startIpInt && ipInt <= endIpInt) {
+    errors.push("The Device's IP address should not be in the range of the IP pool.");
+  }
 
+  return errors;
+}
 
-
-I want you to use Dayjs to calculate the difference and the output should in the same unit as done in the above function 
+I just want to document this properly so that if someone comes and see the code they understand it line by line
