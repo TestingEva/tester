@@ -1,68 +1,61 @@
-/**
- * Validates the DHCP IP address range based on the given IP address, subnet mask, start IP address, and end IP address.
- * 
- * @param ipAddress - The device's IP address.
- * @param subnetMask - The subnet mask.
- * @param startIpAddress - The start IP address of the DHCP range.
- * @param endIpAddress - The end IP address of the DHCP range.
- * @returns An array of error messages if validation fails, otherwise an empty array.
- */
-function validateDhcpIPRange(
-  ipAddress: string,
-  subnetMask: string,
-  startIpAddress: string,
-  endIpAddress: string
-): string[] {
-  const errors: string[] = [];
+class Hello{
 
-  /**
-   * Converts an IP address string to an integer.
-   * 
-   * @param ip - The IP address string.
-   * @returns The integer representation of the IP address.
-   */
-  function ipToInt(ip: string): number {
-    return ip.split(".").reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
-  }
-
-  // Convert IP addresses and subnet mask to integers.
-  const ipInt = ipToInt(ipAddress);
-  const subnetMaskInt = ipToInt(subnetMask);
-  const networkAddressInt = ipInt & subnetMaskInt; // Calculate network address.
-
-  const startIpInt = ipToInt(startIpAddress);
-  const endIpInt = ipToInt(endIpAddress);
-  const startNetworkInt = startIpInt & subnetMaskInt; // Calculate network address of start IP.
-  const endNetworkInt = endIpInt & subnetMaskInt; // Calculate network address of end IP.
-
-  // Validate that start IP address is less than end IP address.
-  if (startIpInt > endIpInt) {
-    errors.push("IP Addresses: Start IP address is greater than End IP address.");
-  } else {
-    // Validate that end IP address conforms to the network address.
-    if (endNetworkInt !== networkAddressInt) {
-      errors.push("End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
+    public static void mergeSort(int arr[],int l,int r){//2,3,4,5,6,7
+       if(l<r){
+         int mid = (l+r)/2;//2
+        mergeSort(arr, l, mid-1);//0,1-->2,3
+        mergeSort(arr, mid, r);//4,5,6,7
+        merge(arr,l,r,mid);//0,5,2
+       }
     }
-    // Validate that start IP address conforms to the network address.
-    if (startNetworkInt !== networkAddressInt) {
-      errors.push("Start IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
+
+    public static void merge(int arr[],int l,int r,int mid){
+        int n1 = mid-l;//2
+        int n2 = r-mid+1; //4
+        int larr[] = new int[n1];
+        int rarr[] = new int[n2];
+
+
+        for (int i =0;i<n1;i++){
+                larr[i] = arr[l+i];
+        }
+        for(int i = 0;i<n2;i++){
+            rarr[i] = arr[mid+i];
+        }
+        int i=0,j=0,k=l;
+        while(i<n1&&j<n2){
+            if(larr[i]<rarr[j]){
+                arr[k]=larr[i];
+                i++;
+            }
+            else{
+                arr[k] = rarr[j];
+                j++;
+            }
+            k++;
+        }
+        while(i<n1){
+            arr[k]=larr[i];
+            i++;
+            k++;
+
+        }
+        while(j<n2){
+            arr[k] = rarr[j];
+            j++;
+            k++;
+        }
     }
-  }
 
-  // Validate that both start and end IP addresses conform to the network address.
-  if (startNetworkInt !== networkAddressInt && endNetworkInt !== networkAddressInt) {
-    errors.push("Start IP Address, End IP Address: The DHCP IP address range does not conform to the connection IP address and the DHCP subnet mask.");
-  }
+    
 
-  // Validate that the number of IP addresses in the range does not exceed 256.
-  if (endIpInt - startIpInt + 1 > 256) {
-    errors.push("The number of IP Addresses in the DHCP IP address range must not be more than 256.");
-  }
-
-  // Validate that the device's IP address is not within the DHCP range.
-  if (ipInt >= startIpInt && ipInt <= endIpInt) {
-    errors.push("The Device's IP address should not be in the range of the IP pool.");
-  }
-
-  return errors;
+    public static void main(String[] args) {
+        int nums[] = {9,4,3,3,2,2,1,4,1,8,6,4,2,5,6,5};
+        mergeSort(nums,0,nums.length-1);
+        for(int num:nums){
+            System.out.print(num+", ");
+        }
+    }
 }
+
+whats the bug in the program
