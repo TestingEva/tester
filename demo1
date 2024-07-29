@@ -1,61 +1,15 @@
-class Hello{
+Subject: Clarification Regarding Mohit's Withdrawal
 
-    public static void mergeSort(int arr[],int l,int r){//2,3,4,5,6,7
-       if(l<r){
-         int mid = (l+r)/2;//2
-        mergeSort(arr, l, mid-1);//0,1-->2,3
-        mergeSort(arr, mid, r);//4,5,6,7
-        merge(arr,l,r,mid);//0,5,2
-       }
-    }
+Hi Karthik,
 
-    public static void merge(int arr[],int l,int r,int mid){
-        int n1 = mid-l;//2
-        int n2 = r-mid+1; //4
-        int larr[] = new int[n1];
-        int rarr[] = new int[n2];
+I hope this message finds you well. I am writing to address the recent news regarding Mohit's decision to withdraw from the Software Engineer position.
 
+I wanted to clarify that I was not aware of Mohit's decision to accept another offer and withdraw from the position at Global Logic. This move was unexpected, and I learned about it only after they had communicated their decision to the HR team.
 
-        for (int i =0;i<n1;i++){
-                larr[i] = arr[l+i];
-        }
-        for(int i = 0;i<n2;i++){
-            rarr[i] = arr[mid+i];
-        }
-        int i=0,j=0,k=l;
-        while(i<n1&&j<n2){
-            if(larr[i]<rarr[j]){
-                arr[k]=larr[i];
-                i++;
-            }
-            else{
-                arr[k] = rarr[j];
-                j++;
-            }
-            k++;
-        }
-        while(i<n1){
-            arr[k]=larr[i];
-            i++;
-            k++;
+I sincerely apologize for any inconvenience or disruption this may have caused. I had high hopes for Mohit's contribution to our team and believed they would have been a valuable addition to the organization.
 
-        }
-        while(j<n2){
-            arr[k] = rarr[j];
-            j++;
-            k++;
-        }
-    }
+Please let me know if there is anything I can do to assist in the transition or in finding a suitable replacement. I remain committed to supporting Global Logic and ensuring a smooth recruitment process.
 
-    
+Thank you for your understanding.
 
-    public static void main(String[] args) {
-        int nums[] = {9,4,3,3,2,2,1,4,1,8,6,4,2,5,6,5};
-        mergeSort(nums,0,nums.length-1);
-        for(int num:nums){
-            System.out.print(num+", ");
-        }
-    }
-}
-
-whats the bug in the program
+Best regards,
