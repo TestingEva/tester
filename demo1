@@ -1,7 +1,36 @@
-const dropDownOptions = useMemo(() => {
-    const listIpsSet = new Set(list.map(item => item.excpIPAddress));
-    return availableExcpIPAddress.filter(ip => !listIpsSet.has(ip)).map(ip => {
-      const objPath = availableDnsDropdownExp.find(item => item.excpIpAddress === ip)?.objPath;
-      return { excpIpAddress: ip, objPath };
-    });
-  }, [list]);
+
+const arr1  = [
+    {
+        "excpIpAddress": "::1/128",
+        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
+    },
+    {
+        "excpIpAddress": "172.16.0.0/12",
+        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
+    },
+    {
+        "excpIpAddress": "192.168.0.0/16",
+        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+    }
+]
+
+const arr2 = [
+    {
+        "excpIpAddress": "::1/128",
+        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
+    },
+    {
+        "excpIpAddress": "172.16.0.0/12",
+        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
+    },
+    {
+        "excpIpAddress": "192.168.0.0/16",
+        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+    },
+    {
+        "excpIpAddress": "10.0.0.0/8",
+        "objPath": "10.0.0.0/8-0"
+    }
+]
+
+I want to find if both the array are equal or not 
