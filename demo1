@@ -1,36 +1,150 @@
+import { useEffect, useState } from "react";
+import { ComparableKey } from "../../domain/utils";
 
-const arr1  = [
-    {
-        "excpIpAddress": "::1/128",
-        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
-    },
-    {
-        "excpIpAddress": "172.16.0.0/12",
-        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
-    },
-    {
-        "excpIpAddress": "192.168.0.0/16",
-        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+/**
+ * Represents a list tracker that keeps track of changes made to a list of items.
+ * @template T - The type of items in the list.
+ */
+export class ListTracker<T> {
+  private initialItems: T[];
+  private removedItems: T[];
+  private updatedItems: T[];
+  private addedItems: T[];
+  private key: ComparableKey<T>;
+
+  constructor(initialList: T[], key: ComparableKey<T>) {
+    this.initialItems = initialList;
+    this.removedItems = [];
+    this.updatedItems = [];
+    this.addedItems = [];
+    this.key = key;
+  }
+
+  getRemovedItems(): T[] {
+    return this.removedItems;
+  }
+
+  getUpdatedItems(): T[] {
+    return this.updatedItems;
+  }
+
+  getAddedItems(): T[] {
+    return this.addedItems;
+  }
+
+  addItem(item: T): void {
+    const itemExists =
+      this.initialItems.some((i) => i[this.key] === item[this.key]) ||
+      this.addedItems.some((i) => i[this.key] === item[this.key]);
+    if (!itemExists) {
+      this.addedItems.push(item);
     }
-]
+  }
 
-const arr2 = [
-    {
-        "excpIpAddress": "::1/128",
-        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
-    },
-    {
-        "excpIpAddress": "172.16.0.0/12",
-        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
-    },
-    {
-        "excpIpAddress": "192.168.0.0/16",
-        "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
-    },
-    {
-        "excpIpAddress": "10.0.0.0/8",
-        "objPath": "10.0.0.0/8-0"
+  updateItem(item: T): void {
+    const indexInAddedItems = this.addedItems.findIndex((i) => i[this.key] === item[this.key]);
+    if (indexInAddedItems !== -1) {
+      this.addedItems[indexInAddedItems] = item;
+      return;
     }
-]
 
-I want to find if both the array are equal or not 
+    const indexInUpdatedItems = this.updatedItems.findIndex((i) => i[this.key] === item[this.key]);
+    if (indexInUpdatedItems !== -1) {
+      this.updatedItems[indexInUpdatedItems] = item;
+      return;
+    }
+
+    const indexInInitialList = this.initialItems.findIndex((i) => i[this.key] === item[this.key]);
+    if (indexInInitialList !== -1) {
+      this.updatedItems.push(item);
+    }
+  }
+
+  removeItem(item: T): void {
+    const indexInAddedItems = this.addedItems.findIndex((i) => i[this.key] === item[this.key]);
+    if (indexInAddedItems !== -1) {
+      this.addedItems.splice(indexInAddedItems, 1);
+      return;
+    }
+    // updatedItems will only contain items that are part of the initalItems array.
+    // when an item to be removed is found in the updatedItems, it should be removed and added to removedItems
+    const indexInUpdatedItems = this.updatedItems.findIndex((i) => i[this.key] === item[this.key]);
+    if (indexInUpdatedItems !== -1) {
+      this.updatedItems.splice(indexInUpdatedItems, 1);
+      this.removedItems.push(item);
+      return;
+    }
+    const indexInInitialList = this.initialItems.findIndex((i) => i[this.key] === item[this.key]);
+    if (indexInInitialList !== -1) {
+      this.removedItems.push(item);
+    }
+  }
+
+  getCurrentItems(): T[] {
+    const filteredInitialItems = this.initialItems.filter((item) => {
+      const isRemoved = this.removedItems.some((i) => i[this.key] === item[this.key]);
+      const isUpdated = this.updatedItems.some((i) => i[this.key] === item[this.key]);
+      return !isRemoved && !isUpdated;
+    });
+    return [...filteredInitialItems, ...this.addedItems, ...this.updatedItems];
+  }
+}
+
+export type ListTrackerActions<T> = {
+  addItem: (item: T) => void;
+  updateItem: (item: T) => void;
+  removeItem: (item: T) => void;
+  getResult: () => ListTrackerResult<T>;
+  list: T[];
+};
+
+export type ListTrackerResult<T> = {
+  addedItems: T[];
+  updatedItems: T[];
+  removedItems: T[];
+};
+
+export function useListTracker<T>(initialList: T[], key: ComparableKey<T>): ListTrackerActions<T> {
+  const [listTracker, setListTracker] = useState(new ListTracker(initialList, key));
+  const [mergedItems, setMergedItems] = useState(listTracker.getCurrentItems());
+
+  useEffect(() => {
+    const listTracker = new ListTracker(initialList, key);
+    setListTracker(listTracker);
+    setMergedItems(listTracker.getCurrentItems());
+  }, [initialList, key]);
+
+  const addItem = (item: T) => {
+    listTracker.addItem(item);
+    setMergedItems(listTracker.getCurrentItems());
+  };
+
+  const updateItem = (item: T) => {
+    listTracker.updateItem(item);
+    setMergedItems(listTracker.getCurrentItems());
+  };
+
+  const removeItem = (item: T) => {
+    listTracker.removeItem(item);
+    setMergedItems(listTracker.getCurrentItems());
+  };
+
+  return {
+    list: mergedItems,
+    addItem,
+    updateItem,
+    removeItem,
+    getResult: () => ({
+      addedItems: listTracker.getAddedItems(),
+      updatedItems: listTracker.getUpdatedItems(),
+      removedItems: listTracker.getRemovedItems(),
+    }),
+  };
+}
+
+
+this is a custom hook for list maintainance 
+
+I want to add some functionality to the hook 
+
+i want it return one more field called isChanged which will be boolean and it should return true when there is some changed from the initial data otherwise it should return false
