@@ -1,52 +1,103 @@
+export const availableDnsDropdownExp = [
+  {
+    excpIpAddress: "10.0.0.0/8",
+    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.3.",
+  },
+  {
+    excpIpAddress: "172.16.0.0/12",
+    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4.",
+  },
+  {
+    excpIpAddress: "192.168.0.0/16",
+    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5.",
+  },
+  {
+    excpIpAddress: "127.0.0.0/8",
+    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.1.",
+  },
+];
 
-export const DnsServerView: React.FC<Props> = ({ data }) => {
-  return (
-    <>
-      <VZHeader
-        title="DNS Server"
-        breadcrumbData={[{ label: "Network Settings" }, { label: "DNS Server", destType: RouteType.DNS_SERV }]}
-      />
-      <VZBody noTopPadding>
-        <DnsServerDecs>Add, edit, or delete computers known by the router's DNS server</DnsServerDecs>
-        <Table>
-          <thead className="b">
-            <DnsServerTableRow className="border-0">
-              <td className="col-3 ps-0">Host Name</td>
-              <td className="col-3">IP Address</td>
-              <td className="col-4">Source</td>
-              <td className="col-2"></td>
-            </DnsServerTableRow>
-          </thead>
-          <tbody>
-            {data.dnsServerList.map((e) => (
-              <DnsServerTableRow key={`${e.objPath}`}>
-                <td className="col-3 ps-0">{e.hostname}</td>
-                <td className="col-3">{e.ipAddress}</td>
-                <td className="col-3">{convertDnsSourceToUIString(e.source)}</td>
-                <td className="col-2">
-                  <Row>
-                    <DnsServerTableActions>Edit</DnsServerTableActions>
-                    <DnsServerTableActions className="ps-0 ">Remove</DnsServerTableActions>
-                  </Row>
-                </td>
-              </DnsServerTableRow>
-            ))}
-          </tbody>
-        </Table>
-      </VZBody>
-    </>
-  );
-};
+this is my default avaiable options and i am writing a memo as shown below 
 
-Hi I as you see I have the table actions in which the property is 
+ const dropDownOptions = useMemo(() => {
 
-export const DnsServerTableActions = styled(Col)`
-  text-decoration: underline;
-  text-align: end;
-  &:hover {
-    cursor: pointer;
-  }
-`;
+  }, [list]);
 
-now whenever i want whenever i hover over the text edit then only the cursor should change to pointer but now currently with this code 
-cursor remains in pointer throughout the col width 
+  the functionailty to implement is that whenever something is ther in the list which is also present in the availble options then 
+  it should return the dropdown list with not that field 
+
+  for example:
+
+  list is [
+        {
+            "excpIPAddress": "::1/128",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
+        },
+        {
+            "excpIPAddress": "10.0.0.0/8",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.3."
+        },
+        {
+            "excpIPAddress": "192.168.0.0/16",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+        }
+    ]
+
+
+then memo should return me [
+  {
+    excpIpAddress: "172.16.0.0/12",
+    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4.",
+  },
+  {
+    excpIpAddress: "127.0.0.0/8",
+    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.1.",
+  },
+]
+
+suppose the list is [
+        {
+            "excpIPAddress": "127.0.0.0/8",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.1."
+        },
+        {
+            "excpIPAddress": "::1/128",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
+        },
+    ]
+
+    then it should return me [{
+            "excpIPAddress": "10.0.0.0/8",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.3."
+        },
+        {
+            "excpIPAddress": "172.16.0.0/12",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
+        },
+        {
+            "excpIPAddress": "192.168.0.0/16",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+        }]
+
+        suppose the list is [
+        {
+            "excpIPAddress": "::1/128",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.2."
+        },
+        
+    ]
+    then it should return me [ {
+            "excpIPAddress": "127.0.0.0/8",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.1."
+        },{
+            "excpIPAddress": "10.0.0.0/8",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.3."
+        },
+        {
+            "excpIPAddress": "172.16.0.0/12",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
+        },
+        {
+            "excpIPAddress": "192.168.0.0/16",
+            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+        }]
