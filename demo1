@@ -1,20 +1,8 @@
-export const availableDnsDropdownExp = [
-  {
-    excpIpAddress: "10.0.0.0/8",
-    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.3.",
-  },
-  {
-    excpIpAddress: "172.16.0.0/12",
-    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4.",
-  },
-  {
-    excpIpAddress: "192.168.0.0/16",
-    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5.",
-  },
-  {
-    excpIpAddress: "127.0.0.0/8",
-    objPath: "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.1.",
-  },
+export const availableExcpIPAddress = [
+   "10.0.0.0/8",
+   "172.16.0.0/12",
+    "192.168.0.0/16",
+    "127.0.0.0/8",
 ];
 
 this is my default avaiable options and i am writing a memo as shown below 
