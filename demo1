@@ -1,15 +1,52 @@
-Subject: Clarification Regarding Mohit's Withdrawal
 
-Hi Karthik,
+export const DnsServerView: React.FC<Props> = ({ data }) => {
+  return (
+    <>
+      <VZHeader
+        title="DNS Server"
+        breadcrumbData={[{ label: "Network Settings" }, { label: "DNS Server", destType: RouteType.DNS_SERV }]}
+      />
+      <VZBody noTopPadding>
+        <DnsServerDecs>Add, edit, or delete computers known by the router's DNS server</DnsServerDecs>
+        <Table>
+          <thead className="b">
+            <DnsServerTableRow className="border-0">
+              <td className="col-3 ps-0">Host Name</td>
+              <td className="col-3">IP Address</td>
+              <td className="col-4">Source</td>
+              <td className="col-2"></td>
+            </DnsServerTableRow>
+          </thead>
+          <tbody>
+            {data.dnsServerList.map((e) => (
+              <DnsServerTableRow key={`${e.objPath}`}>
+                <td className="col-3 ps-0">{e.hostname}</td>
+                <td className="col-3">{e.ipAddress}</td>
+                <td className="col-3">{convertDnsSourceToUIString(e.source)}</td>
+                <td className="col-2">
+                  <Row>
+                    <DnsServerTableActions>Edit</DnsServerTableActions>
+                    <DnsServerTableActions className="ps-0 ">Remove</DnsServerTableActions>
+                  </Row>
+                </td>
+              </DnsServerTableRow>
+            ))}
+          </tbody>
+        </Table>
+      </VZBody>
+    </>
+  );
+};
 
-I hope this message finds you well. I am writing to address the recent news regarding Mohit's decision to withdraw from the Software Engineer position.
+Hi I as you see I have the table actions in which the property is 
 
-I wanted to clarify that I was not aware of Mohit's decision to accept another offer and withdraw from the position at Global Logic. This move was unexpected, and I learned about it only after they had communicated their decision to the HR team.
+export const DnsServerTableActions = styled(Col)`
+  text-decoration: underline;
+  text-align: end;
+  &:hover {
+    cursor: pointer;
+  }
+`;
 
-I sincerely apologize for any inconvenience or disruption this may have caused. I had high hopes for Mohit's contribution to our team and believed they would have been a valuable addition to the organization.
-
-Please let me know if there is anything I can do to assist in the transition or in finding a suitable replacement. I remain committed to supporting Global Logic and ensuring a smooth recruitment process.
-
-Thank you for your understanding.
-
-Best regards,
+now whenever i want whenever i hover over the text edit then only the cursor should change to pointer but now currently with this code 
+cursor remains in pointer throughout the col width 
