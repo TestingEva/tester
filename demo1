@@ -1,20 +1,30 @@
-{
-    "addedItems": [
-        {
-            "excpIpAddress": "10.0.0.0/8",
-            "objPath": "10.0.0.0/8-0"
-        },
-        {
-            "excpIPAddress": "172.16.0.0/12",
-            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.4."
-        },
-        {
-            "excpIPAddress": "192.168.0.0/16",
-            "objPath": "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.5."
+class Solution {
+    public boolean check(int[] nums) {
+
+        return checkArray(nums,0,nums.length-1);
+    }
+    public boolean checkArray(int[] nums,int l,int r){
+        int m = (l+r)/2;
+        if(nums.length==2){
+            return nums[0]<=nums[1];
         }
-    ],
-    "updatedItems": [],
-    "removedItems": []
+        checkArray(nums,0,m);
+        checkArray(nums,m+1,r);
+    }
 }
 
-I want you to create a function which will take the added items as an param and will return a string[] like this ["10.0.0.0/8","172.16.0.0/12","192.168.0.0/16"]
+This is my java code for the following problem
+
+Given an array nums, return true if the array was originally sorted in non-decreasing order, then rotated some number of positions (including zero). Otherwise, return false.
+
+There may be duplicates in the original array.
+
+Input: nums = [3,4,5,1,2]
+Output: true
+Explanation: [1,2,3,4,5] is the original sorted array.
+You can rotate the array by x = 3 positions to begin on the the element of value 3: [3,4,5,1,2].
+
+
+Input: nums = [2,1,3,4]
+Output: false
+Explanation: There is no sorted array once rotated that can make nums.
