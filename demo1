@@ -1,12 +1,65 @@
-export const ExceptionIcon = styled.i.attrs({ className: "icon icon--plus" })<{ $top: React.CSSProperties,$right:React.CSSProperties }>`
-  position: absolute;
-  right: 2rem;
-  top: 2.3rem;
-  top: {}
-  padding: 7px 20px;
-  cursor: pointer;
-`;
+type ExceptionModalContentProps = {
+  webSiteExceptions: string[];
+  keywordExceptions: string[];
+};
+
+const ExceptionModalContent: React.FC<ExceptionModalContentProps> = ({ webSiteExceptions, keywordExceptions }) => {
+  return (
+    <>
+      <Col>
+        <label>Websites</label>
+        <Col>
+          <VZInputTextField
+            value={"data[0]"}
+            error={false}
+            onChange={(e) => {}}
+            placeHolder={"0"}
+            style={{ fontSize: "1rem", position: "relative" }}
+          />
+          <ExceptionIcon $right="2rem" $top="2.3rem" onClick={() => {}} />
+          <p style={{ color: "#6f7171" }}>Enter a URL like www.example.com</p>
+        </Col>
+      </Col>
+      <Col>
+        <label>Keywords</label>
+        <Col>
+          <VZInputTextField
+            value={"data[0]"}
+            error={false}
+            onChange={(e) => {}}
+            placeHolder={"0"}
+            style={{ fontSize: "1rem", position: "relative" }}
+          />
+          <ExceptionIcon $right="2rem" $top="8rem" onClick={() => {}} />
+          <p style={{ color: "#6f7171" }}>Enter a word that appears within a URL</p>
+        </Col>
+      </Col>
+      <ExceptionModalHeaderRow>
+        <ExceptionModalHeader className="col-7">Text</ExceptionModalHeader>
+        <ExceptionModalHeader className="col-3">Type</ExceptionModalHeader>
+        <ExceptionModalHeader>Actions</ExceptionModalHeader>
+      </ExceptionModalHeaderRow>
+      {webSiteExceptions.map((item, index) => (
+        <ExceptionModalRow key={index}>
+          <Col className="col-7">{item}</Col>
+          <Col className="col-3">URL</Col>
+          <Col onClick={() => {}}>Remove</Col>
+        </ExceptionModalRow>
+      ))}
+      {keywordExceptions.map((item, index) => (
+        <ExceptionModalRow key={index}>
+          <Col className="col-7">{item}</Col>
+          <Col className="col-3">Keyword</Col>
+          <Col onClick={() => {}}>Remove</Col>
+        </ExceptionModalRow>
+      ))}
+    </>
+  );
+};
 
 
+Hi so for this modal I have two input feilds and on click of the exceptions icon it should be added to the list if the 
+first exception icon is clicked then it should be added to the websiteException 
+and for the second exception Icon Click it should be added to the Keyword exception
 
-I want to make this icon such that i can give top and right in rem it should be applied to the component
+and on the remove it should be removed from the respective  list 
