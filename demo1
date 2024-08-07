@@ -1,3 +1,8 @@
- setPassword(e.target.value.replace(/^(?!\s+$)(?!^\s)(?!.*\s$).+$/g, ''))  
+const handlePassword = (e) => setPassword(e.target.value)
 
-I tried something like this and its not workign
+
+instead of directly setting the password i want it to get sanitized 
+if it start with the space replace the start space with '' 
+if it only have the spaces then replace the spaces by ''
+
+and also tell me what does the trim does
