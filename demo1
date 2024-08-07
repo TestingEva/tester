@@ -1,75 +1,12 @@
-This is my deviceList 
-
-[
-    {
-        "deviceType": "Desktop/Laptop",
-        "hostName": "C02D1672MD6M",
-        "ipAddress": "192.168.1.2",
-        "macAddress": "00:24:32:A0:D8:BE"
-    },
-    {
-        "deviceType": "Desktop/Laptop",
-        "hostName": "F8:8B:37:F3:E4:8F",
-        "ipAddress": "",
-        "macAddress": "F8:8B:37:F3:E4:8F"
-    },
-    {
-        "deviceType": "Desktop/Laptop",
-        "hostName": "F8:8B:37:F3:E9:B0",
-        "ipAddress": "",
-        "macAddress": "F8:8B:37:F3:E9:B0"
-    },
-    {
-        "deviceType": "Phone",
-        "hostName": "ROG-Phone-II-Sushant",
-        "ipAddress": "",
-        "macAddress": "EE:ED:0D:C7:8E:B8"
-    }
-]
-
-This is the selected DeviceList
-[
-    {
-        "deviceType": "Desktop/Laptop",
-        "hostName": "C02D1672MD6M",
-        "ipAddress": "192.168.1.2",
-        "macAddress": "00:24:32:A0:D8:BE"
-    }
-]
+export const ExceptionIcon = styled.i.attrs({ className: "icon icon--plus" })<{ $top: React.CSSProperties,$right:React.CSSProperties }>`
+  position: absolute;
+  right: 2rem;
+  top: 2.3rem;
+  top: {}
+  padding: 7px 20px;
+  cursor: pointer;
+`;
 
 
 
-type DeviceModalContentProps = {
-  deviceList: Ipv4DeviceInfo[];
-  selectedDevices: Ipv4DeviceInfo[];
-};
-
-const DeviceModalContent: React.FC<DeviceModalContentProps> = ({ deviceList, selectedDevices }) => {
-  console.log(deviceList, selectedDevices);
-  return (
-    <>
-      {deviceList.map((item) => (
-        <PCDeviceModalRow>
-          <Col className="col-1">
-            <DeviceIcon deviceType={item.deviceType} />
-          </Col>
-          <Col className="col-6">{item.hostName}</Col>
-          <Col className="col-3">{item.deviceType}</Col>
-          <Col className="col-2 d-flex justify-content-end">
-            <VZCheckbox checked={false} onChange={() => {}} />
-          </Col>
-        </PCDeviceModalRow>
-      ))}
-      <Col className="mt-4 text-center">
-        <VZButton onClick={() => {}} disabled={true}>
-          Apply
-        </VZButton>
-      </Col>
-    </>
-  );
-};
-
-
-This is the Device modal It should have all the devicesfrom the device List and 
-we also see there is a checkbox which should be selected when the deviceis present in the available list 
-suppose a user clicks on the checkbox which was not selected it should get added in the selectedDevicesList and viz verza if it was already present in the list it should be removed 
+I want to make this icon such that i can give top and right in rem it should be applied to the component
