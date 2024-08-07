@@ -306,12 +306,12 @@ type ScheduleModalContentProps = {
 
 const ScheduleModalContent: React.FC<ScheduleModalContentProps> = ({ schedule }) => {
   const [scheduleData, setScheduleData] = useState(schedule);
-
+  const isApplyButtonEnabled = useMemo(() => diff(schedule, scheduleData).length > 0, [schedule, scheduleData]);
   const timeOptions = useMemo(() => Array.from({ length: 24 }, (_, ind) => getUnixEpochUtc().hour(ind)), []);
 
   const onDayChange = (day: DayOfTheWeek, index: number) => {
-    const scheduleInfo = structuredClone(scheduleData);
-    const currentActiveDays = scheduleInfo[index].scheduleDays;
+    const newScheduleData = [...scheduleData];
+    const currentActiveDays = newScheduleData[index].scheduleDays;
     if (currentActiveDays.includes(day)) {
       const index = currentActiveDays.indexOf(day);
       currentActiveDays.splice(index, 1);
@@ -319,21 +319,21 @@ const ScheduleModalContent: React.FC<ScheduleModalContentProps> = ({ schedule })
       currentActiveDays.push(day);
     }
     currentActiveDays.sort();
-    scheduleInfo[index] = { ...scheduleData[index], scheduleDays: currentActiveDays };
-    setScheduleData(scheduleInfo);
+    newScheduleData[index] = { ...newScheduleData[index], scheduleDays: currentActiveDays };
+    setScheduleData(newScheduleData);
   };
 
   const onStartTimeSelect = (e: Dayjs, index: number) => {
-    // const scheduleList = scheduleData;
-    // let temp = structuredClone(scheduleList[index]);
-    // temp = { ...temp, startTime: e };
-    // scheduleList[index] = temp;
-    // setScheduleData(scheduleList);
-    scheduleData[index].startTime = e;
-    setScheduleData(scheduleData);
+    const newScheduleData = [...scheduleData];
+    newScheduleData[index] = { ...newScheduleData[index], startTime: e };
+    setScheduleData(newScheduleData);
   };
 
-  const onEndTimeSelect = (e: Dayjs, index: number) => {};
+  const onEndTimeSelect = (e: Dayjs, index: number) => {
+    const newScheduleData = [...scheduleData];
+    newScheduleData[index] = { ...newScheduleData[index], endTime: e };
+    setScheduleData(newScheduleData);
+  };
 
   return (
     <>
@@ -377,7 +377,7 @@ const ScheduleModalContent: React.FC<ScheduleModalContentProps> = ({ schedule })
         </React.Fragment>
       ))}
       <Col className="mt-4 text-center">
-        <VZButton onClick={() => {}} disabled={diff(scheduleData, schedule).length === 0}>
+        <VZButton onClick={() => {}} disabled={!isApplyButtonEnabled}>
           Apply
         </VZButton>
       </Col>
@@ -403,23 +403,8 @@ const PCModel: React.FC<PCModalProps> = ({ title, show, onClose, bodyStyle, cont
 
 
 
-In ScheduleModalcontent when i am trying to set the starttime I am unable to do that 
+with this code when my dropdown values are changing in the scheduleModal the apply button is enabled 
 
-here is how is the schedule
+but there is no effect of the days column 
 
-
-[
-    {
-        "scheduleDays": [
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6
-        ],
-        "startTime": "1970-01-01T02:00:00.000Z",
-        "endTime": "1970-01-01T00:00:00.000Z"
-    }
-]
+if there is any change in the days column its not getting impacted in the memo
