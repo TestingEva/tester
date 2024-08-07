@@ -25,55 +25,6 @@ export const initialParentalRuleCreateInfo: ParentalRuleModel = {
   selectedDevice: "Select",
 };
 
-import { Dayjs } from "dayjs";
-import diff from "microdiff";
-import React, { ReactNode, useMemo, useState } from "react";
-import { Col, Modal, Row } from "react-bootstrap";
-import { useParams } from "react-router-dom";
-import { useDevicesList } from "../../../domain/misc/hooks";
-import { DayOfTheWeek, Ipv4DeviceInfo, RouteType } from "../../../domain/misc/models";
-import { useParentalRule } from "../../../domain/parental/hooks";
-import { ScheduleInfo } from "../../../domain/scheduler-rules/models";
-import { getUnixEpochUtc } from "../../../domain/utils";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { useFormState } from "../../components/form";
-import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
-import { useLocator, useNavigator } from "../../components/navigator/navigator";
-import { OptionalComponent } from "../../components/OptionalComponent";
-import { DeviceIcon } from "../../components/UiIcons";
-import { VZBody } from "../../components/vz-body/VZBody";
-import { VZButton } from "../../components/vz-button/VZButton";
-import { VZCheckbox } from "../../components/vz-checkbox/VZCheckbox";
-import { VZDropdown } from "../../components/vz-dropdown/VZDropdown";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { VZInputTextField } from "../../components/vz-input/VZInput";
-import { VZModalBody, VZModalHeader } from "../../components/vz-modal/commonStyles";
-import { CloseableModalProps } from "../../components/vz-modal/props";
-import { getEnumValues } from "../../utils";
-import { ScheduleDayBox } from "../scheduler-rules/AddOrEditSchedule";
-import { getHours12 } from "../scheduler-rules/utils";
-import { ParentalRuleModel } from "./models";
-import {
-  ExceptionIcon,
-  ExceptionModalHeader,
-  ExceptionModalHeaderRow,
-  ExceptionModalRow,
-  PCButtonsRow,
-  PCDeviceAction,
-  PCDeviceDetail,
-  PCDeviceInfo,
-  PCDeviceModalRow,
-  PCDevicesHeading,
-  PCDevicesSecondaryHeader,
-} from "./styles";
-import {
-  convertParentalConditionToString,
-  initialParentalRuleCreateInfo,
-  initialParentalTemplate1CreateInfo,
-  initialParentalTemplate2CreateInfo,
-  initialParentalTemplate3CreateInfo,
-} from "./utils";
-
 export const AddEditParentalRules = () => {
   const {
     data: deviceList,
