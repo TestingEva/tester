@@ -1,3 +1,4 @@
+^(?!\s+$)(?!^\s)(?!.*\s$).+$
 Hi i have a input as password and i want it to follow the following rules 
 
 it should not start and end with " " 
