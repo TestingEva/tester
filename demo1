@@ -1,35 +1,8 @@
-Hi I have a modal named export type ParentalRuleModel = {
-  scheduleType: "Always" | "User defined";
-  selectedCondition: "Select" | boolean;
-  selectedDevice: "Select" | "User defined";
-} & CreateParentalRule
+ error.push(
+        `Policy: Profile name should consist of standard characters only (ASCII 32-126) excluding the special character space and any of :@"|/\=+<>()[]{}&%^$*?,};`
+      )
 
+for this one its throwing an error 
+Line 91:142:  Unnecessary escape character: \/  no-useless-escape
 
-type CreateParentalRule = {
-    enabled: boolean;
-    name: string;
-    devices: Ipv4DeviceInfo[];
-    schedule: ScheduleInfo[];
-    websiteExceptions: string[];
-    keywordExceptions: string[];
-    internetAccessible: boolean;
-}
-
-
-also i have a utility function which gives me the changed Values from the state
-
-the function will return Partial<ParentalRuleModel> for the feilds which have changed 
-
-now i want to check wether there is change in the currentState but the problem is that whenever there is some change in the scheduleType or selectedCondtion or selectedDEvices or any other params its getting recorded but i want to ignore the check for them in Object 
-
-const isApplyButtonEnabled = useMemo(() => {
-    if (object.keys(changedValue).length===0) {
-      return false;
-    }
-
-    return true;
-  }, [currentState, changedValues]);
-
-here is the code 
-
-whenever schedule type or selectedCondition or selectedDEveices are present in the object the condition fails my statement
+how to fix this
