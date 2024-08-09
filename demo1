@@ -1,8 +1,8 @@
- error.push(
-        `Policy: Profile name should consist of standard characters only (ASCII 32-126) excluding the special character space and any of :@"|/\=+<>()[]{}&%^$*?,};`
-      )
+setSelectedDevices((prevState) => {
+      if (prevState.some((item) => item.macAddress === device.macAddress)) {
+        return prevState.filter((item) => item.macAddress !== device.macAddress);
+      }
+      return [...prevState, device];
+    });
 
-for this one its throwing an error 
-Line 91:142:  Unnecessary escape character: \/  no-useless-escape
-
-how to fix this
+what is the reason for setting the data like this in the state rather than directly setting the data 
