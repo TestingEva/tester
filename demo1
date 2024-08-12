@@ -1,8 +1,142 @@
-setSelectedDevices((prevState) => {
-      if (prevState.some((item) => item.macAddress === device.macAddress)) {
-        return prevState.filter((item) => item.macAddress !== device.macAddress);
-      }
-      return [...prevState, device];
-    });
+import { useState } from "react";
+import { Col } from "react-bootstrap";
+import { DeviceTrafficStats } from "../../../domain/bandwidth-monitoring/models";
+import { OptionalComponent } from "../../components/OptionalComponent";
+import { DeviceIcon } from "../../components/UiIcons";
+import {
+  BandwidthMonitoringTableComponentHeaderRow,
+  BandwidthMonitoringTableComponentRow,
+  BMLanTableRow,
+  BWActionIcon,
+} from "./styles";
+import { convertDataSizeToString } from "./utils";
 
-what is the reason for setting the data like this in the state rather than directly setting the data 
+type Props = {
+  deviceStat: DeviceTrafficStats;
+};
+
+export const BandwidthMonitoringTable: React.FC<Props> = ({ deviceStat }) => {
+  const [showStats, setShowStats] = useState(false);
+  return (
+    <>
+      <BMLanTableRow>
+        <td className="col-5 ps-0">
+          <Col className=" d-flex align-items-end">
+            <Col className="col-3">
+              <DeviceIcon deviceType={deviceStat.deviceType} />
+            </Col>
+            <Col>{deviceStat.deviceName}</Col>
+          </Col>
+        </td>
+        <td className="col-lg-4 col-sm-3">{deviceStat.ipv4Address}</td>
+        <td className="col-lg-2 col-sm-3">{convertDataSizeToString(deviceStat.totalUsage)}</td>
+        <td className="text-end col-1 ">
+          <BWActionIcon
+            className="icon icon--arrow"
+            onClick={() => setShowStats((prev) => !prev)}
+            $isOpen={showStats}
+          ></BWActionIcon>
+        </td>
+      </BMLanTableRow>
+      <OptionalComponent show={showStats}>
+        <BandwidthMonitoringTableComponentHeaderRow className="align-middle">
+          <td className="col-5 ps-0">
+            <Col className=" d-flex">
+              <Col className="col-3" lg={3} xs={5}>
+                Usage
+              </Col>
+              <Col xs={4} sm={4} lg={5}>
+                1hr
+              </Col>
+              <Col className="col-4">12hr</Col>
+            </Col>
+          </td>
+          <td className="col-lg-4 col-sm-3">
+            <Col className=" d-flex align-items-center">
+              <Col className="col-6">24hr</Col>
+              <Col className="col-6">1 Week</Col>
+            </Col>
+          </td>
+          <td className="col-lg-2 col-sm-3">1 Month</td>
+          <td></td>
+        </BandwidthMonitoringTableComponentHeaderRow>
+        <tr className="align-middle">
+          <td className="col-5 ps-0">
+            <Col className=" d-flex align-items-center">
+              <Col className="col-3" lg={3} xs={5}>
+                Upload
+              </Col>
+              <Col xs={4} sm={4} lg={5}>
+                {convertDataSizeToString(deviceStat.upload.oneHour)}
+              </Col>
+              <Col className="col-4">{convertDataSizeToString(deviceStat.upload.halfADay)}</Col>
+            </Col>
+          </td>
+          <td className="col-lg-4 col-sm-3">
+            <Col className=" d-flex">
+              <Col className="col-6">{convertDataSizeToString(deviceStat.upload.oneDay)}</Col>
+              <Col className="col-6">{convertDataSizeToString(deviceStat.upload.oneWeek)}</Col>
+            </Col>
+          </td>
+          <td className="col-lg-2 col-sm-3">{convertDataSizeToString(deviceStat.upload.oneMonth)}</td>
+          <td></td>
+        </tr>
+        <BandwidthMonitoringTableComponentRow className="align-middle">
+          <td className="col-5 ps-0">
+            <Col className=" d-flex">
+              <Col className="col-3" lg={3} xs={5}>
+                Download
+              </Col>
+              <Col xs={4} sm={4} lg={5}>
+                {convertDataSizeToString(deviceStat.download.oneHour)}
+              </Col>
+              <Col className="col-4">{convertDataSizeToString(deviceStat.download.halfADay)}</Col>
+            </Col>
+          </td>
+          <td className="col-lg-4 col-sm-3">
+            <Col className=" d-flex align-items-center">
+              <Col className="col-6">{convertDataSizeToString(deviceStat.download.oneDay)}</Col>
+              <Col className="col-6">{convertDataSizeToString(deviceStat.download.oneWeek)}</Col>
+            </Col>
+          </td>
+          <td className="col-lg-2 col-sm-3">{convertDataSizeToString(deviceStat.download.oneMonth)}</td>
+          <td></td>
+        </BandwidthMonitoringTableComponentRow>
+      </OptionalComponent>
+    </>
+  );
+};
+
+
+import styled from "styled-components";
+
+export const BandwidthMonitoringTableRow = styled.tr`
+  font-size: 0.813rem;
+`;
+
+export const BandwidthMonitoringTableComponentHeaderRow = styled.tr`
+  border-top: 2px solid #d52b1e;
+  border-bottom: 2px solid #000;
+`;
+
+export const BandwidthMonitoringTableComponentRow = styled.tr`
+  border-bottom: 2px solid #000;
+`;
+
+export const BMLanTableRow = styled.tr`
+  height: 4rem;
+  vertical-align: middle;
+`;
+
+export const BMSortingIcons = styled.div<{ $isFirst?: boolean }>`
+  margin-left: -1.5rem;
+  margin-right: 0.875rem;
+  ${(props) => props.$isFirst && { marginLeft: "-0.875rem !important", marginRight: "0.5rem !important" }};
+`;
+
+export const BWActionIcon = styled.span<{ $isOpen: boolean }>`
+  cursor: pointer;
+`;
+
+
+did you see the BWActionIcon in the above code, thats an arrow and i want to just rotate on Click 
