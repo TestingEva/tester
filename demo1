@@ -1,7 +1,3 @@
-Argument of type 'string | number | boolean | Dayjs | undefined' is not assignable to parameter of type 'never'.
-  Type 'undefined' is not assignable to type 'never'.
-
-getting the above error from the following code 
 import { NetworkConnectionsInfo } from "../../../domain/system-wide-connections/models";
 
 type NwConnUIInfo = {
@@ -16,8 +12,15 @@ export function covertNwConnInfoToNwConnUIInfo(data: NetworkConnectionsInfo[]): 
       if (!result[nwKey]) {
         result[nwKey] = [];
       }
-      result[nwKey].push(item[nwKey]);// error comes from here
+      result[nwKey].push(item[nwKey] as NetworkConnectionsInfo[typeof nwKey]);
     });
   });
   return result;
 }
+
+see i am getting the same issue and also in you above implementation you were neglecting undefined values but i dont want that i want what you get in the input just convert it into the format requested 
+
+Argument of type 'string | number | boolean | Dayjs | undefined' is not assignable to parameter of type 'never'.
+  Type 'undefined' is not assignable to type 'never'.
+
+the above error i am getting at line 15 
