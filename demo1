@@ -1,122 +1,247 @@
-import { useEffect, useMemo, useState } from "react";
-import { Col } from "react-bootstrap";
-import { useAutoRefreshStatus } from "../../../domain/misc/hooks";
-import { RouteType } from "../../../domain/misc/models";
-import { useSystemWideConnInfo } from "../../../domain/system-wide-connections/hooks";
-import { NetworkConnectionsInfo } from "../../../domain/system-wide-connections/models";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
-import { VZBody } from "../../components/vz-body/VZBody";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { VZToggleButton } from "../../components/vz-toggle-button/VZToggleButton";
-import { setOptionalClass } from "../../utils";
-import { SystemWideTable, SystemWideTableContainer, SystemWideTableRow } from "./styles";
-import { covertNwConnInfoToNwConnUIInfo, NwConnUIInfo } from "./utils";
+export function convertNetworkConnectionDataToInfo(data: NetworkConnectionData[]): NetworkConnectionsInfo[] {
+  
+}
 
-export const SystemWideConnections = () => {
-  const { data: autoRefreshStatus } = useAutoRefreshStatus();
-  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false);
-  const { data, isPending, isError } = useSystemWideConnInfo(isAutoRefreshEnabled);
 
-  useEffect(() => {
-    if (autoRefreshStatus !== undefined) {
-      setIsAutoRefreshEnabled(autoRefreshStatus);
+data is [
+    {
+        "alias": "2GHz",
+        "connType": "2.4 GHz Wi-Fi Access Point",
+        "name": "2.4 GHz Wi-Fi Access Point",
+        "network": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F7",
+        "rxPackets": 0,
+        "txPackets": 0,
+        "upTime": 69,
+        "status": false,
+        "enable": true
+    },
+    {
+        "alias": "5GHz",
+        "connType": "5 GHz Wi-Fi Access Point",
+        "name": "5 GHz Wi-Fi Access Point",
+        "network": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F8",
+        "rxPackets": 2234,
+        "txPackets": 3594,
+        "upTime": 68,
+        "status": true,
+        "enable": true
+    },
+    {
+        "alias": "6GHz",
+        "connType": "6 GHz Wi-Fi Access Point",
+        "name": "6 GHz Wi-Fi Access Point",
+        "network": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F9",
+        "rxPackets": 0,
+        "txPackets": 0,
+        "upTime": 61,
+        "status": false,
+        "enable": true
+    },
+    {
+        "DHCPEnable": 1,
+        "DNSServers": "192.168.1.1",
+        "IPAddress": "192.168.1.1",
+        "LeaseTime": 86400,
+        "MaxAddress": "192.168.1.254",
+        "MinAddress": "192.168.1.2",
+        "SubnetMask": "255.255.255.0",
+        "ipv4DefaultGateway": "192.168.1.1",
+        "ipv6Prefix": "",
+        "ipv6Address": "",
+        "linkLocalAdd": "fe80::ae91:9bff:fe3a:5ff3",
+        "winsServer": "",
+        "alias": "lan",
+        "connType": "Network (Home/Office)",
+        "network": "Network (Home/Office)",
+        "name": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F3",
+        "rxPackets": 0,
+        "txPackets": 0,
+        "upTime": 115,
+        "status": true,
+        "ipv6Protocol": "Stateful"
+    },
+    {
+        "alias": "ethernet",
+        "connType": "Ethernet",
+        "name": "10GE_LAN",
+        "network": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F2",
+        "mtu": 1500,
+        "mtuType": 1,
+        "rxPackets": 86,
+        "txPackets": 288,
+        "upTime": 110,
+        "status": true,
+        "enable": true,
+        "hwSwitchPort": [
+            {
+                "LAN_1": "Disconnected",
+                "LAN_10GE": "1000 Mbps",
+                "LAN_2": "Disconnected"
+            }
+        ]
+    },
+    {
+        "alias": "coax",
+        "connType": "Coax",
+        "name": "Coax",
+        "network": "Network (Home/Office)",
+        "macAddress": "01:02:03:04:05:06",
+        "mtu": 1500,
+        "mtuType": 1,
+        "rxPackets": 0,
+        "txPackets": 0,
+        "upTime": 84,
+        "status": false,
+        "enable": 1,
+        "privacy": false,
+        "password": "99999999988888888"
+    },
+    {
+        "alias": "broadband",
+        "connType": "Broadband Connection (Ethernet)",
+        "network": "Broadband Connection (Ethernet)",
+        "name": "Broadband Connection (Ethernet)",
+        "macAddress": "AC:91:9B:3A:5F:F2",
+        "mtu": 1500,
+        "mtuType": 1,
+        "rxPackets": 0,
+        "txPackets": 0,
+        "upTime": 115,
+        "status": true,
+        "enable": true,
+        "subnetMask": "255.255.255.0",
+        "ipv4Address": "10.76.216.180",
+        "ipv4DNSAddress1": "208.52.253.24",
+        "ipv4DNSAddress2": "208.52.253.88",
+        "ipv4DefaultGateway": "10.76.216.1",
+        "ipv4Protocol": "DHCP",
+        "ipv6Address": "2001:df0:226:57::1",
+        "ipv6LinkLocalAdd": "fe80::ae91:9bff:fe3a:5ff2",
+        "wanIpv4DNSType": 0,
+        "internetProtocol": 1,
+        "isFirewall": 1,
+        "isOverwriteSubnet": false,
+        "overwriteSubnet": ""
     }
-  }, [autoRefreshStatus]);
+]
 
-  if (isError) {
-    return <ErrorIndicator />;
+
+and for your reference 
+
+type NetworkConnectionsInfo = {
+  name: string;
+  status: boolean;
+  underLyingDevice: string;
+  connectionType: string | undefined;
+  macAddress: string;
+  ipv4Address: string;
+  subnetMask: string;
+  ipv4DefaultGateway: string;
+  ipv4DnsAddress_1: string;
+  ipv4DnsAddress_2: string;
+  ipv4AddressDist: DhcpEnabled;
+  ipv6Prefix: string;
+  ipv6Address: string;
+  ipv6LinkLocalAddress: string;
+  ipv6DnsAddress_1: string;
+  ipv6DnsAddress_2: string;
+  ipv6AddressDist: Ipv6ServiceType | "Disable";
+  recvPackets: number;
+  sendPackets: number;
+  recvBytes: number;
+  sendBytes: number;
+  recvErrors: number;
+  recvDrops: number;
+  timeSpan: Dayjs;
+};
+
+
+type BaseConnectionData = {
+  alias: "2GHz" | "5GHz" | "5GHz-2" | "6GHz" | "lan" | "eth" | "coax" | "broadband";
+  connType:
+    | "Network (Home/Office)"
+    | "Broadband Connection (Ethernet)"
+    | "2.4 GHz Wi-Fi Access Point"
+    | "5 GHz Wi-Fi Access Point"
+    | "5 GHz-2 Wi-Fi Access Point"
+    | "6 GHz Wi-Fi Access Point"
+    | "Coax"
+    | "Ethernet";
+  name: string;
+  network: "Broadband Connection (Ethernet)" | "Network (Home/Office)";
+  macAddress: string;
+  mtu?: number;
+  mtuType?: number;
+  rxPackets: number;
+  txPackets: number;
+  upTime: number;
+  status: boolean;
+};
+
+export type LanConnectionData = {
+  DHCPEnable: number;
+  DNSServers: string;
+  IPAddress: string;
+  LeaseTime: number;
+  MaxAddress: string;
+  MinAddress: string;
+  SubnetMask: string;
+  ipv6Prefix: string;
+  ipv6Address: string;
+  linkLocalAdd: string;
+  ipv6Protocol: "Stateless" | "Stateful";
+  winsServer: string;
+} & BaseConnectionData;
+
+export type WanConnectionData = {
+  enable: boolean;
+  subnetMask: string;
+  ipv4Address: string;
+  ipv4DNSAddress1?: string;
+  ipv4DNSAddress2?: string;
+  ipv4DefaultGateway: string;
+  ipv4Protocol: string;
+  ipv6Address: string;
+  ipv6DNSAddress1: string;
+  ipv6DNSAddress2?: string;
+  ipv6LinkLocalAdd: string;
+} & BaseConnectionData;
+
+export type WifiConnectionData = {
+  enable: boolean;
+} & BaseConnectionData;
+
+export type CoaxConnectionData = {
+  enable: number;
+  privacy: boolean;
+  password: string;
+} & BaseConnectionData;
+
+export type EthConnectionData = {
+  enable: boolean;
+  hwSwitchPort: EthPortData;
+} & BaseConnectionData;
+
+export type EthPortData = [
+  {
+    LAN_1: string;
+    LAN_10GE: string;
+    LAN_2: string;
   }
+];
 
-  if (isPending || data === undefined) {
-    return <LoadingIndicator />;
-  }
-
-  return (
-    <>
-      <VZHeader
-        title="System-wide Connections"
-        breadcrumbData={[
-          { label: "Diagnostics & Monitoring" },
-          { label: "System-wide Connections", destType: RouteType.SYS_WIDE_CONN },
-        ]}
-        rightBody={
-          <Col className="col-8 d-flex align-items-center gap-3 m-1 ">
-            <label>{"Auto-refresh"}</label>
-            <VZToggleButton checked={isAutoRefreshEnabled} onChange={() => setIsAutoRefreshEnabled((prev) => !prev)} />
-          </Col>
-        }
-      />
-      <VZBody noTopPadding>
-        <SystemWideConnectionsView data={data} />
-      </VZBody>
-    </>
-  );
-};
-
-type Props = {
-  data: NetworkConnectionsInfo[];
-};
-
-const SystemWideConnectionsView: React.FC<Props> = ({ data }) => {
-  const uiData: NwConnUIInfo = useMemo(() => {
-    return covertNwConnInfoToNwConnUIInfo(data);
-  }, [data]);
-  return (
-    <div className="d-flex" style={{ minWidth: "600px" }}>
-      <SystemWideTableContainer>
-        <SystemWideTable>
-          <tbody>
-            <SystemWideConnTableData title="Name" isHeader />
-            <SystemWideConnTableData title="Status" />
-            <SystemWideConnTableData title="Underlying Device" />
-            <SystemWideConnTableData title="Connection Type" />
-            <SystemWideConnTableData title="MAC Address" />
-            <SystemWideConnTableData title="IPv4 Address" />
-            <SystemWideConnTableData title="Subnet Mask" />
-            <SystemWideConnTableData title="IPv4 Default Gateway" />
-            <SystemWideConnTableData title="IPv4 DNS  Address 1" />
-            <SystemWideConnTableData title="IPv4 DNS  Address 2" />
-            <SystemWideConnTableData title="IPv4 Address Distritn." />
-            <SystemWideConnTableData title="IPv6 Prefix" />
-            <SystemWideConnTableData title="IPv6 Address" />
-            <SystemWideConnTableData title="IPv6 Link-Local Address" />
-            <SystemWideConnTableData title="IPv6 DNS  Address 1" />
-            <SystemWideConnTableData title="IPv6 DNS  Address 2" />
-            <SystemWideConnTableData title="IPv6 Address Distritn." />
-            <SystemWideConnTableData title="Rec'd Packets" />
-            <SystemWideConnTableData title="Sent Packets" />
-            <SystemWideConnTableData title="Rec'd Bytes" />
-            <SystemWideConnTableData title="Sent'd Bytes" />
-            <SystemWideConnTableData title="Rec'd Errors" />
-            <SystemWideConnTableData title="Rec'd Drops" />
-            <SystemWideConnTableData title="Time Span" />
-          </tbody>
-        </SystemWideTable>
-      </SystemWideTableContainer>
-    </div>
-  );
-};
-
-type SystemWideTableProps = {
-  title: string;
-  isHeader?: boolean;
-};
-
-const SystemWideConnTableData: React.FC<SystemWideTableProps> = ({ title, isHeader }) => {
-  return (
-    <SystemWideTableRow className={setOptionalClass("border-0 b", isHeader)}>
-      <td className="ps-0 b">{title}</td>
-      <td>Hello</td>
-      <td>Hello</td>
-      <td>Hello</td>
-      <td>Hello</td>
-      <td>Hello</td>
-      <td>Hello</td>
-      <td>Hello</td>
-    </SystemWideTableRow>
-  );
-};
+export type NetworkConnectionData =
+  | LanConnectionData
+  | WanConnectionData
+  | WifiConnectionData
+  | CoaxConnectionData
+  | EthConnectionData;
 
 
-Now i want to populate this table data using the ui data which is recived from the function you created 
+
+now i want you to complete the function properly 
