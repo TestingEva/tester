@@ -1,171 +1,32 @@
-[
-    {
-        "name": "string",
-        "status": false,
-        "underLyingDevice": "string",
-        "connectionType": "undefined",
-        "macAddress": "1341141",
-        "ipv4Address": "string",
-        "subnetMask": "string",
-        "ipv4DefaultGateway": "string",
-        "ipv4DnsAddress_1": "string",
-        "ipv4DnsAddress_2": "string",
-        "ipv4AddressDist": 1,
-        "ipv6Prefix": "string",
-        "ipv6Address": "string",
-        "ipv6LinkLocalAddress": "string",
-        "ipv6DnsAddress_1": "string",
-        "ipv6DnsAddress_2": "string",
-        "ipv6AddressDist": 0,
-        "recvPackets": 0,
-        "sendPackets": 0,
-        "recvBytes": 0,
-        "sendBytes": 0,
-        "recvErrors": 0,
-        "recvDrops": 0,
-        "timeSpan": "2024-08-16T06:35:32.583Z"
-    },
-    {
-        "name": "string",
-        "status": false,
-        "underLyingDevice": "string",
-        "connectionType": "undefined",
-        "macAddress": "1341141",
-        "ipv4Address": "string",
-        "subnetMask": "string",
-        "ipv4DefaultGateway": "string",
-        "ipv4DnsAddress_1": "string",
-        "ipv4DnsAddress_2": "string",
-        "ipv4AddressDist": 1,
-        "ipv6Prefix": "string",
-        "ipv6Address": "string",
-        "ipv6LinkLocalAddress": "string",
-        "ipv6DnsAddress_1": "string",
-        "ipv6DnsAddress_2": "string",
-        "ipv6AddressDist": 0,
-        "recvPackets": 0,
-        "sendPackets": 0,
-        "recvBytes": 0,
-        "sendBytes": 0,
-        "recvErrors": 0,
-        "recvDrops": 0,
-        "timeSpan": "2024-08-16T06:35:32.583Z"
-    },
-    {
-        "name": "string",
-        "status": false,
-        "underLyingDevice": "string",
-        "connectionType": "undefined",
-        "macAddress": "1341141",
-        "ipv4Address": "string",
-        "subnetMask": "string",
-        "ipv4DefaultGateway": "string",
-        "ipv4DnsAddress_1": "string",
-        "ipv4DnsAddress_2": "string",
-        "ipv4AddressDist": 1,
-        "ipv6Prefix": "string",
-        "ipv6Address": "string",
-        "ipv6LinkLocalAddress": "string",
-        "ipv6DnsAddress_1": "string",
-        "ipv6DnsAddress_2": "string",
-        "ipv6AddressDist": 0,
-        "recvPackets": 0,
-        "sendPackets": 0,
-        "recvBytes": 0,
-        "sendBytes": 0,
-        "recvErrors": 0,
-        "recvDrops": 0,
-        "timeSpan": "2024-08-16T06:35:32.583Z"
-    },
-    {
-        "name": "string",
-        "status": false,
-        "underLyingDevice": "string",
-        "connectionType": "undefined",
-        "macAddress": "1341141",
-        "ipv4Address": "string",
-        "subnetMask": "string",
-        "ipv4DefaultGateway": "string",
-        "ipv4DnsAddress_1": "string",
-        "ipv4DnsAddress_2": "string",
-        "ipv4AddressDist": 1,
-        "ipv6Prefix": "string",
-        "ipv6Address": "string",
-        "ipv6LinkLocalAddress": "string",
-        "ipv6DnsAddress_1": "string",
-        "ipv6DnsAddress_2": "string",
-        "ipv6AddressDist": 0,
-        "recvPackets": 0,
-        "sendPackets": 0,
-        "recvBytes": 0,
-        "sendBytes": 0,
-        "recvErrors": 0,
-        "recvDrops": 0,
-        "timeSpan": "2024-08-16T06:35:32.583Z"
-    },
-    {
-        "name": "string",
-        "status": false,
-        "underLyingDevice": "string",
-        "connectionType": "undefined",
-        "macAddress": "1341141",
-        "ipv4Address": "string",
-        "subnetMask": "string",
-        "ipv4DefaultGateway": "string",
-        "ipv4DnsAddress_1": "string",
-        "ipv4DnsAddress_2": "string",
-        "ipv4AddressDist": 1,
-        "ipv6Prefix": "string",
-        "ipv6Address": "string",
-        "ipv6LinkLocalAddress": "string",
-        "ipv6DnsAddress_1": "string",
-        "ipv6DnsAddress_2": "string",
-        "ipv6AddressDist": 0,
-        "recvPackets": 0,
-        "sendPackets": 0,
-        "recvBytes": 0,
-        "sendBytes": 0,
-        "recvErrors": 0,
-        "recvDrops": 0,
-        "timeSpan": "2024-08-16T06:35:32.583Z"
-    },
-    {
-        "name": "string",
-        "status": false,
-        "underLyingDevice": "string",
-        "connectionType": "undefined",
-        "macAddress": "1341141",
-        "ipv4Address": "string",
-        "subnetMask": "string",
-        "ipv4DefaultGateway": "string",
-        "ipv4DnsAddress_1": "string",
-        "ipv4DnsAddress_2": "string",
-        "ipv4AddressDist": 1,
-        "ipv6Prefix": "string",
-        "ipv6Address": "string",
-        "ipv6LinkLocalAddress": "string",
-        "ipv6DnsAddress_1": "string",
-        "ipv6DnsAddress_2": "string",
-        "ipv6AddressDist": 0,
-        "recvPackets": 0,
-        "sendPackets": 0,
-        "recvBytes": 0,
-        "sendBytes": 0,
-        "recvErrors": 0,
-        "recvDrops": 0,
-        "timeSpan": "2024-08-16T06:35:32.583Z"
-    }
-]
+you did a great job but we are not using any as a type interace in our code 
 
-this is the response i am getting from the backend and i need to convert the response in some different format 
-before starting this array may have a vary length and your solution should support this 
+for your better understanding the type of the data input will be NetworkConnectionsInfo[]
 
-so write a function which takes the above arrray as a input and return me the reposne in the following format 
+type NetworkConnectionsInfo = {
+  name: string;
+  status: boolean;
+  underLyingDevice: string;
+  connectionType: string | undefined;
+  macAddress: string;
+  ipv4Address: string;
+  subnetMask: string;
+  ipv4DefaultGateway: string;
+  ipv4DnsAddress_1: string;
+  ipv4DnsAddress_2: string;
+  ipv4AddressDist: DhcpEnabled;
+  ipv6Prefix: string;
+  ipv6Address: string;
+  ipv6LinkLocalAddress: string;
+  ipv6DnsAddress_1: string;
+  ipv6DnsAddress_2: string;
+  ipv6AddressDist: Ipv6ServiceType;
+  recvPackets: number;
+  sendPackets: number;
+  recvBytes: number;
+  sendBytes: number;
+  recvErrors: number;
+  recvDrops: number;
+  timeSpan: Dayjs;
+};
 
-{
-name:[all the names from the above array ] for example ["string","string",and so on ]
-status:[all the statuses ]
-
-and like that do it for all the KEYS
-
-}
+and you should also give the output to be of the type constructed from the above type
