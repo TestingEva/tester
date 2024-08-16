@@ -1,26 +1,122 @@
+import { useEffect, useMemo, useState } from "react";
+import { Col } from "react-bootstrap";
+import { useAutoRefreshStatus } from "../../../domain/misc/hooks";
+import { RouteType } from "../../../domain/misc/models";
+import { useSystemWideConnInfo } from "../../../domain/system-wide-connections/hooks";
 import { NetworkConnectionsInfo } from "../../../domain/system-wide-connections/models";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { VZBody } from "../../components/vz-body/VZBody";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { VZToggleButton } from "../../components/vz-toggle-button/VZToggleButton";
+import { setOptionalClass } from "../../utils";
+import { SystemWideTable, SystemWideTableContainer, SystemWideTableRow } from "./styles";
+import { covertNwConnInfoToNwConnUIInfo, NwConnUIInfo } from "./utils";
 
-type NwConnUIInfo = {
-  [K in keyof NetworkConnectionsInfo]: NetworkConnectionsInfo[K][];
+export const SystemWideConnections = () => {
+  const { data: autoRefreshStatus } = useAutoRefreshStatus();
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(false);
+  const { data, isPending, isError } = useSystemWideConnInfo(isAutoRefreshEnabled);
+
+  useEffect(() => {
+    if (autoRefreshStatus !== undefined) {
+      setIsAutoRefreshEnabled(autoRefreshStatus);
+    }
+  }, [autoRefreshStatus]);
+
+  if (isError) {
+    return <ErrorIndicator />;
+  }
+
+  if (isPending || data === undefined) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <>
+      <VZHeader
+        title="System-wide Connections"
+        breadcrumbData={[
+          { label: "Diagnostics & Monitoring" },
+          { label: "System-wide Connections", destType: RouteType.SYS_WIDE_CONN },
+        ]}
+        rightBody={
+          <Col className="col-8 d-flex align-items-center gap-3 m-1 ">
+            <label>{"Auto-refresh"}</label>
+            <VZToggleButton checked={isAutoRefreshEnabled} onChange={() => setIsAutoRefreshEnabled((prev) => !prev)} />
+          </Col>
+        }
+      />
+      <VZBody noTopPadding>
+        <SystemWideConnectionsView data={data} />
+      </VZBody>
+    </>
+  );
 };
 
-export function covertNwConnInfoToNwConnUIInfo(data: NetworkConnectionsInfo[]): NwConnUIInfo {
-  const result = {} as NwConnUIInfo;
-  data.forEach((item) => {
-    Object.keys(item).forEach((key) => {
-      const nwKey = key as keyof NetworkConnectionsInfo;
-      if (!result[nwKey]) {
-        result[nwKey] = [];
-      }
-      result[nwKey].push(item[nwKey] as NetworkConnectionsInfo[typeof nwKey]);
-    });
-  });
-  return result;
-}
+type Props = {
+  data: NetworkConnectionsInfo[];
+};
 
-see i am getting the same issue and also in you above implementation you were neglecting undefined values but i dont want that i want what you get in the input just convert it into the format requested 
+const SystemWideConnectionsView: React.FC<Props> = ({ data }) => {
+  const uiData: NwConnUIInfo = useMemo(() => {
+    return covertNwConnInfoToNwConnUIInfo(data);
+  }, [data]);
+  return (
+    <div className="d-flex" style={{ minWidth: "600px" }}>
+      <SystemWideTableContainer>
+        <SystemWideTable>
+          <tbody>
+            <SystemWideConnTableData title="Name" isHeader />
+            <SystemWideConnTableData title="Status" />
+            <SystemWideConnTableData title="Underlying Device" />
+            <SystemWideConnTableData title="Connection Type" />
+            <SystemWideConnTableData title="MAC Address" />
+            <SystemWideConnTableData title="IPv4 Address" />
+            <SystemWideConnTableData title="Subnet Mask" />
+            <SystemWideConnTableData title="IPv4 Default Gateway" />
+            <SystemWideConnTableData title="IPv4 DNS  Address 1" />
+            <SystemWideConnTableData title="IPv4 DNS  Address 2" />
+            <SystemWideConnTableData title="IPv4 Address Distritn." />
+            <SystemWideConnTableData title="IPv6 Prefix" />
+            <SystemWideConnTableData title="IPv6 Address" />
+            <SystemWideConnTableData title="IPv6 Link-Local Address" />
+            <SystemWideConnTableData title="IPv6 DNS  Address 1" />
+            <SystemWideConnTableData title="IPv6 DNS  Address 2" />
+            <SystemWideConnTableData title="IPv6 Address Distritn." />
+            <SystemWideConnTableData title="Rec'd Packets" />
+            <SystemWideConnTableData title="Sent Packets" />
+            <SystemWideConnTableData title="Rec'd Bytes" />
+            <SystemWideConnTableData title="Sent'd Bytes" />
+            <SystemWideConnTableData title="Rec'd Errors" />
+            <SystemWideConnTableData title="Rec'd Drops" />
+            <SystemWideConnTableData title="Time Span" />
+          </tbody>
+        </SystemWideTable>
+      </SystemWideTableContainer>
+    </div>
+  );
+};
 
-Argument of type 'string | number | boolean | Dayjs | undefined' is not assignable to parameter of type 'never'.
-  Type 'undefined' is not assignable to type 'never'.
+type SystemWideTableProps = {
+  title: string;
+  isHeader?: boolean;
+};
 
-the above error i am getting at line 15 
+const SystemWideConnTableData: React.FC<SystemWideTableProps> = ({ title, isHeader }) => {
+  return (
+    <SystemWideTableRow className={setOptionalClass("border-0 b", isHeader)}>
+      <td className="ps-0 b">{title}</td>
+      <td>Hello</td>
+      <td>Hello</td>
+      <td>Hello</td>
+      <td>Hello</td>
+      <td>Hello</td>
+      <td>Hello</td>
+      <td>Hello</td>
+    </SystemWideTableRow>
+  );
+};
+
+
+Now i want to populate this table data using the ui data which is recived from the function you created 
