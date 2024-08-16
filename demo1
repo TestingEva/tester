@@ -1,44 +1,171 @@
-import React from "react";
-import { Container } from "react-bootstrap";
-import styled from "styled-components";
-import { VZFooter } from "../VZFooter";
+[
+    {
+        "name": "string",
+        "status": false,
+        "underLyingDevice": "string",
+        "connectionType": "undefined",
+        "macAddress": "1341141",
+        "ipv4Address": "string",
+        "subnetMask": "string",
+        "ipv4DefaultGateway": "string",
+        "ipv4DnsAddress_1": "string",
+        "ipv4DnsAddress_2": "string",
+        "ipv4AddressDist": 1,
+        "ipv6Prefix": "string",
+        "ipv6Address": "string",
+        "ipv6LinkLocalAddress": "string",
+        "ipv6DnsAddress_1": "string",
+        "ipv6DnsAddress_2": "string",
+        "ipv6AddressDist": 0,
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "2024-08-16T06:35:32.583Z"
+    },
+    {
+        "name": "string",
+        "status": false,
+        "underLyingDevice": "string",
+        "connectionType": "undefined",
+        "macAddress": "1341141",
+        "ipv4Address": "string",
+        "subnetMask": "string",
+        "ipv4DefaultGateway": "string",
+        "ipv4DnsAddress_1": "string",
+        "ipv4DnsAddress_2": "string",
+        "ipv4AddressDist": 1,
+        "ipv6Prefix": "string",
+        "ipv6Address": "string",
+        "ipv6LinkLocalAddress": "string",
+        "ipv6DnsAddress_1": "string",
+        "ipv6DnsAddress_2": "string",
+        "ipv6AddressDist": 0,
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "2024-08-16T06:35:32.583Z"
+    },
+    {
+        "name": "string",
+        "status": false,
+        "underLyingDevice": "string",
+        "connectionType": "undefined",
+        "macAddress": "1341141",
+        "ipv4Address": "string",
+        "subnetMask": "string",
+        "ipv4DefaultGateway": "string",
+        "ipv4DnsAddress_1": "string",
+        "ipv4DnsAddress_2": "string",
+        "ipv4AddressDist": 1,
+        "ipv6Prefix": "string",
+        "ipv6Address": "string",
+        "ipv6LinkLocalAddress": "string",
+        "ipv6DnsAddress_1": "string",
+        "ipv6DnsAddress_2": "string",
+        "ipv6AddressDist": 0,
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "2024-08-16T06:35:32.583Z"
+    },
+    {
+        "name": "string",
+        "status": false,
+        "underLyingDevice": "string",
+        "connectionType": "undefined",
+        "macAddress": "1341141",
+        "ipv4Address": "string",
+        "subnetMask": "string",
+        "ipv4DefaultGateway": "string",
+        "ipv4DnsAddress_1": "string",
+        "ipv4DnsAddress_2": "string",
+        "ipv4AddressDist": 1,
+        "ipv6Prefix": "string",
+        "ipv6Address": "string",
+        "ipv6LinkLocalAddress": "string",
+        "ipv6DnsAddress_1": "string",
+        "ipv6DnsAddress_2": "string",
+        "ipv6AddressDist": 0,
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "2024-08-16T06:35:32.583Z"
+    },
+    {
+        "name": "string",
+        "status": false,
+        "underLyingDevice": "string",
+        "connectionType": "undefined",
+        "macAddress": "1341141",
+        "ipv4Address": "string",
+        "subnetMask": "string",
+        "ipv4DefaultGateway": "string",
+        "ipv4DnsAddress_1": "string",
+        "ipv4DnsAddress_2": "string",
+        "ipv4AddressDist": 1,
+        "ipv6Prefix": "string",
+        "ipv6Address": "string",
+        "ipv6LinkLocalAddress": "string",
+        "ipv6DnsAddress_1": "string",
+        "ipv6DnsAddress_2": "string",
+        "ipv6AddressDist": 0,
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "2024-08-16T06:35:32.583Z"
+    },
+    {
+        "name": "string",
+        "status": false,
+        "underLyingDevice": "string",
+        "connectionType": "undefined",
+        "macAddress": "1341141",
+        "ipv4Address": "string",
+        "subnetMask": "string",
+        "ipv4DefaultGateway": "string",
+        "ipv4DnsAddress_1": "string",
+        "ipv4DnsAddress_2": "string",
+        "ipv4AddressDist": 1,
+        "ipv6Prefix": "string",
+        "ipv6Address": "string",
+        "ipv6LinkLocalAddress": "string",
+        "ipv6DnsAddress_1": "string",
+        "ipv6DnsAddress_2": "string",
+        "ipv6AddressDist": 0,
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "2024-08-16T06:35:32.583Z"
+    }
+]
 
-export type Props = {
-  children?: React.ReactNode;
-  style?: React.CSSProperties;
-  noTopPadding?: boolean;
-};
+this is the response i am getting from the backend and i need to convert the response in some different format 
+before starting this array may have a vary length and your solution should support this 
 
-const VZBodyContainer = styled(Container)<{ $removeTopPadding: boolean }>`
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: auto;
-  height: 100%;
-  ${(props) => props.$removeTopPadding && { paddingTop: 0 }}
-`;
+so write a function which takes the above arrray as a input and return me the reposne in the following format 
 
-export const VZBody: React.FC<Props> = (props) => {
-  return (
-    <VZBodyContainer $removeTopPadding={props.noTopPadding ?? false} style={props.style}>
-      <Container className="flex-1 p-0">{props.children}</Container>
-      <VZFooter />
-    </VZBodyContainer>
-  );
-};
+{
+name:[all the names from the above array ] for example ["string","string",and so on ]
+status:[all the statuses ]
 
+and like that do it for all the KEYS
 
-So I have the below component 
-
-const TestComp = ()=>{
-  return <VZBody noTopPadding>
-
-    
-  </VZBody>
 }
-
-I need to create a table such that it can be scrollable to the right and each data takes equal amount of space and it have 8 data in each Row also each data should take atleast of 
-col-5 of the space and i am using styled component 
-
-I have given VZBody for your reference 
