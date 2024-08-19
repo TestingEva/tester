@@ -1,170 +1,284 @@
-Chest
-1.Dumbell Flat bench Press
-  2 Warm Up set (10kg- 12 Reps & 12.5 kg - 10 Reps)
-  Chest Up 
-  Elbow Lock
-  3 Working Set (10-12 Reps)
-  weight down then BREATE IN weight up then BREATE OUT
+[
+    {
+        "alias": 0,
+        "name": "Network (Home/Office)",
+        "status": true,
+        "underlyingDevice": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F3",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT9H54M40S",
+        "connectionType": [
+            {
+                "deviceType": 7,
+                "name": "6 GHz Wi-Fi Access Point"
+            },
+            {
+                "deviceType": 5,
+                "name": "5 GHz Wi-Fi Access Point"
+            },
+            {
+                "deviceType": 4,
+                "name": "2.4 GHz Wi-Fi Access Point"
+            },
+            {
+                "deviceType": 3,
+                "name": "10GE_LAN"
+            },
+            {
+                "deviceType": 2,
+                "name": "Coax"
+            }
+        ],
+        "ipv4Address": {
+            "octets": [
+                192,
+                168,
+                1,
+                1
+            ]
+        },
+        "subnetMask": {
+            "octets": [
+                255,
+                255,
+                255,
+                0
+            ]
+        },
+        "ipv4DefaultGateway": {
+            "octets": [
+                192,
+                168,
+                1,
+                1
+            ]
+        },
+        "ipv4DnsAddress1": {
+            "octets": [
+                192,
+                168,
+                1,
+                1
+            ]
+        },
+        "ipv4AddressDist": 1,
+        "ipv6LinkLocalAddress": {
+            "parts": [
+                65152,
+                0,
+                0,
+                0,
+                44689,
+                39935,
+                65082,
+                24563
+            ]
+        },
+        "ipv6AddressDist": 0
+    },
+    {
+        "alias": 1,
+        "name": "Broadband Connection (Ethernet)",
+        "status": true,
+        "underlyingDevice": "Broadband Connection (Ethernet)",
+        "macAddress": "AC:91:9B:3A:5F:F2",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT9H54M40S",
+        "connectionType": "Broadband Connection (Ethernet)",
+        "ipv4Address": {
+            "octets": [
+                10,
+                76,
+                216,
+                180
+            ]
+        },
+        "subnetMask": {
+            "octets": [
+                255,
+                255,
+                255,
+                0
+            ]
+        },
+        "ipv4DefaultGateway": {
+            "octets": [
+                10,
+                76,
+                216,
+                1
+            ]
+        },
+        "ipv4DnsAddress1": {
+            "octets": [
+                208,
+                52,
+                253,
+                24
+            ]
+        },
+        "ipv4DnsAddress2": {
+            "octets": [
+                208,
+                52,
+                253,
+                88
+            ]
+        },
+        "ipv4AddressDist": 1,
+        "ipv6Address": {
+            "parts": [
+                8193,
+                3568,
+                550,
+                87,
+                0,
+                0,
+                0,
+                1
+            ]
+        },
+        "ipv6LinkLocalAddress": {
+            "parts": [
+                65152,
+                0,
+                0,
+                0,
+                44689,
+                39935,
+                65082,
+                24562
+            ]
+        },
+        "ipv6AddressDist": "Disable"
+    },
+    {
+        "alias": 7,
+        "name": "6 GHz Wi-Fi Access Point",
+        "status": false,
+        "underlyingDevice": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F9",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT9H52M53S",
+        "connectionType": "6 GHz Wi-Fi Access Point",
+        "ipv4AddressDist": 0,
+        "ipv6AddressDist": "Disable"
+    },
+    {
+        "alias": 5,
+        "name": "5 GHz Wi-Fi Access Point",
+        "status": false,
+        "underlyingDevice": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F8",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT48M29S",
+        "connectionType": "5 GHz Wi-Fi Access Point",
+        "ipv4AddressDist": 0,
+        "ipv6AddressDist": "Disable"
+    },
+    {
+        "alias": 4,
+        "name": "2.4 GHz Wi-Fi Access Point",
+        "status": false,
+        "underlyingDevice": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F7",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT9H53M2S",
+        "connectionType": "2.4 GHz Wi-Fi Access Point",
+        "ipv4AddressDist": 0,
+        "ipv6AddressDist": "Disable"
+    },
+    {
+        "alias": 3,
+        "name": "10GE_LAN",
+        "status": true,
+        "underlyingDevice": "Network (Home/Office)",
+        "macAddress": "AC:91:9B:3A:5F:F2",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT9H54M35S",
+        "connectionType": "Ethernet",
+        "ipv4AddressDist": 0,
+        "ipv6AddressDist": "Disable"
+    },
+    {
+        "alias": 2,
+        "name": "Coax",
+        "status": false,
+        "underlyingDevice": "Network (Home/Office)",
+        "macAddress": "01:02:03:04:05:06",
+        "recvPackets": 0,
+        "sendPackets": 0,
+        "recvBytes": 0,
+        "sendBytes": 0,
+        "recvErrors": 0,
+        "recvDrops": 0,
+        "timeSpan": "PT9H54M9S",
+        "connectionType": "Coax",
+        "ipv4AddressDist": 0,
+        "ipv6AddressDist": "Disable"
+    }
+]
 
-2.Inclined Barbell Press 
-  1 Warm up set 
-  Wrist Straight + Elbow Tucked in 
-  3 Working sets (10-12 Reps)
-  After 3 Set --> Drop Set at 50% Weight at max Repetitions till Failure
+this is the input called as data
 
-3.Cable Fly with bench 
-  Bench at 120 Degree infront of Cable Fly Machine and height just little less than you knee
-  3 Sets - 12 Reps 
-  last set Till Failure 
-  Feel Muscle 
+following is its type 
 
-4. Cable Fly Standing 
-  Both the Upwards and Downwards
-  6 Sets in Total 12 Reps 
-  Hold at the Contraction 
+export type SystemWideNetworkConnInfo = {
+  alias: NetworkConnType;
+  name: string;
+  status: boolean;
+  underlyingDevice: string;
+  connectionType: string | LanConnectionType[];
+  macAddress: string;
+  ipv4Address?: IPv4;
+  subnetMask?: IPv4;
+  ipv4DefaultGateway?: IPv4;
+  ipv4DnsAddress1?: IPv4;
+  ipv4DnsAddress2?: IPv4;
+  ipv4AddressDist: DhcpStatus;
+  ipv6Prefix?: IPv6;
+  ipv6Address?: IPv6;
+  ipv6LinkLocalAddress?: IPv6;
+  ipv6DnsAddress1?: IPv6;
+  ipv6DnsAddress2?: IPv6;
+  ipv6AddressDist: Ipv6ServiceType | "Disable";
+  recvPackets: number;
+  sendPackets: number;
+  recvBytes: number;
+  sendBytes: number;
+  recvErrors: number;
+  recvDrops: number;
+  timeSpan: Duration;
+};
 
-Back
-0. Warm Up 
-  2 Warm Up Set 
-  Lat Pull Down 
-
-1. Pull Up
-  Shoulder Width Apart
-  Down Slow 
-  Sucide Grip
-  Dont Come too Down and Use Straps
-  3 Sets - 10 Reps
-
-2.Bent Over Barbell rows 
-  Over the Barbell Gripping Pull Grip
-  Hold the Bar from the Rins given on the Rod 
-  Dont go full Down have some tension always 
-  3 Sets (10 - 12 Reps)
-  Drop Set - Max Reps at 50% Weight 
-
-3. Single Arm Dumbell Rows
-  Chest Up 
-  Remember the exaust Exercise
-  3 Sets - 12 Reps
-
-4. Seated Rows
-  Latt Pull Down Machine Mein joh neeche baith k lete h
-  Contraction ka dyan dena h
-  Lower back Should be straight 
-  Feel the Back
-  3 sets - 12 Reps 
-  Sucide Grip
-
-Shoulder
-1.Seateed Overhead Press
-  use Barbell 
-  On Squat Rack (Prefer) with smith machine 
-  Be Seated and then Start 
-  Shoulder width Grip
-  Glutes Tight and Chest Up
-  Warm Set 1 
-  3 Working Sets - 12 Reps
-  Drop Set at 50% Weight just after the 3rd Set
-
-2. Seated Lateral raise 
-  Leg Close 
-  Elbows Should be just little bend
-  Shoulder se thoda Upar 
-  3 Sets - 12 Reps 
-  Last 2 Set will be Drop Set
-
-3. Front Delt Dumbell Raise
-  3 sets - 12 Reps
-
-4.Barbell Shrugs
-  Smith Machine 
-  Strech and Hold
-  3 Sets 10 - 12 Reps 
-
-Biceps
-1. Seated Dumbell Curls 
-  Chest Up and Legs Close 
-  4 Sets - 12 Reps Each Hand 
-
-2.Hammer Curls 
-  Posture should be Controlled and Fixed 
-  3 Sets - 12 Reps at Max
-
-3. Peacher Curls 
-  use Zig zag Barbell
-  lean over the inclined bench , Chest facing the bench , nipples on the edge 
-  Full Contraction 
-  Dont open arms too Straight
-  3 Sets 12 Reps
-
-4. Concentration Curls
-  Tricep ka neeche waala hissa leg se attached Rahega
-  3 Sets 12 Reps
-
-Triceps
-1.Skull Crusher 
-  Zigzag Barbell
-  60 Degree Inclined Bench 
-  Head Should be at the extreme end of the bench 
-  legs should be grounded Strong
-  Control the Form 
-  3 Sets - 12 Reps 
-
-2. Small Barbell Pushdown 
-  on the Cable Fly Machine 
-  Grip to be 1 inch inside from the edge
-  Elbow Locked and Controlled Breating 
-  3 Sets 12 Reps
-
-3.Cable Kickbacks 
-  Low Angle
-  Elbow Locked 
-  Knee Height Controlled Reps 
-  3 Sets - 12 Reps 
-
-4.Bench Press 
-  Shoulder Width 
-  wrist Straight 
-  3 Sets 12 Reps 
-
-Legs
-1. Barbell Squats 
-  Smith Machine
-  Flat Shoes Priorities 
-  Look at your feet on the Mirror 
-  Dont Lock Knees 
-  2 Warm Up Sets 
-  3 Working sets - 10 reps
-
-2.Romanian DeadLift   
-  Stand on the Plates 
-  Roll up to the Knees only 
-  Push your Foot from HarmString
-  Use Belt 
-  1 Warmup set 
-  3 Working Set - 12 Reps 
-
-3.Leg Extension 
-  3 Working Sets - 15 Reps 
-
-4. Bulgarian Squats 
-  1 Leg se thoda sa kam distance 
-  3 Sets - 12 to 15 Reps Per Leg
-
-5.Calf Squats 
-  Feel the Contraction 
-  3 Set - 15 reps
-
-6.Seated Calf Raises 
-  give Propper Strech
-  3 Sets - 15 reps
-
-Streching 
-1.Shoulder left Right 90 Degree 3 Sets
-2.Shoulder Up down 90 degree 3 Sets
-3.Single Arm Spin 
-  1 Set Clockwise and AntiClockwise
-4.Double arm Strech
-5.Neck Strech All Direction
-6.Upper Body Twist 1 Set
-  
+Now i want to get the array of all the alias,underlyingDevice, and so on if the data is undefined then also add it to the array 
