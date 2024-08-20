@@ -1,3 +1,4 @@
+https://www.linkedin.com/jobs/view/4004443118
 function extractProperties<T extends SystemWideNetworkConnInfo, K extends keyof T>(data: T[], keys: K[]): Record<K, (T[K] | undefined)[]> {
   const result = {} as Record<K, (T[K] | undefined)[]>;
 
