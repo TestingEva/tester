@@ -1,24 +1,348 @@
-https://www.linkedin.com/jobs/view/4004443118
-function extractProperties<T extends SystemWideNetworkConnInfo, K extends keyof T>(data: T[], keys: K[]): Record<K, (T[K] | undefined)[]> {
-  const result = {} as Record<K, (T[K] | undefined)[]>;
-
-  // Initialize arrays for each key
-  keys.forEach(key => {
-    result[key] = [];
-  });
-
-  // Fill arrays with values
-  data.forEach(item => {
-    keys.forEach(key => {
-      result[key].push(item[key]);
-    });
-  });
-
-  return result;
+{
+    "dynamicDNSList": [
+        {
+            "hostname": "test",
+            "lastUpdate": "2024-08-20T06:49:28Z",
+            "objPath": "Device.DynamicDNS.Client.2.Hostname.1.",
+            "password": "",
+            "providerName": "uci_godaddy.com-v1",
+            "sslEncMode": false,
+            "status": "Error",
+            "username": ""
+        },
+        {
+            "hostname": "temp1",
+            "lastUpdate": "2024-08-20T06:49:44Z",
+            "objPath": "Device.DynamicDNS.Client.3.Hostname.1.",
+            "password": "",
+            "providerName": "uci_desec.io",
+            "sslEncMode": false,
+            "status": "Error",
+            "username": ""
+        }
+    ],
+    "providerList": [
+        {
+            "name": "uci_desec.io",
+            "serverAddress": "update.dedyn.io"
+        },
+        {
+            "name": "uci_nettica.com",
+            "serverAddress": "nettica.com"
+        },
+        {
+            "name": "uci_godaddy.com-v1",
+            "serverAddress": "update_godaddy_com_v1.sh"
+        },
+        {
+            "name": "uci_dynv6.com",
+            "serverAddress": "dynv6.com"
+        },
+        {
+            "name": "uci_changeip.com",
+            "serverAddress": "[USERNAME][PASSWORD]nic.changeip.com"
+        },
+        {
+            "name": "uci_afraid.org-v2-token",
+            "serverAddress": "sync.afraid.org"
+        },
+        {
+            "name": "uci_google.com",
+            "serverAddress": "[USERNAME][PASSWORD]domains.google.com"
+        },
+        {
+            "name": "uci_duiadns.net",
+            "serverAddress": "ip.duiadns.net"
+        },
+        {
+            "name": "uci_afraid.org-basicauth",
+            "serverAddress": "[USERNAME][PASSWORD]freedns.afraid.org"
+        },
+        {
+            "name": "uci_moniker.com",
+            "serverAddress": "dynamicdns.key-systems.net"
+        },
+        {
+            "name": "uci_mydns.jp",
+            "serverAddress": "mydns.jp"
+        },
+        {
+            "name": "uci_dnshome.de",
+            "serverAddress": "[USERNAME][PASSWORD]dnshome.de"
+        },
+        {
+            "name": "uci_inwx.de",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.inwx.com"
+        },
+        {
+            "name": "uci_twodns.de",
+            "serverAddress": "[USERNAME][PASSWORD]update.twodns.de"
+        },
+        {
+            "name": "uci_oray.com",
+            "serverAddress": "[USERNAME][PASSWORD]ddns.oray.com"
+        },
+        {
+            "name": "uci_3322.org",
+            "serverAddress": "[USERNAME][PASSWORD]members.3322.org"
+        },
+        {
+            "name": "uci_dynsip.org",
+            "serverAddress": "[USERNAME][PASSWORD]dynsip.org"
+        },
+        {
+            "name": "uci_strato.com",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.strato.com"
+        },
+        {
+            "name": "uci_opendns.com",
+            "serverAddress": "[USERNAME][PASSWORD]updates.opendns.com"
+        },
+        {
+            "name": "uci_core-networks.de",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.core-networks.de"
+        },
+        {
+            "name": "uci_dnsmadeeasy.com",
+            "serverAddress": "cp.dnsmadeeasy.com"
+        },
+        {
+            "name": "uci_dynu.com",
+            "serverAddress": "api.dynu.com"
+        },
+        {
+            "name": "uci_myip.co.ua",
+            "serverAddress": "[USERNAME][PASSWORD]myip.co.ua"
+        },
+        {
+            "name": "uci_dyndns.it",
+            "serverAddress": "[USERNAME][PASSWORD]update.dyndns.it"
+        },
+        {
+            "name": "uci_udmedia.de",
+            "serverAddress": "[USERNAME][PASSWORD]udmedia.de"
+        },
+        {
+            "name": "uci_goip.de",
+            "serverAddress": "goip.de"
+        },
+        {
+            "name": "uci_all-inkl.com",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.kasserver.com"
+        },
+        {
+            "name": "uci_do.de",
+            "serverAddress": "ddns.do.de"
+        },
+        {
+            "name": "uci_he.net",
+            "serverAddress": "[DOMAIN][PASSWORD]dyn.dns.he.net"
+        },
+        {
+            "name": "uci_loopia.se",
+            "serverAddress": "[USERNAME][PASSWORD]dns.loopia.se"
+        },
+        {
+            "name": "uci_dnsmax.com",
+            "serverAddress": "update.dnsmax.com"
+        },
+        {
+            "name": "uci_editdns.net",
+            "serverAddress": "dyndns-free.editdns.net"
+        },
+        {
+            "name": "uci_thatip.com",
+            "serverAddress": "update.dnsmax.com"
+        },
+        {
+            "name": "uci_dnsdynamic.org",
+            "serverAddress": "[USERNAME][PASSWORD]dnsdynamic.org"
+        },
+        {
+            "name": "uci_dnsomatic.com",
+            "serverAddress": "[USERNAME][PASSWORD]updates.dnsomatic.com"
+        },
+        {
+            "name": "uci_zzzz.io",
+            "serverAddress": "zzzz.io"
+        },
+        {
+            "name": "uci_afraid.org-keyauth",
+            "serverAddress": "freedns.afraid.org"
+        },
+        {
+            "name": "uci_zoneedit.com",
+            "serverAddress": "[USERNAME][PASSWORD]dynamic.zoneedit.com"
+        },
+        {
+            "name": "uci_domopoli.de",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.domopoli.de"
+        },
+        {
+            "name": "uci_dnsexit.com",
+            "serverAddress": "update.dnsexit.com"
+        },
+        {
+            "name": "uci_nsupdate.info",
+            "serverAddress": "[USERNAME][PASSWORD]ipv4.nsupdate.info"
+        },
+        {
+            "name": "uci_freedns.42.pl",
+            "serverAddress": "update_freedns_42_pl.sh"
+        },
+        {
+            "name": "uci_infomaniak.com",
+            "serverAddress": "[USERNAME][PASSWORD]infomaniak.com"
+        },
+        {
+            "name": "uci_joker.com",
+            "serverAddress": "svc.joker.com"
+        },
+        {
+            "name": "uci_able.or.kr",
+            "serverAddress": "able.or.kr"
+        },
+        {
+            "name": "uci_no-ip.pl",
+            "serverAddress": "[USERNAME][PASSWORD]update.no-ip.pl"
+        },
+        {
+            "name": "uci_ddnss.de",
+            "serverAddress": "ip4.ddnss.de"
+        },
+        {
+            "name": "uci_duckdns.org",
+            "serverAddress": "duckdns.org"
+        },
+        {
+            "name": "uci_ovh.com",
+            "serverAddress": "[USERNAME][PASSWORD]ovh.com"
+        },
+        {
+            "name": "uci_now-dns.com",
+            "serverAddress": "[USERNAME][PASSWORD]now-dns.com"
+        },
+        {
+            "name": "uci_schokokeks.org",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.schokokeks.org"
+        },
+        {
+            "name": "uci_bind-nsupdate",
+            "serverAddress": "update_nsupdate.sh"
+        },
+        {
+            "name": "uci_namecheap.com",
+            "serverAddress": "dynamicdns.park-your-domain.com"
+        },
+        {
+            "name": "uci_dnsever.com",
+            "serverAddress": "[USERNAME][PASSWORD]dyna.dnsever.com"
+        },
+        {
+            "name": "uci_dy.fi",
+            "serverAddress": "[USERNAME][PASSWORD]dy.fi"
+        },
+        {
+            "name": "uci_mythic-beasts.com",
+            "serverAddress": "dnsapi4.mythic-beasts.com"
+        },
+        {
+            "name": "uci_dtdns.com",
+            "serverAddress": "dtdns.com"
+        },
+        {
+            "name": "uci_dhis.org",
+            "serverAddress": "[USERNAME][PASSWORD]is.dhis.org"
+        },
+        {
+            "name": "uci_system-ns.com",
+            "serverAddress": "system-ns.com"
+        },
+        {
+            "name": "uci_no-ip.com",
+            "serverAddress": "update_no-ip_com.sh"
+        },
+        {
+            "name": "uci_dnspark.com",
+            "serverAddress": "[USERNAME][PASSWORD]control.dnspark.com"
+        },
+        {
+            "name": "uci_cloudflare.com-v4",
+            "serverAddress": "update_cloudflare_com_v4.sh"
+        },
+        {
+            "name": "uci_dyndnss.net",
+            "serverAddress": "dyndnss.net"
+        },
+        {
+            "name": "uci_xlhost.de",
+            "serverAddress": "[USERNAME][PASSWORD]nsupdate.xlhost.de"
+        },
+        {
+            "name": "uci_ddo.jp",
+            "serverAddress": "free.ddo.jp"
+        },
+        {
+            "name": "uci_regfish.de",
+            "serverAddress": "dyndns.regfish.de"
+        },
+        {
+            "name": "uci_zerigo.com",
+            "serverAddress": "update.zerigo.com"
+        },
+        {
+            "name": "uci_sitelutions.com",
+            "serverAddress": "dnsup.sitelutions.com"
+        },
+        {
+            "name": "uci_easydns.com",
+            "serverAddress": "[USERNAME][PASSWORD]api.cp.easydns.com"
+        },
+        {
+            "name": "uci_variomedia.de",
+            "serverAddress": "[USERNAME][PASSWORD]dyndns.variomedia.de"
+        },
+        {
+            "name": "uci_myonlineportal.net",
+            "serverAddress": "myonlineportal.net"
+        },
+        {
+            "name": "uci_selfhost.de",
+            "serverAddress": "carol.selfhost.de"
+        },
+        {
+            "name": "uci_dyn.com",
+            "serverAddress": "[USERNAME][PASSWORD]members.dyndns.org"
+        },
+        {
+            "name": "uci_afraid.org-v2-basic",
+            "serverAddress": "[USERNAME][PASSWORD]sync.afraid.org"
+        },
+        {
+            "name": "uci_spdyn.de",
+            "serverAddress": "update.spdyn.de"
+        },
+        {
+            "name": "uci_route53-v1",
+            "serverAddress": "update_route53_v1.sh"
+        },
+        {
+            "name": "uci_dyndns.org",
+            "serverAddress": "[USERNAME][PASSWORD]members.dyndns.org"
+        }
+    ],
+    "timestamp": 1724226696118
 }
 
-// Usage
-const extractedData = extractProperties(data, ["alias", "underlyingDevice", "macAddress", "ipv4Address", "recvPackets", "sendPackets", "timeSpan"]);
-const aliasArray = extractedData.alias;
-const underlyingDeviceArray = extractedData.underlyingDevice;
-// And so on...
+so here i have dynamicDnsList in which provider is there and i need to verify whether this provider is present on the providerList Array with the same name 
+
+export async function getDynamicDnsInfoApi(authToken: string): Promise<DynamicDnsData> {
+  try {
+    const response = await httpClient.send(httpRequest(GET_DYNAMIC_DNS_URL).authToken(authToken).build());
+    const parsedResponse =  DynamicDnsResponseSchema.parse(response.body) as DynamicDnsData;
+  } catch (e) {
+    mapAndThrowError(e);
+  }
+}
+
+here i have done the intial parsing for the data and now you need to complete this parsing if any of the data is failed throw an error 
