@@ -1,348 +1,533 @@
-{
-    "dynamicDNSList": [
-        {
-            "hostname": "test",
-            "lastUpdate": "2024-08-20T06:49:28Z",
-            "objPath": "Device.DynamicDNS.Client.2.Hostname.1.",
-            "password": "",
-            "providerName": "uci_godaddy.com-v1",
-            "sslEncMode": false,
-            "status": "Error",
-            "username": ""
-        },
-        {
-            "hostname": "temp1",
-            "lastUpdate": "2024-08-20T06:49:44Z",
-            "objPath": "Device.DynamicDNS.Client.3.Hostname.1.",
-            "password": "",
-            "providerName": "uci_desec.io",
-            "sslEncMode": false,
-            "status": "Error",
-            "username": ""
-        }
-    ],
-    "providerList": [
-        {
-            "name": "uci_desec.io",
-            "serverAddress": "update.dedyn.io"
-        },
-        {
-            "name": "uci_nettica.com",
-            "serverAddress": "nettica.com"
-        },
-        {
-            "name": "uci_godaddy.com-v1",
-            "serverAddress": "update_godaddy_com_v1.sh"
-        },
-        {
-            "name": "uci_dynv6.com",
-            "serverAddress": "dynv6.com"
-        },
-        {
-            "name": "uci_changeip.com",
-            "serverAddress": "[USERNAME][PASSWORD]nic.changeip.com"
-        },
-        {
-            "name": "uci_afraid.org-v2-token",
-            "serverAddress": "sync.afraid.org"
-        },
-        {
-            "name": "uci_google.com",
-            "serverAddress": "[USERNAME][PASSWORD]domains.google.com"
-        },
-        {
-            "name": "uci_duiadns.net",
-            "serverAddress": "ip.duiadns.net"
-        },
-        {
-            "name": "uci_afraid.org-basicauth",
-            "serverAddress": "[USERNAME][PASSWORD]freedns.afraid.org"
-        },
-        {
-            "name": "uci_moniker.com",
-            "serverAddress": "dynamicdns.key-systems.net"
-        },
-        {
-            "name": "uci_mydns.jp",
-            "serverAddress": "mydns.jp"
-        },
-        {
-            "name": "uci_dnshome.de",
-            "serverAddress": "[USERNAME][PASSWORD]dnshome.de"
-        },
-        {
-            "name": "uci_inwx.de",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.inwx.com"
-        },
-        {
-            "name": "uci_twodns.de",
-            "serverAddress": "[USERNAME][PASSWORD]update.twodns.de"
-        },
-        {
-            "name": "uci_oray.com",
-            "serverAddress": "[USERNAME][PASSWORD]ddns.oray.com"
-        },
-        {
-            "name": "uci_3322.org",
-            "serverAddress": "[USERNAME][PASSWORD]members.3322.org"
-        },
-        {
-            "name": "uci_dynsip.org",
-            "serverAddress": "[USERNAME][PASSWORD]dynsip.org"
-        },
-        {
-            "name": "uci_strato.com",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.strato.com"
-        },
-        {
-            "name": "uci_opendns.com",
-            "serverAddress": "[USERNAME][PASSWORD]updates.opendns.com"
-        },
-        {
-            "name": "uci_core-networks.de",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.core-networks.de"
-        },
-        {
-            "name": "uci_dnsmadeeasy.com",
-            "serverAddress": "cp.dnsmadeeasy.com"
-        },
-        {
-            "name": "uci_dynu.com",
-            "serverAddress": "api.dynu.com"
-        },
-        {
-            "name": "uci_myip.co.ua",
-            "serverAddress": "[USERNAME][PASSWORD]myip.co.ua"
-        },
-        {
-            "name": "uci_dyndns.it",
-            "serverAddress": "[USERNAME][PASSWORD]update.dyndns.it"
-        },
-        {
-            "name": "uci_udmedia.de",
-            "serverAddress": "[USERNAME][PASSWORD]udmedia.de"
-        },
-        {
-            "name": "uci_goip.de",
-            "serverAddress": "goip.de"
-        },
-        {
-            "name": "uci_all-inkl.com",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.kasserver.com"
-        },
-        {
-            "name": "uci_do.de",
-            "serverAddress": "ddns.do.de"
-        },
-        {
-            "name": "uci_he.net",
-            "serverAddress": "[DOMAIN][PASSWORD]dyn.dns.he.net"
-        },
-        {
-            "name": "uci_loopia.se",
-            "serverAddress": "[USERNAME][PASSWORD]dns.loopia.se"
-        },
-        {
-            "name": "uci_dnsmax.com",
-            "serverAddress": "update.dnsmax.com"
-        },
-        {
-            "name": "uci_editdns.net",
-            "serverAddress": "dyndns-free.editdns.net"
-        },
-        {
-            "name": "uci_thatip.com",
-            "serverAddress": "update.dnsmax.com"
-        },
-        {
-            "name": "uci_dnsdynamic.org",
-            "serverAddress": "[USERNAME][PASSWORD]dnsdynamic.org"
-        },
-        {
-            "name": "uci_dnsomatic.com",
-            "serverAddress": "[USERNAME][PASSWORD]updates.dnsomatic.com"
-        },
-        {
-            "name": "uci_zzzz.io",
-            "serverAddress": "zzzz.io"
-        },
-        {
-            "name": "uci_afraid.org-keyauth",
-            "serverAddress": "freedns.afraid.org"
-        },
-        {
-            "name": "uci_zoneedit.com",
-            "serverAddress": "[USERNAME][PASSWORD]dynamic.zoneedit.com"
-        },
-        {
-            "name": "uci_domopoli.de",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.domopoli.de"
-        },
-        {
-            "name": "uci_dnsexit.com",
-            "serverAddress": "update.dnsexit.com"
-        },
-        {
-            "name": "uci_nsupdate.info",
-            "serverAddress": "[USERNAME][PASSWORD]ipv4.nsupdate.info"
-        },
-        {
-            "name": "uci_freedns.42.pl",
-            "serverAddress": "update_freedns_42_pl.sh"
-        },
-        {
-            "name": "uci_infomaniak.com",
-            "serverAddress": "[USERNAME][PASSWORD]infomaniak.com"
-        },
-        {
-            "name": "uci_joker.com",
-            "serverAddress": "svc.joker.com"
-        },
-        {
-            "name": "uci_able.or.kr",
-            "serverAddress": "able.or.kr"
-        },
-        {
-            "name": "uci_no-ip.pl",
-            "serverAddress": "[USERNAME][PASSWORD]update.no-ip.pl"
-        },
-        {
-            "name": "uci_ddnss.de",
-            "serverAddress": "ip4.ddnss.de"
-        },
-        {
-            "name": "uci_duckdns.org",
-            "serverAddress": "duckdns.org"
-        },
-        {
-            "name": "uci_ovh.com",
-            "serverAddress": "[USERNAME][PASSWORD]ovh.com"
-        },
-        {
-            "name": "uci_now-dns.com",
-            "serverAddress": "[USERNAME][PASSWORD]now-dns.com"
-        },
-        {
-            "name": "uci_schokokeks.org",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.schokokeks.org"
-        },
-        {
-            "name": "uci_bind-nsupdate",
-            "serverAddress": "update_nsupdate.sh"
-        },
-        {
-            "name": "uci_namecheap.com",
-            "serverAddress": "dynamicdns.park-your-domain.com"
-        },
-        {
-            "name": "uci_dnsever.com",
-            "serverAddress": "[USERNAME][PASSWORD]dyna.dnsever.com"
-        },
-        {
-            "name": "uci_dy.fi",
-            "serverAddress": "[USERNAME][PASSWORD]dy.fi"
-        },
-        {
-            "name": "uci_mythic-beasts.com",
-            "serverAddress": "dnsapi4.mythic-beasts.com"
-        },
-        {
-            "name": "uci_dtdns.com",
-            "serverAddress": "dtdns.com"
-        },
-        {
-            "name": "uci_dhis.org",
-            "serverAddress": "[USERNAME][PASSWORD]is.dhis.org"
-        },
-        {
-            "name": "uci_system-ns.com",
-            "serverAddress": "system-ns.com"
-        },
-        {
-            "name": "uci_no-ip.com",
-            "serverAddress": "update_no-ip_com.sh"
-        },
-        {
-            "name": "uci_dnspark.com",
-            "serverAddress": "[USERNAME][PASSWORD]control.dnspark.com"
-        },
-        {
-            "name": "uci_cloudflare.com-v4",
-            "serverAddress": "update_cloudflare_com_v4.sh"
-        },
-        {
-            "name": "uci_dyndnss.net",
-            "serverAddress": "dyndnss.net"
-        },
-        {
-            "name": "uci_xlhost.de",
-            "serverAddress": "[USERNAME][PASSWORD]nsupdate.xlhost.de"
-        },
-        {
-            "name": "uci_ddo.jp",
-            "serverAddress": "free.ddo.jp"
-        },
-        {
-            "name": "uci_regfish.de",
-            "serverAddress": "dyndns.regfish.de"
-        },
-        {
-            "name": "uci_zerigo.com",
-            "serverAddress": "update.zerigo.com"
-        },
-        {
-            "name": "uci_sitelutions.com",
-            "serverAddress": "dnsup.sitelutions.com"
-        },
-        {
-            "name": "uci_easydns.com",
-            "serverAddress": "[USERNAME][PASSWORD]api.cp.easydns.com"
-        },
-        {
-            "name": "uci_variomedia.de",
-            "serverAddress": "[USERNAME][PASSWORD]dyndns.variomedia.de"
-        },
-        {
-            "name": "uci_myonlineportal.net",
-            "serverAddress": "myonlineportal.net"
-        },
-        {
-            "name": "uci_selfhost.de",
-            "serverAddress": "carol.selfhost.de"
-        },
-        {
-            "name": "uci_dyn.com",
-            "serverAddress": "[USERNAME][PASSWORD]members.dyndns.org"
-        },
-        {
-            "name": "uci_afraid.org-v2-basic",
-            "serverAddress": "[USERNAME][PASSWORD]sync.afraid.org"
-        },
-        {
-            "name": "uci_spdyn.de",
-            "serverAddress": "update.spdyn.de"
-        },
-        {
-            "name": "uci_route53-v1",
-            "serverAddress": "update_route53_v1.sh"
-        },
-        {
-            "name": "uci_dyndns.org",
-            "serverAddress": "[USERNAME][PASSWORD]members.dyndns.org"
-        }
-    ],
-    "timestamp": 1724226696118
-}
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Col, Row, Table } from "react-bootstrap";
+import { Ipv6DeviceInfo, RouteType } from "../../../domain/misc/models";
+import { PinholePolicy, PinholePortRule, PinholeProtocol } from "../../../domain/pinholes/models";
+import { SchedulerRuleInfo } from "../../../domain/scheduler-rules/models";
+import { sortBy } from "../../../domain/utils";
+import { useFormState } from "../../components/form";
+import { ListTrackerResult, useListTracker } from "../../components/list_tracker";
+import { OptionalComponent } from "../../components/OptionalComponent";
+import { VZBody } from "../../components/vz-body/VZBody";
+import { VZButton } from "../../components/vz-button/VZButton";
+import { VZCheckbox } from "../../components/vz-checkbox/VZCheckbox";
+import { VZDropdown } from "../../components/vz-dropdown/VZDropdown";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { VZInputTextField } from "../../components/vz-input/VZInput";
+import { VZErrorModal } from "../../components/vz-modal/error-modal/VZErrorModal";
+import { getEnumValues } from "../../utils";
+import { BWActionIcon } from "../bandwidth-monitoring/styles";
+import { AddOrEditSchedule } from "../scheduler-rules/AddOrEditSchedule";
+import { Ipv6PinholesUiModel, UIPinholePolicy } from "./models";
+import {
+  Ipv6PinholesDesc,
+  Ipv6PinholesDoneButton,
+  Ipv6PinholesHeader,
+  Ipv6PinholesTableData,
+  Ipv6PinholesTableRow,
+  Ipv6PinholeTableHostData,
+} from "./styles";
+import {
+  convertApplicationPortToUiString,
+  convertInternalHostToString,
+  convertIpv6PinholeScheduleToUiString,
+  convertPinholePolicyToApplicationInfo,
+  convertPinholePolicyToExpInfo,
+  convertPinholePolicyToIntHostInfo,
+  convertPinholeProtocolToString,
+  convertScheduleRuleToUIString,
+  convertUiInfoTONewPinholePolicy,
+  convertUiInfoToPinholePolicy,
+  Ipv6PinholesInitialData,
+  validateCreateIpv6PinholeRule,
+} from "./utils";
 
-so here i have dynamicDnsList in which provider is there and i need to verify whether this provider is present on the providerList Array with the same name 
+type Props = {
+  data: {
+    policies: UIPinholePolicy[];
+    availablePortRules: PinholePortRule[];
+  };
+  availableSchedules: SchedulerRuleInfo[];
+  errors: string[];
+  setErrors: React.Dispatch<React.SetStateAction<string[]>>;
+  showErrorModal: boolean;
+  onToggleErrorModal: () => void;
+  ipv6Devices: Ipv6DeviceInfo[];
+  onApplyClick: (result: ListTrackerResult<PinholePolicy>) => void;
+  isApplying: boolean;
+};
 
-export async function getDynamicDnsInfoApi(authToken: string): Promise<DynamicDnsData> {
-  try {
-    const response = await httpClient.send(httpRequest(GET_DYNAMIC_DNS_URL).authToken(authToken).build());
-    const parsedResponse =  DynamicDnsResponseSchema.parse(response.body) as DynamicDnsData;
-  } catch (e) {
-    mapAndThrowError(e);
+export const Ipv6PinholesView: React.FC<Props> = ({
+  data,
+  availableSchedules,
+  errors,
+  setErrors,
+  showErrorModal,
+  onToggleErrorModal,
+  ipv6Devices,
+  onApplyClick,
+  isApplying,
+}) => {
+  const { addItem, removeItem, updateItem, getResult, list, hasChanges } = useListTracker(data.policies, "id");
+  const { currentState, reset, setValue } = useFormState(Ipv6PinholesInitialData);
+
+  const sortedData = useMemo(() => {
+    return sortBy("asc", list, (val) => val.index);
+  }, [list]);
+
+  const onAddToListClick = (currentState: Ipv6PinholesUiModel) => {
+    const createRuleErrors: string[] = validateCreateIpv6PinholeRule(currentState);
+    setErrors(createRuleErrors);
+    if (createRuleErrors.length === 0) {
+      const ipv6PinholeRule = convertUiInfoTONewPinholePolicy(currentState);
+      const ruleIndex = data.policies.length + 1;
+      addItem({ ...ipv6PinholeRule, index: ruleIndex });
+      reset();
+    }
+  };
+
+  const onCheckboxClick = (item: UIPinholePolicy) => {
+    updateItem({ ...item, enabled: !item.enabled });
+  };
+
+  const onDeleteClick = (item: UIPinholePolicy) => {
+    removeItem(item);
+  };
+
+  const onDoneClick = (
+    currentState: Ipv6PinholesUiModel,
+    initialPolicy: UIPinholePolicy,
+    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
+  ) => {
+    const editErrors = validateCreateIpv6PinholeRule(currentState);
+    setErrors(editErrors);
+    if (editErrors.length === 0) {
+      const ipv6PinholeRule = convertUiInfoToPinholePolicy(currentState, initialPolicy);
+      updateItem(ipv6PinholeRule);
+      setIsEdit(false);
+    }
+  };
+
+  const onAddNewSchedule = useCallback(
+    (ruleName?: string) => {
+      if (ruleName !== undefined) {
+        const schedule = availableSchedules.find((item) => item.name === ruleName);
+        if (schedule === undefined) {
+          setValue("schedule", "Always");
+        } else {
+          setValue("schedule", schedule);
+        }
+      }
+    },
+    //eslint-disable-next-line
+    [availableSchedules]
+  );
+
+  if (currentState.schedule === "User defined") {
+    return <AddOrEditSchedule onSuccessfulCreate={onAddNewSchedule} />;
   }
-}
 
-here i have done the intial parsing for the data and now you need to complete this parsing if any of the data is failed throw an error 
+  return (
+    <>
+      <VZHeader
+        title="IPv6 Pinhole"
+        breadcrumbData={[{ label: "Security & Firewall" }, { label: "IPv6 Pinhole", destType: RouteType.IPV6_PIN }]}
+        rightBody={
+          <VZButton onClick={() => onApplyClick(getResult())} disabled={!hasChanges || isApplying}>
+            Apply Changes
+          </VZButton>
+        }
+      />
+      <Ipv6PinholesDesc>
+        <Col className="hb" style={{ fontSize: "1rem", lineHeight: "2rem" }}>
+          How it works...
+        </Col>
+        <Col className="py-1">
+          Open a tunnel between remote computers and a device port on your Home Network (LAN). Supports gaming, IoT,
+          home security devices and more.
+        </Col>
+      </Ipv6PinholesDesc>
+      <VZBody noTopPadding>
+        <Ipv6PinholesHeader $isFirst>Create Rule</Ipv6PinholesHeader>
+        <Row className="my-3">
+          <Col className="col-4 pe-4">
+            <label className="mb-1">{"External Host"}</label>
+            <VZDropdown
+              id="Ipv6Pinholes-ExternalHost"
+              selectedItem={currentState.externalHost}
+              onSelect={(e) => setValue("externalHost", e)}
+              options={["Any", "Specify IP", "Specify domain name"]}
+              getOptionAsString={(e) => e}
+              selectedTextStyle={{ fontSize: "0.85rem" }}
+              style={{ fontSize: "0.85rem" }}
+            />
+          </Col>
+          <Col className="col-4 px-3">
+            <label className="mb-1">{"Internal Host"}</label>
+            <VZDropdown
+              id="Ipv6Pinholes-InternalHost"
+              selectedItem={currentState.internalHost}
+              onSelect={(e) => setValue("internalHost", e)}
+              options={["Specify IP", ...ipv6Devices]}
+              getOptionAsString={(e) => convertInternalHostToString(e)}
+              selectedTextStyle={{ fontSize: "0.85rem" }}
+              style={{ fontSize: "0.85rem" }}
+            />
+          </Col>
+          <Col className="col-4 ps-4">
+            <label className="mb-1">{"Application/Port"}</label>
+            <VZDropdown
+              id="Ipv6Pinholes-Application/Port"
+              selectedItem={currentState.applicationPort}
+              onSelect={(e) => setValue("applicationPort", e)}
+              options={["Custom", ...data.availablePortRules]}
+              getOptionAsString={(e) => convertApplicationPortToUiString(e)}
+              selectedTextStyle={{ fontSize: "0.85rem" }}
+              style={{ fontSize: "0.85rem" }}
+            />
+          </Col>
+        </Row>
+        <Row className="my-3">
+          <Col className="col-4 pe-4">
+            <OptionalComponent show={currentState.externalHost === "Specify IP"}>
+              <label className="mb-1">{"Specify IP"}</label>
+              <VZInputTextField
+                value={currentState.specifyExtIp}
+                onChange={(e) => setValue("specifyExtIp", e)}
+                style={{ fontSize: "0.9rem" }}
+              />
+            </OptionalComponent>
+            <OptionalComponent show={currentState.externalHost === "Specify domain name"}>
+              <label className="mb-1">{"Specify domain name"}</label>
+              <VZInputTextField
+                value={currentState.domainName}
+                onChange={(e) => setValue("domainName", e)}
+                style={{ fontSize: "0.9rem" }}
+              />
+            </OptionalComponent>
+          </Col>
+          <Col className="col-4 px-3">
+            <OptionalComponent show={currentState.internalHost === "Specify IP"}>
+              <label className="mb-1">{"Specify IP"}</label>
+              <VZInputTextField
+                value={currentState.specifyIntIp}
+                onChange={(e) => setValue("specifyIntIp", e)}
+                style={{ fontSize: "0.9rem" }}
+              />
+            </OptionalComponent>
+          </Col>
+          <Col className="col-4 ps-4">
+            <label className="mb-1">{"Protocol"}</label>
+            <VZDropdown
+              id="Ipv6Pinholes-Protocol"
+              selectedItem={currentState.protocol}
+              onSelect={(e) => setValue("protocol", e)}
+              options={getEnumValues(PinholeProtocol)}
+              getOptionAsString={convertPinholeProtocolToString}
+              selectedTextStyle={{ fontSize: "0.85rem" }}
+              style={{ fontSize: "0.85rem" }}
+              disabled={
+                !(
+                  currentState.applicationPort === "Select application / ports..." ||
+                  currentState.applicationPort === "Custom"
+                )
+              }
+            />
+          </Col>
+        </Row>
+        <Row className="my-3">
+          <Col className="col-4 pe-4"></Col>
+          <Col className="col-4 px-3">
+            <label className="mb-1">{"Port"}</label>
+            <VZInputTextField
+              value={currentState.port}
+              onChange={(e) => setValue("port", e)}
+              style={{ fontSize: "0.9rem" }}
+              disabled={
+                !(
+                  currentState.applicationPort === "Select application / ports..." ||
+                  currentState.applicationPort === "Custom"
+                )
+              }
+            />
+          </Col>
+          <Col className="col-4 ps-4">
+            <label className="mb-1">{"Schedule"}</label>
+            <VZDropdown
+              id="Ipv6Pinholes-Schedule"
+              selectedItem={currentState.schedule}
+              onSelect={(e) => setValue("schedule", e)}
+              options={["Always", "User defined", ...availableSchedules]}
+              getOptionAsString={(e) => convertIpv6PinholeScheduleToUiString(e)}
+              selectedTextStyle={{ fontSize: "0.85rem" }}
+              style={{ fontSize: "0.85rem" }}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col className="my-3 text-end">
+            <VZButton onClick={() => onAddToListClick(currentState)}>Add to list</VZButton>
+          </Col>
+        </Row>
+        <Ipv6PinholesHeader>Rules List</Ipv6PinholesHeader>
+        <Table>
+          <thead>
+            <Ipv6PinholesTableRow className="b">
+              <td className="ps-0 col-2">External Host</td>
+              <td className="col-2">Internal Host</td>
+              <td className="col-2">Protocol</td>
+              <td className="col-2">Application/Port</td>
+              <td className="col-2">Schedule</td>
+              <td className="col-2"></td>
+            </Ipv6PinholesTableRow>
+          </thead>
+          <tbody>
+            {sortedData.map((item) => (
+              <Ipv6PinholesTableRowDetails
+                key={item.id}
+                item={item}
+                onCheckboxClick={() => onCheckboxClick(item)}
+                onDeleteClick={() => onDeleteClick(item)}
+                ipv6Devices={ipv6Devices}
+                availableSchedules={availableSchedules}
+                onDoneClick={onDoneClick}
+              />
+            ))}
+          </tbody>
+        </Table>
+      </VZBody>
+      <VZErrorModal
+        title="Input Errors"
+        errorMsgs={errors}
+        btnText="OK"
+        show={showErrorModal}
+        onClose={onToggleErrorModal}
+      />
+    </>
+  );
+};
+
+type TableProps = {
+  item: UIPinholePolicy;
+  ipv6Devices: Ipv6DeviceInfo[];
+  onCheckboxClick: () => void;
+  onDeleteClick: () => void;
+  availableSchedules: SchedulerRuleInfo[];
+  onDoneClick: (
+    currentState: Ipv6PinholesUiModel,
+    initialPolicy: UIPinholePolicy,
+    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
+  ) => void;
+  onEditSetNewSchedule: () => SchedulerRuleInfo;
+};
+
+const Ipv6PinholesTableRowDetails: React.FC<TableProps> = ({
+  item,
+  onCheckboxClick,
+  onDeleteClick,
+  ipv6Devices,
+  availableSchedules,
+  onDoneClick,
+  onEditSetNewSchedule,
+}) => {
+  const [showDetails, setShowDetails] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+
+  const initialData: Ipv6PinholesUiModel = useMemo(() => {
+    return {
+      ...convertPinholePolicyToExpInfo(item),
+      ...convertPinholePolicyToIntHostInfo(item, ipv6Devices),
+      ...convertPinholePolicyToApplicationInfo(item),
+      schedule: item.schedule,
+    };
+  }, [item, ipv6Devices]);
+
+  const { currentState, setValue } = useFormState(initialData);
+
+  useEffect(() => {
+    if (currentState.schedule === "User defined") {
+      onEditSetNewSchedule();
+    }
+  }, [currentState.schedule]);
+
+  return (
+    <>
+      <OptionalComponent show={isEdit === false}>
+        <Ipv6PinholesTableRow key={item.id}>
+          <Ipv6PinholeTableHostData className="ps-0 col-2">{item.externalHost.toString()}</Ipv6PinholeTableHostData>
+          <Ipv6PinholeTableHostData className="col-2">
+            {item.internalHostName !== undefined && item.internalHostName !== ""
+              ? item.internalHostName
+              : item.internalHost.toNormalizedString()}
+          </Ipv6PinholeTableHostData>
+          <td className="col-2">{convertPinholeProtocolToString(item.protocol)}</td>
+          <td className="col-2">{convertScheduleRuleToUIString(item)}</td>
+          <td className="col-2">{item.schedule === "Always" ? "Always" : item.schedule.name}</td>
+          <td className="col-2">
+            <Col className="d-flex">
+              <Col>
+                <VZCheckbox checked={item.enabled} onChange={onCheckboxClick} />
+              </Col>
+              <Col>
+                <i
+                  id={`ipv6EditRuleButton`}
+                  onClick={() => {
+                    setIsEdit(true);
+                    setShowDetails(false);
+                  }}
+                  role="button"
+                  className="icon icon--edit clickable"
+                ></i>
+              </Col>
+              <Col>
+                <i
+                  id={`ipv6DeleteRuleButton`}
+                  onClick={onDeleteClick}
+                  role="button"
+                  className="icon icon--trash clickable"
+                ></i>
+              </Col>
+              <BWActionIcon
+                className="icon icon--arrow"
+                onClick={() => {
+                  setShowDetails((prev) => !prev);
+                }}
+                $isOpen={showDetails}
+              ></BWActionIcon>
+            </Col>
+          </td>
+        </Ipv6PinholesTableRow>
+      </OptionalComponent>
+      <OptionalComponent show={isEdit}>
+        <tr>
+          <td className="ps-0 col-2">
+            <Col>
+              <VZDropdown
+                id="Ipv6Pinholes-ExternalHost"
+                selectedItem={currentState.externalHost}
+                onSelect={(e) => setValue("externalHost", e)}
+                options={["Any", "Specify IP", "Specify domain name"]}
+                getOptionAsString={(e) => e}
+                selectedTextStyle={{ fontSize: "0.85rem" }}
+                style={{ fontSize: "0.85rem", width: "9rem", height: "2.5rem" }}
+              />
+            </Col>
+            <Col className="mt-2">
+              <OptionalComponent show={currentState.externalHost === "Specify IP"}>
+                <VZInputTextField
+                  value={currentState.specifyExtIp}
+                  onChange={(e) => setValue("specifyExtIp", e)}
+                  style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
+                />
+              </OptionalComponent>
+              <OptionalComponent show={currentState.externalHost === "Specify domain name"}>
+                <VZInputTextField
+                  value={currentState.domainName}
+                  onChange={(e) => setValue("domainName", e)}
+                  style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
+                />
+              </OptionalComponent>
+            </Col>
+          </td>
+          <td className="col-2">
+            <Col style={{ width: "9rem" }}>
+              <VZDropdown
+                id="Ipv6Pinholes-InternalHost"
+                selectedItem={currentState.internalHost}
+                onSelect={(e) => setValue("internalHost", e)}
+                options={["Specify IP", ...ipv6Devices]}
+                getOptionAsString={(e) => convertInternalHostToString(e)}
+                selectedTextStyle={{ fontSize: "0.85rem" }}
+                style={{ fontSize: "0.85rem", width: "9rem", height: "2.5rem" }}
+              />
+            </Col>
+            <Col className="mt-2">
+              <OptionalComponent show={currentState.internalHost === "Specify IP"}>
+                <VZInputTextField
+                  value={currentState.specifyIntIp}
+                  onChange={(e) => setValue("specifyIntIp", e)}
+                  style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
+                />
+              </OptionalComponent>
+            </Col>
+          </td>
+          <td className="col-2">
+            <Col>
+              <VZDropdown
+                id="Ipv6Pinholes-Protocol"
+                selectedItem={currentState.protocol}
+                onSelect={(e) => setValue("protocol", e)}
+                options={getEnumValues(PinholeProtocol)}
+                getOptionAsString={convertPinholeProtocolToString}
+                selectedTextStyle={{ fontSize: "0.85rem" }}
+                style={{ fontSize: "0.85rem", height: "2.5rem" }}
+                disabled={
+                  !(
+                    currentState.applicationPort === "Select application / ports..." ||
+                    currentState.applicationPort === "Custom"
+                  )
+                }
+              />
+            </Col>
+          </td>
+          <td className="col-2">
+            <Col>
+              <OptionalComponent show={currentState.applicationPort === "Custom"}>
+                <VZInputTextField
+                  value={currentState.port.toString()}
+                  onChange={(e) => setValue("port", e)}
+                  style={{ fontSize: "0.9rem", height: "2.5rem" }}
+                />
+              </OptionalComponent>
+              <OptionalComponent show={currentState.applicationPort !== "Custom"}>
+                <VZInputTextField
+                  value={`${(currentState.applicationPort as PinholePortRule).ruleName} (${
+                    (currentState.applicationPort as PinholePortRule).ruleDescription
+                  })`}
+                  onChange={() => {}}
+                  style={{ fontSize: "0.9rem", height: "2.5rem" }}
+                  disabled
+                />
+              </OptionalComponent>
+            </Col>
+          </td>
+          <td className="col-2">
+            <Col>
+              <VZDropdown
+                id="Ipv6Pinholes-Schedule"
+                selectedItem={currentState.schedule}
+                onSelect={(e) => setValue("schedule", e)}
+                options={["Always", "User defined", ...availableSchedules]}
+                getOptionAsString={(e) => convertIpv6PinholeScheduleToUiString(e)}
+                selectedTextStyle={{ fontSize: "0.85rem" }}
+                style={{ fontSize: "0.85rem", width: "9rem", height: "2.5rem" }}
+              />
+            </Col>
+          </td>
+          <td>
+            <Ipv6PinholesDoneButton onClick={() => onDoneClick(currentState, item, setIsEdit)}>
+              Done
+            </Ipv6PinholesDoneButton>
+          </td>
+        </tr>
+      </OptionalComponent>
+      <OptionalComponent show={showDetails}>
+        <Ipv6PinholesTableRow>
+          <Ipv6PinholesTableData className="ps-0" $isHost>
+            {item.externalHost.toString()}
+          </Ipv6PinholesTableData>
+          <Ipv6PinholesTableData $isHost>
+            {item.internalHostName ?? item.internalHost.toNormalizedString()}
+          </Ipv6PinholesTableData>
+          <Ipv6PinholesTableData>{convertPinholeProtocolToString(item.protocol)}</Ipv6PinholesTableData>
+          <Ipv6PinholesTableData>{convertScheduleRuleToUIString(item)}</Ipv6PinholesTableData>
+          <Ipv6PinholesTableData>{item.schedule === "Always" ? "Always" : item.schedule.name}</Ipv6PinholesTableData>
+          <Ipv6PinholesTableData></Ipv6PinholesTableData>
+        </Ipv6PinholesTableRow>
+      </OptionalComponent>
+    </>
+  );
+};
+
+
+Did you see in Ipv6PinholesTableRowDetails there is currentState.schedule === "User defined" thing i wanted to acheive the same functionality to set the 
+schedule which was present in the main code could you help me to achieve this
