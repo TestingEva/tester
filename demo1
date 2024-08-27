@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { Col, Row, Table } from "react-bootstrap";
 import { Ipv6DeviceInfo, RouteType } from "../../../domain/misc/models";
 import { PinholePolicy, PinholePortRule, PinholeProtocol } from "../../../domain/pinholes/models";
@@ -9,32 +9,20 @@ import { ListTrackerResult, useListTracker } from "../../components/list_tracker
 import { OptionalComponent } from "../../components/OptionalComponent";
 import { VZBody } from "../../components/vz-body/VZBody";
 import { VZButton } from "../../components/vz-button/VZButton";
-import { VZCheckbox } from "../../components/vz-checkbox/VZCheckbox";
 import { VZDropdown } from "../../components/vz-dropdown/VZDropdown";
 import { VZHeader } from "../../components/vz-header/VZHeader";
 import { VZInputTextField } from "../../components/vz-input/VZInput";
 import { VZErrorModal } from "../../components/vz-modal/error-modal/VZErrorModal";
 import { getEnumValues } from "../../utils";
-import { BWActionIcon } from "../bandwidth-monitoring/styles";
 import { AddOrEditSchedule } from "../scheduler-rules/AddOrEditSchedule";
+import { Ipv6PinholesTableRowDetails } from "./Ipv6PinholesTableRowDetails";
 import { Ipv6PinholesUiModel, UIPinholePolicy } from "./models";
-import {
-  Ipv6PinholesDesc,
-  Ipv6PinholesDoneButton,
-  Ipv6PinholesHeader,
-  Ipv6PinholesTableData,
-  Ipv6PinholesTableRow,
-  Ipv6PinholeTableHostData,
-} from "./styles";
+import { Ipv6PinholesDesc, Ipv6PinholesHeader, Ipv6PinholesTableRow } from "./styles";
 import {
   convertApplicationPortToUiString,
   convertInternalHostToString,
   convertIpv6PinholeScheduleToUiString,
-  convertPinholePolicyToApplicationInfo,
-  convertPinholePolicyToExpInfo,
-  convertPinholePolicyToIntHostInfo,
   convertPinholeProtocolToString,
-  convertScheduleRuleToUIString,
   convertUiInfoTONewPinholePolicy,
   convertUiInfoToPinholePolicy,
   Ipv6PinholesInitialData,
@@ -109,6 +97,7 @@ export const Ipv6PinholesView: React.FC<Props> = ({
 
   const onAddNewSchedule = useCallback(
     (ruleName?: string) => {
+      console.log(ruleName,availableSchedules)
       if (ruleName !== undefined) {
         const schedule = availableSchedules.find((item) => item.name === ruleName);
         if (schedule === undefined) {
@@ -118,9 +107,27 @@ export const Ipv6PinholesView: React.FC<Props> = ({
         }
       }
     },
-    //eslint-disable-next-line
+    [availableSchedules, setValue]
+  );
+
+  const onEditNewSchedule = useCallback(
+    (ruleName?: string) => {
+      if (ruleName !== undefined) {
+        const schedule = availableSchedules.find((item) => item.name === ruleName);
+        if (schedule === undefined) {
+          return undefined;
+        } else {
+          return schedule;
+        }
+      }
+    },
     [availableSchedules]
   );
+
+  const onEditSetNewSchedule = () => {
+    const temp = onEditNewSchedule();
+    return temp;
+  };
 
   if (currentState.schedule === "User defined") {
     return <AddOrEditSchedule onSuccessfulCreate={onAddNewSchedule} />;
@@ -290,6 +297,7 @@ export const Ipv6PinholesView: React.FC<Props> = ({
                 ipv6Devices={ipv6Devices}
                 availableSchedules={availableSchedules}
                 onDoneClick={onDoneClick}
+                onEditSetNewSchedule={onEditSetNewSchedule}
               />
             ))}
           </tbody>
@@ -306,228 +314,72 @@ export const Ipv6PinholesView: React.FC<Props> = ({
   );
 };
 
-type TableProps = {
-  item: UIPinholePolicy;
-  ipv6Devices: Ipv6DeviceInfo[];
-  onCheckboxClick: () => void;
-  onDeleteClick: () => void;
-  availableSchedules: SchedulerRuleInfo[];
-  onDoneClick: (
-    currentState: Ipv6PinholesUiModel,
-    initialPolicy: UIPinholePolicy,
-    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
-  ) => void;
-  onEditSetNewSchedule: () => SchedulerRuleInfo;
-};
 
-const Ipv6PinholesTableRowDetails: React.FC<TableProps> = ({
-  item,
-  onCheckboxClick,
-  onDeleteClick,
-  ipv6Devices,
-  availableSchedules,
-  onDoneClick,
-  onEditSetNewSchedule,
-}) => {
-  const [showDetails, setShowDetails] = useState(false);
-  const [isEdit, setIsEdit] = useState(false);
 
-  const initialData: Ipv6PinholesUiModel = useMemo(() => {
-    return {
-      ...convertPinholePolicyToExpInfo(item),
-      ...convertPinholePolicyToIntHostInfo(item, ipv6Devices),
-      ...convertPinholePolicyToApplicationInfo(item),
-      schedule: item.schedule,
-    };
-  }, [item, ipv6Devices]);
+Did you see the onAddNewSchedule its just taking the ruleName from a different page and finds in the avaiable schedule 
 
-  const { currentState, setValue } = useFormState(initialData);
+the main problem is the available schedule is not getting dynamically updated but the hook is invalidated and refetched from the page 
 
-  useEffect(() => {
-    if (currentState.schedule === "User defined") {
-      onEditSetNewSchedule();
+import { useMemo, useState } from "react";
+import { useIpv6ConnectionList } from "../../../domain/ipv6-address-distribution/hooks";
+import { usePinholesMutation, usePinholesPageInfo } from "../../../domain/pinholes/hooks";
+import { PinholePolicy } from "../../../domain/pinholes/models";
+import { useSchedulerRuleList } from "../../../domain/scheduler-rules/hooks";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { ListTrackerResult } from "../../components/list_tracker";
+import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { Ipv6PinholesView } from "./Ipv6PinholesView";
+
+export const Ipv6Pinholes = () => {
+  const { data, isPending, isError } = usePinholesPageInfo();
+  const { data: availableSchedules, isPending: isSchedulePending, isError: isScheduleError } = useSchedulerRuleList();
+  const { data: ipv6Devices, isError: ipv6Error, isPending: ipv6Pending } = useIpv6ConnectionList();
+  const { invoke, isPending: isApplying, isError: updateError } = usePinholesMutation();
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const showErrorModal = useMemo(() => errors.length > 0, [errors]);
+
+  const onApplyClick = (result: ListTrackerResult<PinholePolicy>) => {
+    invoke(result);
+  };
+
+  const initialData = useMemo(() => {
+    if (data !== undefined) {
+      return {
+        policies: data.policies.map((item, index) => {
+          return { ...item, index };
+        }),
+        availablePortRules: data.availablePortRules,
+      };
     }
-  }, [currentState.schedule]);
+  }, [data]);
+
+  if (isError || isScheduleError || ipv6Error || updateError) {
+    return <ErrorIndicator />;
+  }
+
+  if (
+    isPending ||
+    initialData === undefined ||
+    isSchedulePending ||
+    availableSchedules === undefined ||
+    ipv6Pending ||
+    ipv6Devices === undefined
+  ) {
+    return <LoadingIndicator />;
+  }
 
   return (
-    <>
-      <OptionalComponent show={isEdit === false}>
-        <Ipv6PinholesTableRow key={item.id}>
-          <Ipv6PinholeTableHostData className="ps-0 col-2">{item.externalHost.toString()}</Ipv6PinholeTableHostData>
-          <Ipv6PinholeTableHostData className="col-2">
-            {item.internalHostName !== undefined && item.internalHostName !== ""
-              ? item.internalHostName
-              : item.internalHost.toNormalizedString()}
-          </Ipv6PinholeTableHostData>
-          <td className="col-2">{convertPinholeProtocolToString(item.protocol)}</td>
-          <td className="col-2">{convertScheduleRuleToUIString(item)}</td>
-          <td className="col-2">{item.schedule === "Always" ? "Always" : item.schedule.name}</td>
-          <td className="col-2">
-            <Col className="d-flex">
-              <Col>
-                <VZCheckbox checked={item.enabled} onChange={onCheckboxClick} />
-              </Col>
-              <Col>
-                <i
-                  id={`ipv6EditRuleButton`}
-                  onClick={() => {
-                    setIsEdit(true);
-                    setShowDetails(false);
-                  }}
-                  role="button"
-                  className="icon icon--edit clickable"
-                ></i>
-              </Col>
-              <Col>
-                <i
-                  id={`ipv6DeleteRuleButton`}
-                  onClick={onDeleteClick}
-                  role="button"
-                  className="icon icon--trash clickable"
-                ></i>
-              </Col>
-              <BWActionIcon
-                className="icon icon--arrow"
-                onClick={() => {
-                  setShowDetails((prev) => !prev);
-                }}
-                $isOpen={showDetails}
-              ></BWActionIcon>
-            </Col>
-          </td>
-        </Ipv6PinholesTableRow>
-      </OptionalComponent>
-      <OptionalComponent show={isEdit}>
-        <tr>
-          <td className="ps-0 col-2">
-            <Col>
-              <VZDropdown
-                id="Ipv6Pinholes-ExternalHost"
-                selectedItem={currentState.externalHost}
-                onSelect={(e) => setValue("externalHost", e)}
-                options={["Any", "Specify IP", "Specify domain name"]}
-                getOptionAsString={(e) => e}
-                selectedTextStyle={{ fontSize: "0.85rem" }}
-                style={{ fontSize: "0.85rem", width: "9rem", height: "2.5rem" }}
-              />
-            </Col>
-            <Col className="mt-2">
-              <OptionalComponent show={currentState.externalHost === "Specify IP"}>
-                <VZInputTextField
-                  value={currentState.specifyExtIp}
-                  onChange={(e) => setValue("specifyExtIp", e)}
-                  style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
-                />
-              </OptionalComponent>
-              <OptionalComponent show={currentState.externalHost === "Specify domain name"}>
-                <VZInputTextField
-                  value={currentState.domainName}
-                  onChange={(e) => setValue("domainName", e)}
-                  style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
-                />
-              </OptionalComponent>
-            </Col>
-          </td>
-          <td className="col-2">
-            <Col style={{ width: "9rem" }}>
-              <VZDropdown
-                id="Ipv6Pinholes-InternalHost"
-                selectedItem={currentState.internalHost}
-                onSelect={(e) => setValue("internalHost", e)}
-                options={["Specify IP", ...ipv6Devices]}
-                getOptionAsString={(e) => convertInternalHostToString(e)}
-                selectedTextStyle={{ fontSize: "0.85rem" }}
-                style={{ fontSize: "0.85rem", width: "9rem", height: "2.5rem" }}
-              />
-            </Col>
-            <Col className="mt-2">
-              <OptionalComponent show={currentState.internalHost === "Specify IP"}>
-                <VZInputTextField
-                  value={currentState.specifyIntIp}
-                  onChange={(e) => setValue("specifyIntIp", e)}
-                  style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
-                />
-              </OptionalComponent>
-            </Col>
-          </td>
-          <td className="col-2">
-            <Col>
-              <VZDropdown
-                id="Ipv6Pinholes-Protocol"
-                selectedItem={currentState.protocol}
-                onSelect={(e) => setValue("protocol", e)}
-                options={getEnumValues(PinholeProtocol)}
-                getOptionAsString={convertPinholeProtocolToString}
-                selectedTextStyle={{ fontSize: "0.85rem" }}
-                style={{ fontSize: "0.85rem", height: "2.5rem" }}
-                disabled={
-                  !(
-                    currentState.applicationPort === "Select application / ports..." ||
-                    currentState.applicationPort === "Custom"
-                  )
-                }
-              />
-            </Col>
-          </td>
-          <td className="col-2">
-            <Col>
-              <OptionalComponent show={currentState.applicationPort === "Custom"}>
-                <VZInputTextField
-                  value={currentState.port.toString()}
-                  onChange={(e) => setValue("port", e)}
-                  style={{ fontSize: "0.9rem", height: "2.5rem" }}
-                />
-              </OptionalComponent>
-              <OptionalComponent show={currentState.applicationPort !== "Custom"}>
-                <VZInputTextField
-                  value={`${(currentState.applicationPort as PinholePortRule).ruleName} (${
-                    (currentState.applicationPort as PinholePortRule).ruleDescription
-                  })`}
-                  onChange={() => {}}
-                  style={{ fontSize: "0.9rem", height: "2.5rem" }}
-                  disabled
-                />
-              </OptionalComponent>
-            </Col>
-          </td>
-          <td className="col-2">
-            <Col>
-              <VZDropdown
-                id="Ipv6Pinholes-Schedule"
-                selectedItem={currentState.schedule}
-                onSelect={(e) => setValue("schedule", e)}
-                options={["Always", "User defined", ...availableSchedules]}
-                getOptionAsString={(e) => convertIpv6PinholeScheduleToUiString(e)}
-                selectedTextStyle={{ fontSize: "0.85rem" }}
-                style={{ fontSize: "0.85rem", width: "9rem", height: "2.5rem" }}
-              />
-            </Col>
-          </td>
-          <td>
-            <Ipv6PinholesDoneButton onClick={() => onDoneClick(currentState, item, setIsEdit)}>
-              Done
-            </Ipv6PinholesDoneButton>
-          </td>
-        </tr>
-      </OptionalComponent>
-      <OptionalComponent show={showDetails}>
-        <Ipv6PinholesTableRow>
-          <Ipv6PinholesTableData className="ps-0" $isHost>
-            {item.externalHost.toString()}
-          </Ipv6PinholesTableData>
-          <Ipv6PinholesTableData $isHost>
-            {item.internalHostName ?? item.internalHost.toNormalizedString()}
-          </Ipv6PinholesTableData>
-          <Ipv6PinholesTableData>{convertPinholeProtocolToString(item.protocol)}</Ipv6PinholesTableData>
-          <Ipv6PinholesTableData>{convertScheduleRuleToUIString(item)}</Ipv6PinholesTableData>
-          <Ipv6PinholesTableData>{item.schedule === "Always" ? "Always" : item.schedule.name}</Ipv6PinholesTableData>
-          <Ipv6PinholesTableData></Ipv6PinholesTableData>
-        </Ipv6PinholesTableRow>
-      </OptionalComponent>
-    </>
+    <Ipv6PinholesView
+      data={initialData}
+      availableSchedules={availableSchedules}
+      errors={errors}
+      setErrors={setErrors}
+      showErrorModal={showErrorModal}
+      onToggleErrorModal={() => setErrors([])}
+      ipv6Devices={ipv6Devices}
+      onApplyClick={onApplyClick}
+      isApplying={isApplying}
+    />
   );
 };
-
-
-Did you see in Ipv6PinholesTableRowDetails there is currentState.schedule === "User defined" thing i wanted to acheive the same functionality to set the 
-schedule which was present in the main code could you help me to achieve this
