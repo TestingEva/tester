@@ -1,35 +1,18 @@
-For the manager:
+export enum Protocol {
+  Tcp,
+  Udp,
+  Icmp,
+  Gre,
+  Esp,
+  Ah,
+  Other,
+}
 
----
-
-Dear [Manager's Name],
-
-Thank you very much for recognizing my efforts and awarding me the Ace of the Month for July 2024. I am truly honored and motivated by this acknowledgment. 
-
-I am grateful for the opportunity to work on this project, and I will continue to strive for excellence in all my contributions. Your support and guidance have been invaluable.
-
-Thank you once again for this recognition and for the e-certificate.
-
-Best regards,  
-Sushant
-
----
-
-For the Team Lead:
-
----
-
-Dear [Team Lead's Name],
-
-I sincerely appreciate your kind words and recognition of my work. It means a lot to me to have my efforts acknowledged, especially when facing challenges. 
-
-I am committed to maintaining this level of dedication and continuing to contribute effectively to our team's success.
-
-Thank you for your support.
-
-Best regards,  
-Sushant
-
---- 
-
-Feel free to adjust the names as needed.
+suppose i have this enum and i want to make a new enum which have export 
+  Tcp,
+  Udp,
+  Icmp,
+  Gre,
+  Esp,
+  Ah,
+ and also a Both instead of other Can it be possible 
