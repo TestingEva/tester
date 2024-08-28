@@ -1,321 +1,40 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Col, Row, Table } from "react-bootstrap";
-import { Ipv6DeviceInfo, RouteType } from "../../../domain/misc/models";
-import { PinholePolicy, PinholePortRule, PinholeProtocol } from "../../../domain/pinholes/models";
-import { SchedulerRuleInfo } from "../../../domain/scheduler-rules/models";
-import { sortBy } from "../../../domain/utils";
-import { useFormState } from "../../components/form";
-import { ListTrackerResult, useListTracker } from "../../components/list_tracker";
-import { OptionalComponent } from "../../components/OptionalComponent";
-import { VZBody } from "../../components/vz-body/VZBody";
-import { VZButton } from "../../components/vz-button/VZButton";
-import { VZDropdown } from "../../components/vz-dropdown/VZDropdown";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { VZInputTextField } from "../../components/vz-input/VZInput";
-import { VZErrorModal } from "../../components/vz-modal/error-modal/VZErrorModal";
-import { getEnumValues, sanitizeIpv6Address } from "../../utils";
-import { AddOrEditSchedule } from "../scheduler-rules/AddOrEditSchedule";
-import { Ipv6PinholesTableRowDetails } from "./Ipv6PinholesTableRowDetails";
-import { Ipv6PinholesUiModel, PinholeTableRowForwardProp, UIPinholePolicy } from "./models";
-import { Ipv6PinholesDesc, Ipv6PinholesHeader, Ipv6PinholesTableRow } from "./styles";
-import {
-  convertApplicationPortToUiString,
-  convertInternalHostToString,
-  convertIpv6PinholeScheduleToUiString,
-  convertPinholeProtocolToString,
-  convertUiInfoTONewPinholePolicy,
-  convertUiInfoToPinholePolicy,
-  Ipv6PinholesInitialData,
-  validateCreateIpv6PinholeRule,
-} from "./utils";
+Dear Sushant,
 
-type Props = {
-  data: {
-    policies: UIPinholePolicy[];
-    availablePortRules: PinholePortRule[];
-  };
-  availableSchedules: SchedulerRuleInfo[];
-  errors: string[];
-  setErrors: React.Dispatch<React.SetStateAction<string[]>>;
-  showErrorModal: boolean;
-  onToggleErrorModal: () => void;
-  ipv6Devices: Ipv6DeviceInfo[];
-  onApplyClick: (result: ListTrackerResult<PinholePolicy>) => void;
-  isApplying: boolean;
-};
+ 
 
-export const Ipv6PinholesView: React.FC<Props> = ({
-  data,
-  availableSchedules,
-  errors,
-  setErrors,
-  showErrorModal,
-  onToggleErrorModal,
-  ipv6Devices,
-  onApplyClick,
-  isApplying,
-}) => {
-  const { addItem, removeItem, updateItem, getResult, list, hasChanges } = useListTracker(data.policies, "id");
-  const { currentState, reset, setValue } = useFormState(Ipv6PinholesInitialData);
-  const [newRuleName, setNewRuleName] = useState<string | undefined>();
-  const [showEditRuleView, setShowEditRuleView] = useState(false);
-  const childrenRef = useRef<{ [id: string]: PinholeTableRowForwardProp }>({});
-  const [newScheduleId, setNewScheduleId] = useState<string>("");
+Congrats on being recognized as  Ace of the Month - Jul 2024
 
-  const sortedData = useMemo(() => {
-    return sortBy("asc", list, (val) => val.index);
-  }, [list]);
+Nice to see appreciations coming in for your efforts from the client
 
-  const onAddToListClick = (currentState: Ipv6PinholesUiModel) => {
-    const createRuleErrors: string[] = validateCreateIpv6PinholeRule(currentState);
-    setErrors(createRuleErrors);
-    if (createRuleErrors.length === 0) {
-      const ipv6PinholeRule = convertUiInfoTONewPinholePolicy(currentState);
-      const ruleIndex = data.policies.length + 1;
-      addItem({ ...ipv6PinholeRule, index: ruleIndex });
-      reset();
-    }
-  };
+ 
 
-  const onCheckboxClick = (item: UIPinholePolicy) => {
-    updateItem({ ...item, enabled: !item.enabled });
-  };
+Sushant has become well-versed in the new architecture, showing remarkable attention to detail.
+His thorough understanding and meticulous approach have been exceeding our expectations.
+Despite facing challenges with teams that were not always responsive, Sushant consistently collaborated with them demonstrating persistence and the ability to foster cooperation under such circumstances
+ 
 
-  const onDeleteClick = (item: UIPinholePolicy) => {
-    removeItem(item);
-  };
+You are a valued member of our team, and we truly appreciate your contributions. Keep up the good work!!
 
-  const onDoneClick = (
-    currentState: Ipv6PinholesUiModel,
-    initialPolicy: UIPinholePolicy,
-    setIsEdit: React.Dispatch<React.SetStateAction<boolean>>
-  ) => {
-    const editErrors = validateCreateIpv6PinholeRule(currentState);
-    setErrors(editErrors);
-    if (editErrors.length === 0) {
-      const ipv6PinholeRule = convertUiInfoToPinholePolicy(currentState, initialPolicy);
-      updateItem(ipv6PinholeRule);
-      setIsEdit(false);
-    }
-  };
+ 
 
-  useEffect(() => {
-    if (newRuleName !== undefined) {
-      const schedule = availableSchedules.find((item) => item.name === newRuleName);
-      if (schedule === undefined) {
-        setValue("schedule", "Always");
-      } else {
-        setValue("schedule", schedule);
-      }
-    }
-    //eslint-disable-next-line
-  }, [availableSchedules, newRuleName]);
+Please find the attached E-Certificate.
 
-  const onAddNewSchedule = (ruleName?: string) => {
-    setNewRuleName(ruleName);
-  };
+ 
 
-  const onEditNewSchedule = useCallback(
-    (ruleName?: string) => {
-      setShowEditRuleView(false);
-      childrenRef.current[newScheduleId].setRuleName(ruleName);
-      setNewScheduleId("");
-    },
-    //eslint-disable-next-line
-    [childrenRef.current, newScheduleId]
-  );
+Cheers !!!
 
-  const onEditSetNewSchedule = (id: string) => {
-    setNewScheduleId(id);
-    setShowEditRuleView(true);
-  };
 
-  if (currentState.schedule === "User defined" || showEditRuleView) {
-    return <AddOrEditSchedule onSuccessfulCreate={showEditRuleView ? onEditNewSchedule : onAddNewSchedule} />;
-  }
 
-  return (
-    <>
-      <VZHeader
-        title="IPv6 Pinhole"
-        breadcrumbData={[{ label: "Security & Firewall" }, { label: "IPv6 Pinhole", destType: RouteType.IPV6_PIN }]}
-        rightBody={
-          <VZButton onClick={() => onApplyClick(getResult())} disabled={!hasChanges || isApplying}>
-            Apply Changes
-          </VZButton>
-        }
-      />
-      <Ipv6PinholesDesc>
-        <Col className="hb" style={{ fontSize: "1rem", lineHeight: "2rem" }}>
-          How it works...
-        </Col>
-        <Col className="py-1">
-          Open a tunnel between remote computers and a device port on your Home Network (LAN). Supports gaming, IoT,
-          home security devices and more.
-        </Col>
-      </Ipv6PinholesDesc>
-      <VZBody noTopPadding>
-        <Ipv6PinholesHeader $isFirst>Create Rule</Ipv6PinholesHeader>
-        <Row className="my-3">
-          <Col className="col-4 pe-4">
-            <label className="mb-1">{"External Host"}</label>
-            <VZDropdown
-              id="Ipv6Pinholes-ExternalHost"
-              selectedItem={currentState.externalHost}
-              onSelect={(e) => setValue("externalHost", e)}
-              options={["Any", "Specify IP", "Specify domain name"]}
-              getOptionAsString={(e) => e}
-              selectedTextStyle={{ fontSize: "0.85rem" }}
-              style={{ fontSize: "0.85rem", height: "2.5rem" }}
-            />
-          </Col>
-          <Col className="col-4 px-3">
-            <label className="mb-1">{"Internal Host"}</label>
-            <VZDropdown
-              id="Ipv6Pinholes-InternalHost"
-              selectedItem={currentState.internalHost}
-              onSelect={(e) => setValue("internalHost", e)}
-              options={["Specify IP", ...ipv6Devices]}
-              getOptionAsString={(e) => convertInternalHostToString(e)}
-              selectedTextStyle={{ fontSize: "0.85rem" }}
-              style={{ fontSize: "0.85rem", height: "2.5rem" }}
-            />
-          </Col>
-          <Col className="col-4 ps-4">
-            <label className="mb-1">{"Application/Port"}</label>
-            <VZDropdown
-              id="Ipv6Pinholes-Application/Port"
-              selectedItem={currentState.applicationPort}
-              onSelect={(e) => setValue("applicationPort", e)}
-              options={["Custom", ...data.availablePortRules]}
-              getOptionAsString={(e) => convertApplicationPortToUiString(e)}
-              selectedTextStyle={{ fontSize: "0.85rem" }}
-              style={{ fontSize: "0.85rem", height: "2.5rem" }}
-            />
-          </Col>
-        </Row>
-        <Row className="my-3">
-          <Col className="col-4 pe-4">
-            <OptionalComponent show={currentState.externalHost === "Specify IP"}>
-              <label className="mb-1">{"Specify IP"}</label>
-              <VZInputTextField
-                value={currentState.specifyExtIp}
-                onChange={(e) => setValue("specifyExtIp", sanitizeIpv6Address(e))}
-                style={{ fontSize: "0.9rem", height: "2.5rem" }}
-              />
-            </OptionalComponent>
-            <OptionalComponent show={currentState.externalHost === "Specify domain name"}>
-              <label className="mb-1">{"Specify domain name"}</label>
-              <VZInputTextField
-                value={currentState.domainName}
-                onChange={(e) => setValue("domainName", e)}
-                style={{ fontSize: "0.9rem", height: "2.5rem" }}
-              />
-            </OptionalComponent>
-          </Col>
-          <Col className="col-4 px-3">
-            <OptionalComponent show={currentState.internalHost === "Specify IP"}>
-              <label className="mb-1">{"Specify IP"}</label>
-              <VZInputTextField
-                value={currentState.specifyIntIp}
-                onChange={(e) => setValue("specifyIntIp", sanitizeIpv6Address(e))}
-                style={{ fontSize: "0.9rem", height: "2.5rem" }}
-              />
-            </OptionalComponent>
-          </Col>
-          <Col className="col-4 ps-4">
-            <label className="mb-1">{"Protocol"}</label>
-            <VZDropdown
-              id="Ipv6Pinholes-Protocol"
-              selectedItem={currentState.protocol}
-              onSelect={(e) => setValue("protocol", e)}
-              options={getEnumValues(PinholeProtocol)}
-              getOptionAsString={convertPinholeProtocolToString}
-              selectedTextStyle={{ fontSize: "0.85rem" }}
-              style={{ fontSize: "0.85rem", height: "2.5rem" }}
-              disabled={
-                !(
-                  currentState.applicationPort === "Select application / ports..." ||
-                  currentState.applicationPort === "Custom"
-                )
-              }
-            />
-          </Col>
-        </Row>
-        <Row className="my-3">
-          <Col className="col-4 pe-4"></Col>
-          <Col className="col-4 px-3">
-            <label className="mb-1">{"Port"}</label>
-            <VZInputTextField
-              value={currentState.port}
-              onChange={(e) => setValue("port", e.replace(/\D/g, "").slice(0, 16))}
-              style={{ fontSize: "0.9rem", height: "2.5rem" }}
-              disabled={
-                !(
-                  currentState.applicationPort === "Select application / ports..." ||
-                  currentState.applicationPort === "Custom"
-                )
-              }
-            />
-          </Col>
-          <Col className="col-4 ps-4">
-            <label className="mb-1">{"Schedule"}</label>
-            <VZDropdown
-              id="Ipv6Pinholes-Schedule"
-              selectedItem={currentState.schedule}
-              onSelect={(e) => setValue("schedule", e)}
-              options={["Always", "User defined", ...availableSchedules]}
-              getOptionAsString={(e) => convertIpv6PinholeScheduleToUiString(e)}
-              selectedTextStyle={{ fontSize: "0.85rem" }}
-              style={{ fontSize: "0.85rem", height: "2.5rem" }}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col className="my-3 text-end">
-            <VZButton onClick={() => onAddToListClick(currentState)}>Add to list</VZButton>
-          </Col>
-        </Row>
-        <Ipv6PinholesHeader>Rules List</Ipv6PinholesHeader>
-        <Table>
-          <thead>
-            <Ipv6PinholesTableRow className="b">
-              <td className="ps-0 col-2">External Host</td>
-              <td className="col-2">Internal Host</td>
-              <td className="col-2">Protocol</td>
-              <td className="col-2">Application/Port</td>
-              <td className="col-2">Schedule</td>
-              <td className="col-2"></td>
-            </Ipv6PinholesTableRow>
-          </thead>
-          <tbody>
-            {sortedData.map((item) => (
-              <Ipv6PinholesTableRowDetails
-                ref={(ele) => {
-                  if (ele !== null) {
-                    childrenRef.current[item.id] = ele;
-                  }
-                }}
-                key={item.id}
-                item={item}
-                onCheckboxClick={() => onCheckboxClick(item)}
-                onDeleteClick={() => onDeleteClick(item)}
-                ipv6Devices={ipv6Devices}
-                availableSchedules={availableSchedules}
-                onDoneClick={onDoneClick}
-                onEditSetNewSchedule={() => onEditSetNewSchedule(item.id)}
-              />
-            ))}
-          </tbody>
-        </Table>
-      </VZBody>
-      <VZErrorModal
-        title="Input Errors"
-        errorMsgs={errors}
-        btnText="OK"
-        show={showErrorModal}
-        onClose={onToggleErrorModal}
-      />
-    </>
-  );
-};
+prepare a reply for this for the manager 
+
+
+
+
+and also the below lines were given by my Team Lead 
+Sushant has become well-versed in the new architecture, showing remarkable attention to detail.
+His thorough understanding and meticulous approach have been exceeding our expectations.
+Despite facing challenges with teams that were not always responsive, Sushant consistently collaborated with them demonstrating persistence and the ability to foster cooperation under such circumstances
+
+so prepare the same Thanking message for him too 
+
+it should be brief and should be formal
