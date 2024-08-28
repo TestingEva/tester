@@ -8,7 +8,7 @@ import { OptionalComponent } from "../../components/OptionalComponent";
 import { VZCheckbox } from "../../components/vz-checkbox/VZCheckbox";
 import { VZDropdown } from "../../components/vz-dropdown/VZDropdown";
 import { VZInputTextField } from "../../components/vz-input/VZInput";
-import { getEnumValues } from "../../utils";
+import { getEnumValues, sanitizeIpv6Address } from "../../utils";
 import { BWActionIcon } from "../bandwidth-monitoring/styles";
 import { Ipv6PinholesUiModel, PinholeTableRowForwardProp, UIPinholePolicy } from "./models";
 import {
@@ -49,20 +49,16 @@ export const Ipv6PinholesTableRowDetails = React.forwardRef<PinholeTableRowForwa
     const [newSch, setNewSch] = useState<string | undefined>();
     const initialData: Ipv6PinholesUiModel = useMemo(() => {
       return convertPinholePolicyToUiInfo(item, ipv6Devices, availableSchedules, newSch);
-    }, [item, ipv6Devices, newSch, availableSchedules]);
+      //eslint-disable-next-line
+    }, [item, ipv6Devices, availableSchedules, newSch]);
 
     const { currentState, setValue } = useFormState(initialData);
 
     useImperativeHandle(ref, () => ({
       setRuleName(name) {
         setNewSch(name);
-        console.log(name);
       },
     }));
-
-    useEffect(() => {
-      console.log(newSch);
-    }, [newSch]);
 
     useEffect(() => {
       if (newSch !== undefined) {
@@ -140,7 +136,7 @@ export const Ipv6PinholesTableRowDetails = React.forwardRef<PinholeTableRowForwa
                 <OptionalComponent show={currentState.externalHost === "Specify IP"}>
                   <VZInputTextField
                     value={currentState.specifyExtIp}
-                    onChange={(e) => setValue("specifyExtIp", e)}
+                    onChange={(e) => setValue("specifyExtIp", sanitizeIpv6Address(e))}
                     style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
                   />
                 </OptionalComponent>
@@ -169,7 +165,7 @@ export const Ipv6PinholesTableRowDetails = React.forwardRef<PinholeTableRowForwa
                 <OptionalComponent show={currentState.internalHost === "Specify IP"}>
                   <VZInputTextField
                     value={currentState.specifyIntIp}
-                    onChange={(e) => setValue("specifyIntIp", e)}
+                    onChange={(e) => setValue("specifyIntIp", sanitizeIpv6Address(e))}
                     style={{ fontSize: "0.9rem", width: "9rem", height: "2.5rem" }}
                   />
                 </OptionalComponent>
@@ -199,7 +195,7 @@ export const Ipv6PinholesTableRowDetails = React.forwardRef<PinholeTableRowForwa
                 <OptionalComponent show={currentState.applicationPort === "Custom"}>
                   <VZInputTextField
                     value={currentState.port.toString()}
-                    onChange={(e) => setValue("port", e)}
+                    onChange={(e) => setValue("port", e.replace(/\D/g, "").slice(0, 16))}
                     style={{ fontSize: "0.9rem", height: "2.5rem" }}
                   />
                 </OptionalComponent>
@@ -254,10 +250,3 @@ export const Ipv6PinholesTableRowDetails = React.forwardRef<PinholeTableRowForwa
   }
 );
 
-
-here       setRuleName(name) {
-        setNewSch(name);
-        console.log(name);
-      },
-
-when i am consolig the value of name i am getting it in the console but when i am checking whats newSch its always undefined its seem like its not being saved to the state
