@@ -1,2 +1,17 @@
 I am writing a mapping function to convert ([number] | [number, number])[]; to (number | [number, number])[]; can you write a function to do this 
 in ts
+function convertPortRange(
+  portRanges: ([number] | [number, number])[]
+): (number | [number, number])[] {
+  return portRanges.map(range => range.length === 1 ? range[0] : range);
+}
+
+// Example usage:
+const input: ([number] | [number, number])[] = [
+  [123],
+  [222, 333],
+  [4500, 4501]
+];
+
+const output: (number | [number, number])[] = convertPortRange(input);
+console.log(output); // Output: [123, [222, 333], [4500, 4501]]
