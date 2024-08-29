@@ -1,22 +1,11 @@
-export type PortForwardingData = {
-  enabled: boolean;
-  groupExternalPortRange: ([number] | [number, number])[];
-  hostName: string;
-  internalClient: string;
-  internalPort: number;
-  name: string;
-  portMappingId: string;
-  protocol: PortForwardingProtocolData;
-  scheduleId: string;
-};
+number[][]; hostName: string; internalClient: string; internalPort: number; name: string; portMappingId: string; protocol: string; scheduleId: string; }[]' to type 'PortForwardingData[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ enabled: boolean; groupExternalPortRange: number[][]; hostName: string; internalClient: string; internalPort: number; name: string; portMappingId: string; protocol: string; scheduleId: string; }' is not comparable to type 'PortForwardingData'.
+    Types of property 'groupExternalPortRange' are incompatible.
+      Type 'number[][]' is not comparable to type '([number] | [number, number])[]'.
+        Type 'number[]' is not comparable to type '[number] | [number, number]'.
+          Type 'number[]' is not comparable to type '[number, number]'.
+            Target requires 2 element(s) but source may have fewer.ts(2352)
 
-export enum PortForwardingProtocolData {
-  Tcp,
-  Udp,
-  Both,
-  Gre,
-  Esp,
-  Ah,
-}
+This is the error I am gettting from the following code
 
-I guess then you need to correct the Models also for the groupExternalPortRange
+   PortForwardingDataResponseSchema.parse(response.body).portMappingPolicyList as PortForwardingData[];
