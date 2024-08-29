@@ -1,4 +1,4 @@
-I am writing a mapping function to convert ([number] | [number, number])[]; to (number | [number, number])[]; can you write a function to do this 
+https://forms.gle/VnxmPiA5yD9T18Br8 I am writing a mapping function to convert ([number] | [number, number])[]; to (number | [number, number])[]; can you write a function to do this 
 in ts
 function convertPortRange(
   portRanges: ([number] | [number, number])[]
