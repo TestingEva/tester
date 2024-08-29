@@ -1,18 +1,99 @@
-export enum Protocol {
-  Tcp,
-  Udp,
-  Icmp,
-  Gre,
-  Esp,
-  Ah,
-  Other,
+                 [
+                    123
+                ],
+                [
+                    222,
+                    333
+                ],
+                [
+                    4500,
+                    4501
+                ]
+
+This is my port array it can have either a single element in the arrray or two elements in the array how can i validate it in the schema 
+
+giving you the api response 
+{
+    "portMappingPolicyList": [
+        {
+            "enabled": true,
+            "externalPortRange": [
+                111,
+                223
+            ],
+            "groupExternalPortRange": [
+                [
+                    111,
+                    223
+                ]
+            ],
+            "hostName": "C02D1672MD6M",
+            "internalClient": "192.168.1.2",
+            "internalPort": 232,
+            "macAddress": "00:24:32:A0:D8:BE",
+            "name": "v,cmn,mcxn",
+            "portMappingId": "e58b035c-f83d-4735-8b6b-68ab7b5b3c94",
+            "protocol": "BOTH",
+            "scheduleId": "4cf5839d-218d-4bbb-a457-d97b14d9928e"
+        },
+        {
+            "enabled": true,
+            "externalPortRange": [
+                123
+            ],
+            "groupExternalPortRange": [
+                [
+                    123
+                ],
+                [
+                    222,
+                    333
+                ],
+                [
+                    4500,
+                    4501
+                ]
+            ],
+            "hostName": "",
+            "internalClient": "192.168.1.23",
+            "internalPort": 1233,
+            "macAddress": "",
+            "name": "twete",
+            "portMappingId": "5feb467b-0633-49fa-b3ef-bd99d5697daa",
+            "protocol": "TCP",
+            "scheduleId": ""
+        }
+    ],
+    "timestamp": 1724914799914
 }
 
-suppose i have this enum and i want to make a new enum which have export 
-  Tcp,
-  Udp,
-  Icmp,
-  Gre,
-  Esp,
-  Ah,
- and also a Both instead of other Can it be possible 
+also giving you the schema which i have written 
+
+import { z } from "zod";
+import { getEnumValues } from "../../ui/utils";
+import { zodIpAddress } from "../utils";
+import { convertPortForwardingProtocolDataToString } from "./mappings";
+import { PortForwardingProtocolData } from "./models";
+
+const GroupExternalPortRangeResponseSchema = z.union([[(z.number())], z.array(z.number(), z.number())]);
+
+const PortMappingDataResponseSchema = z.object({
+  enabled: z.boolean(),
+  groupExternalPortRange: z.array(GroupExternalPortRangeResponseSchema),
+  hostName: z.string().min(1),
+  internalClient: zodIpAddress("v4", false),
+  internalPort: z.number().nonnegative(),
+  name: z.string().min(1),
+  portMappingId: z.string().min(1),
+  protocol: z.enum(
+    getEnumValues(PortForwardingProtocolData).map(convertPortForwardingProtocolDataToString) as [string]
+  ),
+  scheduleId: z.string(),
+});
+
+export const PortForwardingDataResponseSchema = z.object({
+  portMappingPolicyList: z.array(PortMappingDataResponseSchema),
+});
+
+
+could you help me complete this 
