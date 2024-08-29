@@ -1,11 +1,2 @@
-number[][]; hostName: string; internalClient: string; internalPort: number; name: string; portMappingId: string; protocol: string; scheduleId: string; }[]' to type 'PortForwardingData[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
-  Type '{ enabled: boolean; groupExternalPortRange: number[][]; hostName: string; internalClient: string; internalPort: number; name: string; portMappingId: string; protocol: string; scheduleId: string; }' is not comparable to type 'PortForwardingData'.
-    Types of property 'groupExternalPortRange' are incompatible.
-      Type 'number[][]' is not comparable to type '([number] | [number, number])[]'.
-        Type 'number[]' is not comparable to type '[number] | [number, number]'.
-          Type 'number[]' is not comparable to type '[number, number]'.
-            Target requires 2 element(s) but source may have fewer.ts(2352)
-
-This is the error I am gettting from the following code
-
-   PortForwardingDataResponseSchema.parse(response.body).portMappingPolicyList as PortForwardingData[];
+I am writing a mapping function to convert ([number] | [number, number])[]; to (number | [number, number])[]; can you write a function to do this 
+in ts
