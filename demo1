@@ -1,8 +1,9 @@
-your case 1 did well but for case 2 and 3 you could not did well 
-
-[ 233, [ 12, 231 ], [ 457, 4568 ], 21 ]
-
-for this entry it returns true but 4567 is in the range 457-4568
-
-the array which i am giving you the entry is a Port array in which 233 ,21 are the individal ports and 12-231 are the port ranges 
-now you need to find whether 4577 or 4567 are present in the this array 
+function validateNo4567(ports: (number | [number, number])[]): boolean {
+    return ports.every(port => {
+        if (Array.isArray(port)) {
+            const [start, end] = port;
+            return 4567 < start || 4567 > end; // 4567 should not be in the range
+        }
+        return port !== 4567;
+    });
+}
