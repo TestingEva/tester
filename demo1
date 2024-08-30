@@ -1,22 +1,3 @@
+I have a startHour in 12 hour format startMinutes in 00 to 60 mins and also a AM or PM 
 
-https://www.linkedin.com/posts/rajenderjoshi_frontendengineers-frontend-reactjs-activity-7234857930259382272-f8qQ?utm_source=share&utm_medium=member_android
-
-
-
-https://forms.gle/VnxmPiA5yD9T18Br8 I am writing a mapping function to convert ([number] | [number, number])[]; to (number | [number, number])[]; can you write a function to do this 
-in ts
-function convertPortRange(
-  portRanges: ([number] | [number, number])[]
-): (number | [number, number])[] {
-  return portRanges.map(range => range.length === 1 ? range[0] : range);
-}
-
-// Example usage:
-const input: ([number] | [number, number])[] = [
-  [123],
-  [222, 333],
-  [4500, 4501]
-];
-
-const output: (number | [number, number])[] = convertPortRange(input);
-console.log(output); // Output: [123, [222, 333], [4500, 4501]]
+i want you to write a fn in typeScript which will take this three input and return a Dayjs of these
