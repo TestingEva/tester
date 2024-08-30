@@ -14,3 +14,59 @@ export type PortForwardingProfileInfo = {
 This is the portForwardingInfo I am having and now i need you to create a typescript function which will take the above array and  ports: (number | [number, number])[]
 and perform the validations which is required 
 
+
+
+
+
+
+
+
+
+
+
+
+function flattenPortsToSet(ports: (number | [number, number])[]): Set<number> {
+    const portSet = new Set<number>();
+
+    ports.forEach(port => {
+        if (Array.isArray(port)) {
+            const [start, end] = port;
+            for (let p = start; p <= end; p++) {
+                portSet.add(p);
+            }
+        } else {
+            portSet.add(port);
+        }
+    });
+
+    return portSet;
+}
+
+function validatePortForwardingRules(
+    profiles: PortForwardingProfileInfo,
+    ports: (number | [number, number])[]
+): boolean {
+    const existingPortsSet = new Set<number>();
+
+    // Populate the existing ports set from the profiles
+    profiles.forEach(profile => {
+        if (profile.enabled) {
+            const profilePortsSet = flattenPortsToSet(profile.originalPorts);
+            profilePortsSet.forEach(port => existingPortsSet.add(port));
+        }
+    });
+
+    // Flatten and check the new ports against the existing ports set
+    const newPortsSet = flattenPortsToSet(ports);
+
+    for (const port of newPortsSet) {
+        if (existingPortsSet.has(port)) {
+            console.error(
+                `Conflicting Port Forwarding Rules: The Destination Port ${port} conflicts with an existing port in the current rule.`
+            );
+            return false;
+        }
+    }
+
+    return true;
+}
