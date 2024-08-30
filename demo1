@@ -1,9 +1,3 @@
-function validateNo4567(ports: (number | [number, number])[]): boolean {
-    return ports.every(port => {
-        if (Array.isArray(port)) {
-            const [start, end] = port;
-            return 4567 < start || 4567 > end; // 4567 should not be in the range
-        }
-        return port !== 4567;
-    });
-}
+Conflicting Port Forwarding Rules: The Destination Ports ${port/portRange} service conflict with an existing port in current rule.
+
+do you understand the meaning of these error messages 
