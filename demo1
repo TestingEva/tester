@@ -3,3 +3,25 @@ Hi i have a string and is the value of the original Ports and it can be in the f
 just see the folowing error message and try to create the function to validate it 
 
 "Original Port: The input of port has illegal characters. Destination port should be 111, or 111-222, or 111,222-333 and so on."
+
+
+function validatePorts(ports: string): boolean {
+    // Regular expression to match the allowed port formats
+    const portRegex = /^(\d+(-\d+)?)(,(\d+(-\d+)?))*$/;
+
+    // Test the ports string against the regex
+    return portRegex.test(ports);
+}
+
+// Example usage
+const validPort1 = "111";
+const validPort2 = "111-222";
+const validPort3 = "111,222-333";
+const invalidPort1 = "111-";
+const invalidPort2 = "111-222,abc";
+
+console.log(validatePorts(validPort1)); // true
+console.log(validatePorts(validPort2)); // true
+console.log(validatePorts(validPort3)); // true
+console.log(validatePorts(invalidPort1)); // false
+console.log(validatePorts(invalidPort2)); // false
