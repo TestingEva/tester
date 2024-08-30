@@ -1,72 +1,8 @@
-Got it
-export type PortForwardingProfileInfo = {
-  id: string;
-  name: string;
-  originalPorts: (number | [number, number])[];
-  protocol: PortForwardingProtocol;
-  hostName?: string;
-  hostIpAddress: IPv4;
-  forwardPort: number;
-  schedule: "Always" | PinholeSchedule;
-  enabled: boolean;
-}[];
+Conflicting Port Forwarding Rules: The Destination Port 244 conflicts with an existing port in the current rule.
 
-This is the portForwardingInfo I am having and now i need you to create a typescript function which will take the above array and  ports: (number | [number, number])[]
-and perform the validations which is required 
+you are returning the above message but i want you to return the range or port in which the conflict occured 
+for example my input was [ 4567, [ 244, 254 ], [ 457, 4566 ], 21 ]  and if there was 21 already being used then you should return 21 as its the port in the array given 
 
+suppose 247 was already being used the you should return [244,254] the full port range and if it is valid then return true 
 
-
-
-
-
-
-
-
-
-
-
-function flattenPortsToSet(ports: (number | [number, number])[]): Set<number> {
-    const portSet = new Set<number>();
-
-    ports.forEach(port => {
-        if (Array.isArray(port)) {
-            const [start, end] = port;
-            for (let p = start; p <= end; p++) {
-                portSet.add(p);
-            }
-        } else {
-            portSet.add(port);
-        }
-    });
-
-    return portSet;
-}
-
-function validatePortForwardingRules(
-    profiles: PortForwardingProfileInfo,
-    ports: (number | [number, number])[]
-): boolean {
-    const existingPortsSet = new Set<number>();
-
-    // Populate the existing ports set from the profiles
-    profiles.forEach(profile => {
-        if (profile.enabled) {
-            const profilePortsSet = flattenPortsToSet(profile.originalPorts);
-            profilePortsSet.forEach(port => existingPortsSet.add(port));
-        }
-    });
-
-    // Flatten and check the new ports against the existing ports set
-    const newPortsSet = flattenPortsToSet(ports);
-
-    for (const port of newPortsSet) {
-        if (existingPortsSet.has(port)) {
-            console.error(
-                `Conflicting Port Forwarding Rules: The Destination Port ${port} conflicts with an existing port in the current rule.`
-            );
-            return false;
-        }
-    }
-
-    return true;
-}
+so the function can now return true or a number or a port range ie [number,number]
