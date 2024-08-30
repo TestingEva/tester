@@ -1,3 +1,16 @@
-Conflicting Port Forwarding Rules: The Destination Ports ${port/portRange} service conflict with an existing port in current rule.
+Got it
+export type PortForwardingProfileInfo = {
+  id: string;
+  name: string;
+  originalPorts: (number | [number, number])[];
+  protocol: PortForwardingProtocol;
+  hostName?: string;
+  hostIpAddress: IPv4;
+  forwardPort: number;
+  schedule: "Always" | PinholeSchedule;
+  enabled: boolean;
+}[];
 
-do you understand the meaning of these error messages 
+This is the portForwardingInfo I am having and now i need you to create a typescript function which will take the above array and  ports: (number | [number, number])[]
+and perform the validations which is required 
+
