@@ -1,18 +1,5 @@
-I have a startHour in 12 hour format startMinutes in 00 to 60 mins and also a AM or PM 
+Hi i have a string and is the value of the original Ports and it can be in the format of number,number-number
 
-i want you to write a fn in typeScript which will take this three input and return a Dayjs of these
+just see the folowing error message and try to create the function to validate it 
 
-
-import dayjs from 'dayjs';
-
-function createDayjsTime(startHour: number, startMinutes: number, period: 'AM' | 'PM'): dayjs.Dayjs {
-    // Convert 12-hour format to 24-hour format
-    const hour24 = period === 'PM' && startHour !== 12 ? startHour + 12 : (period === 'AM' && startHour === 12 ? 0 : startHour);
-
-    // Create a Dayjs object with the converted time
-    return dayjs().hour(hour24).minute(startMinutes).second(0);
-}
-
-// Example usage
-const time = createDayjsTime(10, 30, 'PM');
-console.log(time.format()); // Output: current date with 22:30:00 time
+"Original Port: The input of port has illegal characters. Destination port should be 111, or 111-222, or 111,222-333 and so on."
