@@ -6,3 +6,75 @@ for example my input was [ 4567, [ 244, 254 ], [ 457, 4566 ], 21 ]  and if there
 suppose 247 was already being used the you should return [244,254] the full port range and if it is valid then return true 
 
 so the function can now return true or a number or a port range ie [number,number]
+
+
+
+function checkConflict(
+    profiles: PortForwardingProfileInfo,
+    ports: (number | [number, number])[]
+): true | number | [number, number] {
+    const existingPortsSet = new Set<number>();
+
+    // Populate the existing ports set from the profiles
+    for (const profile of profiles) {
+        if (profile.enabled) {
+            profile.originalPorts.forEach(port => {
+                if (Array.isArray(port)) {
+                    const [start, end] = port;
+                    for (let p = start; p <= end; p++) {
+                        existingPortsSet.add(p);
+                    }
+                } else {
+                    existingPortsSet.add(port);
+                }
+            });
+        }
+    }
+
+    // Check the new ports against the existing ports set
+    for (const port of ports) {
+        if (Array.isArray(port)) {
+            const [start, end] = port;
+            for (let p = start; p <= end; p++) {
+                if (existingPortsSet.has(p)) {
+                    return port; // Return the whole range if a conflict is found
+                }
+            }
+        } else {
+            if (existingPortsSet.has(port)) {
+                return port; // Return the specific port if a conflict is found
+            }
+        }
+    }
+
+    return true; // Return true if no conflicts are found
+}
+
+// Example Usage
+const portForwardingProfiles: PortForwardingProfileInfo = [
+    {
+        id: "1",
+        name: "Profile 1",
+        originalPorts: [80, [244, 254], [1000, 2000]],
+        protocol: "TCP",
+        hostIpAddress: "192.168.1.1",
+        forwardPort: 8080,
+        schedule: "Always",
+        enabled: true,
+    },
+    {
+        id: "2",
+        name: "Profile 2",
+        originalPorts: [21, [457, 4566]],
+        protocol: "UDP",
+        hostIpAddress: "192.168.1.2",
+        forwardPort: 8443,
+        schedule: "Always",
+        enabled: true,
+    },
+];
+
+const newPorts = [4567, [244, 254], [457, 4566], 21];
+
+const result = checkConflict(portForwardingProfiles, newPorts);
+console.log(result); // Output: 21 or [244, 254] or true
