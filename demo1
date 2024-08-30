@@ -1,27 +1,13 @@
-Hi i have a string and is the value of the original Ports and it can be in the format of number,number-number
+That was good and is working fine 
+now we need to add more validations to that 
+create a sepreate function for each validations case 
+first create them in the proper array format like for (number|[number,number]) format 
+for example if there is 233,424-453,4532,2341,31-43,453,21-24 then it should come 
+[233,[424,453],4532,2341,[31,43],453,[21,24]] and so on 
 
-just see the folowing error message and try to create the function to validate it 
+now for the case 1: if there is any array for example here we have [424,453] and start port is greater than or equal to  the end port then we need to return false 
 
-"Original Port: The input of port has illegal characters. Destination port should be 111, or 111-222, or 111,222-333 and so on."
+case 2: if the port 4567 comes in the middle of the above ports then we need to return false 
 
+case 3: if the port 4577 comes in the middle of the ports we need to return false 
 
-function validatePorts(ports: string): boolean {
-    // Regular expression to match the allowed port formats
-    const portRegex = /^(\d+(-\d+)?)(,(\d+(-\d+)?))*$/;
-
-    // Test the ports string against the regex
-    return portRegex.test(ports);
-}
-
-// Example usage
-const validPort1 = "111";
-const validPort2 = "111-222";
-const validPort3 = "111,222-333";
-const invalidPort1 = "111-";
-const invalidPort2 = "111-222,abc";
-
-console.log(validatePorts(validPort1)); // true
-console.log(validatePorts(validPort2)); // true
-console.log(validatePorts(validPort3)); // true
-console.log(validatePorts(invalidPort1)); // false
-console.log(validatePorts(invalidPort2)); // false
