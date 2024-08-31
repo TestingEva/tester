@@ -1,34 +1,12 @@
-[ 4567, [ 244, 254 ], [ 457, 4566 ], 252,[4565,4566] ]
-
-
-supppose this is the input and you need to test whether any of the port in this is less than 1 or greater than 65535
-
-
-
-
-function validatePortRange(ports: (number | [number, number])[]): boolean {
-    const MIN_PORT = 1;
-    const MAX_PORT = 65535;
-
-    for (const port of ports) {
-        if (Array.isArray(port)) {
-            const [start, end] = port;
-            if (start < MIN_PORT || end > MAX_PORT || start > end) {
-                return false; // Early return if any invalid range is found
-            }
-        } else if (port < MIN_PORT || port > MAX_PORT) {
-            return false; // Early return if any invalid port is found
-        }
+function parsePorts(ports: string): (number | [number, number])[] {
+  return ports.split(",").map((port) => {
+    if (port.includes("-")) {
+      const [start, end] = port.split("-").map(Number);
+      return [start, end];
     }
-
-    return true; // Return true if all ports and ranges are valid
+    return Number(port);
+  });
 }
 
-// Example Usage
-const ports = [4567, [244, 254], [457, 4566], 252, [4565, 4566]];
-const isValid = validatePortRange(ports);
-console.log(isValid); // Output: true
 
-const invalidPorts = [4567, [244, 254], [457, 4566], 252, [0, 4566]];
-const isInvalid = validatePortRange(invalidPorts);
-console.log(isInvalid); // Output: false
+write a function to perform the opposite convertsion  (number | [number, number])[] to string
