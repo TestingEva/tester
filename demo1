@@ -1,33 +1,62 @@
-function parsePorts(ports: string): (number | [number, number])[] {
-  return ports.split(",").map((port) => {
-    if (port.includes("-")) {
-      const [start, end] = port.split("-").map(Number);
-      return [start, end];
+function checkConflict(
+  profiles: PortForwardingProfileInfo[],
+  ports: (number | [number, number])[]
+): true | number | [number, number] {
+  console.log(profiles, ports);
+  const existingPortsSet = new Set<number>();
+
+  // Populate the existing ports set from the profiles
+  for (const profile of profiles) {
+    if (profile.enabled) {
+      profile.originalPorts.forEach((port) => {
+        if (Array.isArray(port)) {
+          const [start, end] = port;
+          for (let p = start; p <= end; p++) {
+            existingPortsSet.add(p);
+          }
+        } else {
+          existingPortsSet.add(port);
+        }
+      });
     }
-    return Number(port);
-  });
-}
+  }
 
+profiles = [
+    {
+        "id": "5feb467b-0633-49fa-b3ef-bd99d5697daa",
+        "name": "twete",
+        "forwardPort": 1233,
+        "protocol": 0,
+        "hostIpAddress": {
+            "octets": [
+                192,
+                168,
+                1,
+                23
+            ]
+        },
+        "originalPorts": [
+            123,
+            [
+                222,
+                333
+            ],
+            [
+                4500,
+                4501
+            ]
+        ],
+        "schedule": "Always",
+        "enabled": true,
+        "index": 1
+    }
+]
 
-write a function to perform the opposite convertsion  (number | [number, number])[] to string
+ports = [
+    [
+        111,
+        221
+    ]
+]
 
-
-
-
-
-
-function convertPortsToString(ports: (number | [number, number])[]): string {
-    return ports
-        .map((port) => {
-            if (Array.isArray(port)) {
-                return `${port[0]}-${port[1]}`;
-            }
-            return port.toString();
-        })
-        .join(",");
-}
-
-// Example Usage
-const portsArray: (number | [number, number])[] = [4567, [244, 254], [457, 4566], 21];
-const portsString = convertPortsToString(portsArray);
-console.log(portsString); // Output: "4567,244-254,457-4566,21"
+why its returning [111,221] as we can see there is no conflict there
