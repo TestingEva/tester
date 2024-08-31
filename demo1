@@ -10,3 +10,24 @@ function parsePorts(ports: string): (number | [number, number])[] {
 
 
 write a function to perform the opposite convertsion  (number | [number, number])[] to string
+
+
+
+
+
+
+function convertPortsToString(ports: (number | [number, number])[]): string {
+    return ports
+        .map((port) => {
+            if (Array.isArray(port)) {
+                return `${port[0]}-${port[1]}`;
+            }
+            return port.toString();
+        })
+        .join(",");
+}
+
+// Example Usage
+const portsArray: (number | [number, number])[] = [4567, [244, 254], [457, 4566], 21];
+const portsString = convertPortsToString(portsArray);
+console.log(portsString); // Output: "4567,244-254,457-4566,21"
