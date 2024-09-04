@@ -1,8 +1,15 @@
-function convertOrgPortToGroupExtPortRange(
-  originalPorts: (number | [number, number])[]
-): ([number] | [number, number])[];
-{
-  
-}
+do you see this 
+device: IPv4 | Ipv4DeviceInfo;
 
-complete this function
+i have device which can be of the above types 
+
+Ipv4 is a Class and Ipv4Device is type which is defined below
+
+export type Ipv4DeviceInfo = {
+  deviceType: DeviceType;
+  hostName: string;
+  ipAddress: string;
+  macAddress: string;
+};
+
+how can i check what is type of the device whether it is of type IPv4 or Ipv4DeviceInfo
