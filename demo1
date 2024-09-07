@@ -94,11 +94,11 @@ const SystemLogging = () => {
     }
 
     const refreshPage = () => {
+        dispatch(fetchDateTimeRequest())
         window.scrollTo(0, 0)
         setCurrentData([])
         setCumulativeOffset(100)
         filterLogs({ type: "prevDay" })
-        setComponentId(uuidv4())
     }
     useEffect(() => {
         setSelectedLogType(params?.id)
@@ -252,8 +252,5 @@ const SystemLogging = () => {
 export default SystemLogging
 
 
-So I have a bug in this page regarding the refresh functionality 
-
-System logging page 'refresh' button always refreshing same logs, as well as click on each logging page should refresh the logs as per PROD router, but that is not working.
-
-could you help me to find out what is the bug all about
+Now there is a single thing left when i am swithcing the id i want the dispatch new date should be refetched using the dispatch
+ 
