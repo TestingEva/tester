@@ -45,7 +45,8 @@ const SystemLogging = () => {
             offset: 0,
             limit: 100,
         }
-    }, [params, startTimeData, endTimeData, componentId])
+        //eslint-disable-next-line
+    }, [ startTimeData, endTimeData, componentId])
 
 
     const clearLog = () => {
@@ -101,6 +102,7 @@ const SystemLogging = () => {
         filterLogs({ type: "prevDay" })
     }
     useEffect(() => {
+        dispatch(fetchDateTimeRequest())
         setSelectedLogType(params?.id)
         if (timeData?.time) {
             setStartTimeData(subtractDaysFromLocalDateTime(1))
@@ -118,7 +120,7 @@ const SystemLogging = () => {
             dispatch(fetchSysLogRequest({ body: { ...requestData, requestId: uuidv4() } }))
         }
         // eslint-disable-next-line
-    }, [params.id, dispatch, requestData])
+    }, [ dispatch, requestData])
 
     useEffect(() => {
         if (localDateTimeData && Object.keys(localDateTimeData)?.length) {
@@ -252,5 +254,4 @@ const SystemLogging = () => {
 export default SystemLogging
 
 
-Now there is a single thing left when i am swithcing the id i want the dispatch new date should be refetched using the dispatch
- 
+everthing is working fine you need to fix this last thing when this page loads up fetchdatetime Api is called twice
