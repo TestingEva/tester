@@ -1,142 +1,27 @@
-export function iconIdTypeExporter(iconId: number): string {
-  const fsamLaptopArray = [
-    10026, 20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 21000, 21001, 21002, 21003, 21004, 21005,
-    21006, 21007, 40019, 40020, 40021, 40070, 40074, 40082, 91300, 91200, 91100, 91000, 90900, 90800, 90600, 90500,
-    90400, 90300, 90200, 90100, 90000, 70000, 60000, 50000, 40083,
-  ];
-
-  if (fsamLaptopArray.includes(iconId)) {
-    return Laptop;
-  }
-  
-  switch (iconId) {
-    case 10000:
-    case 10001:
-    case 10002:
-      return Mobile;
-
-    case 30000:
-    case 30001:
-    case 30002:
-    case 30003:
-      return Tablet;
-
-    case 40001:
-      return Camera;
-
-    case 40002:
-      return Bulb;
-
-    case 40003:
-    case 40004:
-    case 40040:
-    case 40080:
-    case 40081:
-      return GameConsole;
-
-    case 40005:
-    case 40030:
-      return StreamBox;
-
-    case 40006:
-    case 40007:
-      return StreamBoxTv;
-
-    case 40008:
-    case 40100:
-    case 40101:
-      return Printer;
-
-    case 40010:
-      return Voip;
-
-    case 40011:
-    case 40071:
-    case 90700:
-      return Speaker;
-
-    case 40012:
-      return Ups;
-
-    case 40013:
-      return Repeater;
-
-    case 40014:
-      return AirConditioner;
-
-    case 40015:
-      return NAS;
-
-    case 40016:
-      return DoorLock;
-
-    case 40017:
-      return MotionDetector;
-
-    case 40018:
-      return SmokeDetector;
-
-    case 40022:
-      return iRobot;
-
-    case 40023:
-    case 40024:
-      return Watch;
-
-    case 40025:
-    case 40026:
-    case 40027:
-    case 40066:
-    case 40067:
-      return SmartAssistant;
-
-    case 40060:
-      return SmartSwitch;
-
-    case 40061:
-      return SmartBoiler;
-
-    case 40062:
-      return DoorBell;
-
-    case 40063:
-      return SmartPlug;
-
-    case 40064:
-      return SmartSocket;
-
-    case 40065:
-      return BabyMonitor;
-
-    case 40072:
-      return Medical;
-
-    case 40073:
-      return SolarPanel;
-
-    case 40075:
-      return SmartCar;
-
-    case 40076:
-      return GPS;
-
-    case 40077:
-      return SmartBicycle;
-
-    case 40078:
-      return Firewall;
-
-    case 40079:
-      return SmartRide;
-
-    case 40084:
-      return SmartWeatherStation;
-
-    case 40700:
-    case 40701:
-      return SmartTv;
-
-    default:
-      return "Unknown Device";
-  }
+so write a function in type scroipt which will take icon id as the param and will return FsamType Enum 
+export enum FsamDeviceType {
+  Computer,
+  SmartHomeProduct,
+  SmartPhone,
+  Tablet,
+  GameConsole,
+  StreamBox,
+  Printer,
+  Phone,
+  Speaker,
+  Ups,
+  Repeater,
+  Nas,
+  Security,
+  SmartWatch,
+  SmartAssistant,
+  BabyMonitor,
+  SmartRide,
+  Gps,
+  Firewall,
+  EReader,
+  SmartTv,
 }
+
+
+you already know how to do just complete it
