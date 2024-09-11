@@ -1,103 +1,3 @@
-import Laptop from "../../assets/images/fsamDeviceIcons/Laptop.svg";
-
-import AirConditioner from "../../assets/images/fsamDeviceIcons/AirConditioner.svg";
-import BabyMonitor from "../../assets/images/fsamDeviceIcons/BabyMonitor.svg";
-import Bulb from "../../assets/images/fsamDeviceIcons/Bulb.svg";
-import Camera from "../../assets/images/fsamDeviceIcons/Camera.svg";
-import Mobile from "../../assets/images/fsamDeviceIcons/Device-Icons-Exporter/Mobile.svg";
-import DoorBell from "../../assets/images/fsamDeviceIcons/DoorBell.svg";
-import DoorLock from "../../assets/images/fsamDeviceIcons/DoorLock.svg";
-import Firewall from "../../assets/images/fsamDeviceIcons/Firewall.svg";
-import GameConsole from "../../assets/images/fsamDeviceIcons/GameConsole.svg";
-import GPS from "../../assets/images/fsamDeviceIcons/GPS.svg";
-import Iot from "../../assets/images/fsamDeviceIcons/Iot.svg";
-import iRobot from "../../assets/images/fsamDeviceIcons/iRobot.svg";
-import Medical from "../../assets/images/fsamDeviceIcons/Medical.svg";
-import MotionDetector from "../../assets/images/fsamDeviceIcons/MotionDetector.svg";
-import NAS from "../../assets/images/fsamDeviceIcons/NAS.svg";
-import Printer from "../../assets/images/fsamDeviceIcons/Printer.svg";
-import Repeater from "../../assets/images/fsamDeviceIcons/Repeater.svg";
-import SmartAssistant from "../../assets/images/fsamDeviceIcons/SmartAssistant.svg";
-import SmartBicycle from "../../assets/images/fsamDeviceIcons/SmartBicycle.svg";
-import SmartBoiler from "../../assets/images/fsamDeviceIcons/SmartBoiler.svg";
-import SmartCar from "../../assets/images/fsamDeviceIcons/SmartCar.svg";
-import SmartHomeHub from "../../assets/images/fsamDeviceIcons/SmartHomeHub.svg";
-import SmartPlug from "../../assets/images/fsamDeviceIcons/SmartPlug.svg";
-import SmartRide from "../../assets/images/fsamDeviceIcons/SmartRide.svg";
-import SmartSocket from "../../assets/images/fsamDeviceIcons/SmartSocket.svg";
-import SmartSwitch from "../../assets/images/fsamDeviceIcons/SmartSwitch.svg";
-import SmartTv from "../../assets/images/fsamDeviceIcons/SmartTv.svg";
-import SmartWeatherStation from "../../assets/images/fsamDeviceIcons/SmartWeatherStation.svg";
-import SmokeDetector from "../../assets/images/fsamDeviceIcons/SmokeDetector.svg";
-import SolarPanel from "../../assets/images/fsamDeviceIcons/SolarPanel.svg";
-import Speaker from "../../assets/images/fsamDeviceIcons/Speakers.svg";
-import StreamBox from "../../assets/images/fsamDeviceIcons/StreamBox.svg";
-import StreamBoxTv from "../../assets/images/fsamDeviceIcons/StreamBoxTv.svg";
-import Tablet from "../../assets/images/fsamDeviceIcons/Tablet.svg";
-import Ups from "../../assets/images/fsamDeviceIcons/Ups.svg";
-import Voip from "../../assets/images/fsamDeviceIcons/Voip.svg";
-import Watch from "../../assets/images/fsamDeviceIcons/Watch.svg";
-
-export const iconIdType = {
-  0: Laptop,
-  8000: SmartHomeHub,
-
-  40000: Iot,
-  40001: Camera,
-  40002: Bulb,
-  40003: GameConsole,
-  40004: GameConsole,
-  40005: StreamBox,
-  40006: StreamBoxTv,
-  40007: StreamBoxTv,
-  40008: Printer,
-  40010: Voip,
-  40011: Speaker,
-  40012: Ups,
-  40013: Repeater,
-  40014: AirConditioner,
-  40015: NAS,
-  40016: DoorLock,
-  40017: MotionDetector,
-  40018: SmokeDetector,
-
-  40022: iRobot,
-  40023: Watch,
-  40024: Watch,
-  40025: SmartAssistant,
-  40026: SmartAssistant,
-  40027: SmartAssistant,
-  40030: StreamBox,
-  40040: GameConsole,
-  40060: SmartSwitch,
-  40061: SmartBoiler,
-  40062: DoorBell,
-  40063: SmartPlug,
-  40064: SmartSocket,
-  40065: BabyMonitor,
-  40066: SmartAssistant,
-  40067: SmartAssistant,
-  40071: Speaker,
-  40072: Medical,
-  40073: SolarPanel,
-  40075: SmartCar,
-  40076: GPS,
-  40077: SmartBicycle,
-  40078: Firewall,
-  40079: SmartRide,
-  40080: GameConsole,
-  40081: GameConsole,
-
-  40084: SmartWeatherStation,
-  40100: Printer,
-  40101: Printer,
-  40300: Tablet,
-  40700: SmartTv,
-  40701: SmartTv,
-
-  90700: Speaker,
-};
-
 export function iconIdTypeExporter(iconId: number): string {
   const fsamLaptopArray = [
     10026, 20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 21000, 21001, 21002, 21003, 21004, 21005,
@@ -108,18 +8,135 @@ export function iconIdTypeExporter(iconId: number): string {
   if (fsamLaptopArray.includes(iconId)) {
     return Laptop;
   }
+  
   switch (iconId) {
     case 10000:
     case 10001:
     case 10002:
       return Mobile;
+
     case 30000:
     case 30001:
     case 30002:
     case 30003:
       return Tablet;
+
+    case 40001:
+      return Camera;
+
+    case 40002:
+      return Bulb;
+
+    case 40003:
+    case 40004:
+    case 40040:
+    case 40080:
+    case 40081:
+      return GameConsole;
+
+    case 40005:
+    case 40030:
+      return StreamBox;
+
+    case 40006:
+    case 40007:
+      return StreamBoxTv;
+
+    case 40008:
+    case 40100:
+    case 40101:
+      return Printer;
+
+    case 40010:
+      return Voip;
+
+    case 40011:
+    case 40071:
+    case 90700:
+      return Speaker;
+
+    case 40012:
+      return Ups;
+
+    case 40013:
+      return Repeater;
+
+    case 40014:
+      return AirConditioner;
+
+    case 40015:
+      return NAS;
+
+    case 40016:
+      return DoorLock;
+
+    case 40017:
+      return MotionDetector;
+
+    case 40018:
+      return SmokeDetector;
+
+    case 40022:
+      return iRobot;
+
+    case 40023:
+    case 40024:
+      return Watch;
+
+    case 40025:
+    case 40026:
+    case 40027:
+    case 40066:
+    case 40067:
+      return SmartAssistant;
+
+    case 40060:
+      return SmartSwitch;
+
+    case 40061:
+      return SmartBoiler;
+
+    case 40062:
+      return DoorBell;
+
+    case 40063:
+      return SmartPlug;
+
+    case 40064:
+      return SmartSocket;
+
+    case 40065:
+      return BabyMonitor;
+
+    case 40072:
+      return Medical;
+
+    case 40073:
+      return SolarPanel;
+
+    case 40075:
+      return SmartCar;
+
+    case 40076:
+      return GPS;
+
+    case 40077:
+      return SmartBicycle;
+
+    case 40078:
+      return Firewall;
+
+    case 40079:
+      return SmartRide;
+
+    case 40084:
+      return SmartWeatherStation;
+
+    case 40700:
+    case 40701:
+      return SmartTv;
+
+    default:
+      return "Unknown Device";
   }
 }
-
-
-Could you complete this switch 
