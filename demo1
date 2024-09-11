@@ -1,33 +1,65 @@
-export function convertIconIdToUIString(iconId:number):string{
-  switch(iconId){
+export function convertIconIdToUIString(iconId: number): string {
+  switch (iconId) {
+    case 0:
+      return "Computer";
     case 8000:
-      return "Smart Home Product"
-    case 10000:return 
+      return "Smart Home Product";
+    case 10000:
+      return "Smartphone";
+    case 30000:
+      return "Tablet";
+    case 40003:
+    case 40004:
+    case 40040:
+    case 40080:
+    case 40081:
+      return "Game Console";
+    case 40005:
+    case 40006:
+    case 40007:
+      return "Stream Box";
+    case 40008:
+    case 40100:
+    case 40101:
+      return "Printer";
+    case 40010:
+      return "Phone";
+    case 40011:
+    case 40071:
+    case 90700:
+      return "Speaker";
+    case 40012:
+      return "UPS";
+    case 40013:
+      return "Repeater";
+    case 40015:
+      return "NAS";
+    case 40017:
+    case 40018:
+      return "Security";
+    case 40023:
+    case 40024:
+      return "Smart Watch";
+    case 40025:
+    case 40026:
+    case 40027:
+    case 40066:
+    case 40067:
+      return "Smart Assistant";
+    case 40065:
+      return "Baby Monitor";
+    case 40075:
+      return "Smart Ride";
+    case 40076:
+      return "GPS";
+    case 40078:
+      return "Firewall";
+    case 40300:
+      return "eReader";
+    case 40700:
+    case 40701:
+      return "Smart TV";
+    default:
+      return "Unknown Device";
   }
-}
-
-compete this function take ref from the following mapping
-
-const deviceOptions = {
-    "Computer": "0",
-    "Smart Home Product": "8000",
-    "Smartphone": "10000",
-    "Tablet": "30000",
-    "Game Console": "40003",
-    "Stream Box": "40005",
-    "Printer": "40008",
-    "Phone": "40010",
-    "Speaker": "40011",
-    "UPS": "40012",
-    "Repeater": "40013",
-    "NAS": "40015",
-    "Security": "40017",
-    "Smart Watch": "40023",
-    "Smart Assistant": "40025",
-    "Baby Monitor": "40065",
-    "Smart Ride": "40075",
-    "GPS": "40076",
-    "Firewall": "40078",
-    "eReader": "40300",
-    "Smart TV": "40700"
 }
