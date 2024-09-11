@@ -1,257 +1,125 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import Laptop from "../../assets/images/fsamDeviceIcons/Laptop.svg";
 
-import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
-import { v4 as uuidv4 } from 'uuid'
-import Footer from '../../../common/footer/Footer'
-import { HeaderWithBody } from '../../../common/header/Header'
-import VZLoader from '../../../common/loader/Loader'
-import CONFIG from '../../../config/env.json'
-import { SystemLoggingConstants } from '../../../constants/Diagnostics'
-import { fetchRequests } from '../../../utils/FetchRequest'
-import { fetchDateTimeRequest } from '../../system/date-time/Action'
-import { clearSysLogRequest, fetchSysLogRequest } from './Action'
-import './SystemLogging.css'
-import { TypeSelectionHeader } from './sys-log-components/TypeSelectionHeader'
-import FirewallLoggingSettings from './sys-logging-pages/FirewallLoggingSettings'
-import { MainLoggingPage } from './sys-logging-pages/MainLoggingPage'
-import TimeSettingsPage from './sys-logging-pages/TimeSettingsPage'
+import AirConditioner from "../../assets/images/fsamDeviceIcons/AirConditioner.svg";
+import BabyMonitor from "../../assets/images/fsamDeviceIcons/BabyMonitor.svg";
+import Bulb from "../../assets/images/fsamDeviceIcons/Bulb.svg";
+import Camera from "../../assets/images/fsamDeviceIcons/Camera.svg";
+import Mobile from "../../assets/images/fsamDeviceIcons/Device-Icons-Exporter/Mobile.svg";
+import DoorBell from "../../assets/images/fsamDeviceIcons/DoorBell.svg";
+import DoorLock from "../../assets/images/fsamDeviceIcons/DoorLock.svg";
+import Firewall from "../../assets/images/fsamDeviceIcons/Firewall.svg";
+import GameConsole from "../../assets/images/fsamDeviceIcons/GameConsole.svg";
+import GPS from "../../assets/images/fsamDeviceIcons/GPS.svg";
+import Iot from "../../assets/images/fsamDeviceIcons/Iot.svg";
+import iRobot from "../../assets/images/fsamDeviceIcons/iRobot.svg";
+import Medical from "../../assets/images/fsamDeviceIcons/Medical.svg";
+import MotionDetector from "../../assets/images/fsamDeviceIcons/MotionDetector.svg";
+import NAS from "../../assets/images/fsamDeviceIcons/NAS.svg";
+import Printer from "../../assets/images/fsamDeviceIcons/Printer.svg";
+import Repeater from "../../assets/images/fsamDeviceIcons/Repeater.svg";
+import SmartAssistant from "../../assets/images/fsamDeviceIcons/SmartAssistant.svg";
+import SmartBicycle from "../../assets/images/fsamDeviceIcons/SmartBicycle.svg";
+import SmartBoiler from "../../assets/images/fsamDeviceIcons/SmartBoiler.svg";
+import SmartCar from "../../assets/images/fsamDeviceIcons/SmartCar.svg";
+import SmartHomeHub from "../../assets/images/fsamDeviceIcons/SmartHomeHub.svg";
+import SmartPlug from "../../assets/images/fsamDeviceIcons/SmartPlug.svg";
+import SmartRide from "../../assets/images/fsamDeviceIcons/SmartRide.svg";
+import SmartSocket from "../../assets/images/fsamDeviceIcons/SmartSocket.svg";
+import SmartSwitch from "../../assets/images/fsamDeviceIcons/SmartSwitch.svg";
+import SmartTv from "../../assets/images/fsamDeviceIcons/SmartTv.svg";
+import SmartWeatherStation from "../../assets/images/fsamDeviceIcons/SmartWeatherStation.svg";
+import SmokeDetector from "../../assets/images/fsamDeviceIcons/SmokeDetector.svg";
+import SolarPanel from "../../assets/images/fsamDeviceIcons/SolarPanel.svg";
+import Speaker from "../../assets/images/fsamDeviceIcons/Speakers.svg";
+import StreamBox from "../../assets/images/fsamDeviceIcons/StreamBox.svg";
+import StreamBoxTv from "../../assets/images/fsamDeviceIcons/StreamBoxTv.svg";
+import Tablet from "../../assets/images/fsamDeviceIcons/Tablet.svg";
+import Ups from "../../assets/images/fsamDeviceIcons/Ups.svg";
+import Voip from "../../assets/images/fsamDeviceIcons/Voip.svg";
+import Watch from "../../assets/images/fsamDeviceIcons/Watch.svg";
 
-const SystemLogging = () => {
-    const apiData = useSelector((state) => {
-        return state?.sysLog?.data
-    })
-    const localDateTimeData = useSelector((state) => state?.dateTime?.data)
-    const params = useParams()
-    const dispatch = useDispatch()
-    const navigate = useNavigate()
-    const [loadPage, setLoadPage] = useState(false)
-    const [selectedLogType, setSelectedLogType] = useState('system')
-    const [currentData, setCurrentData] = useState([])
-    const [selectedPageType, setSelectedPageType] = useState(0)
-    const [timeData, setTimeData] = useState({})
-    const [startTimeData, setStartTimeData] = useState()
-    const [endTimeData, setEndTimeData] = useState()
-    const [componentId, setComponentId] = useState(uuidv4())
-    const [cumulativeOffset, setCumulativeOffset] = useState(100)
-    const [isDataRemaining, setIsDataRemaining] = useState(false)
+export const iconIdType = {
+  0: Laptop,
+  8000: SmartHomeHub,
 
-    const requestData = useMemo(() => {
-        return {
-            requestId: componentId,
-            logType: SystemLoggingConstants?.requestLogType?.[params?.id],
-            startDateTime: startTimeData,
-            endDateTime: endTimeData,
-            offset: 0,
-            limit: 100,
-        }
-        //eslint-disable-next-line
-    }, [ startTimeData, endTimeData, componentId])
+  40000: Iot,
+  40001: Camera,
+  40002: Bulb,
+  40003: GameConsole,
+  40004: GameConsole,
+  40005: StreamBox,
+  40006: StreamBoxTv,
+  40007: StreamBoxTv,
+  40008: Printer,
+  40010: Voip,
+  40011: Speaker,
+  40012: Ups,
+  40013: Repeater,
+  40014: AirConditioner,
+  40015: NAS,
+  40016: DoorLock,
+  40017: MotionDetector,
+  40018: SmokeDetector,
 
+  40022: iRobot,
+  40023: Watch,
+  40024: Watch,
+  40025: SmartAssistant,
+  40026: SmartAssistant,
+  40027: SmartAssistant,
+  40030: StreamBox,
+  40040: GameConsole,
+  40060: SmartSwitch,
+  40061: SmartBoiler,
+  40062: DoorBell,
+  40063: SmartPlug,
+  40064: SmartSocket,
+  40065: BabyMonitor,
+  40066: SmartAssistant,
+  40067: SmartAssistant,
+  40071: Speaker,
+  40072: Medical,
+  40073: SolarPanel,
+  40075: SmartCar,
+  40076: GPS,
+  40077: SmartBicycle,
+  40078: Firewall,
+  40079: SmartRide,
+  40080: GameConsole,
+  40081: GameConsole,
 
-    const clearLog = () => {
-        setCurrentData([])
-        dispatch(
-            clearSysLogRequest({
-                body: { logType: SystemLoggingConstants?.requestLogType?.[params?.id] },
-            })
-        )
-    }
+  40084: SmartWeatherStation,
+  40100: Printer,
+  40101: Printer,
+  40300: Tablet,
+  40700: SmartTv,
+  40701: SmartTv,
 
-    const subtractDaysFromLocalDateTime = (days) => {
-        const localDate = new Date(timeData?.time)
-        localDate?.setDate(localDate?.getDate() - days)
-        return `${localDate?.toISOString()}`
-    }
+  90700: Speaker,
+};
 
-    const filterLogs = ({ type = 'prevDay', startTime, endTime }) => {
+export function iconIdTypeExporter(iconId: number): string {
+  const fsamLaptopArray = [
+    10026, 20000, 20001, 20002, 20003, 20004, 20005, 20006, 20007, 20008, 21000, 21001, 21002, 21003, 21004, 21005,
+    21006, 21007, 40019, 40020, 40021, 40070, 40074, 40082, 91300, 91200, 91100, 91000, 90900, 90800, 90600, 90500,
+    90400, 90300, 90200, 90100, 90000, 70000, 60000, 50000, 40083,
+  ];
 
-        switch (type) {
-            case 'prevDay':
-                setStartTimeData(subtractDaysFromLocalDateTime(1))
-                setEndTimeData(new Date(timeData?.time).toISOString())
-                break
-            case 'prevWeek':
-                setStartTimeData(subtractDaysFromLocalDateTime(7))
-                setEndTimeData(new Date(timeData?.time).toISOString())
-                break
-            default:
-                setStartTimeData(startTime)
-                setEndTimeData(endTime)
-                break
-        }
-        setSelectedPageType(0)
-    }
-
-    function saveLogs() {
-        fetchRequests({ url: CONFIG?.SYS_LOGGING_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ logType: SystemLoggingConstants?.requestLogType?.[params?.id] }) }).then(rData => { return rData?.blob() }).then(res => {
-            const blob = new Blob([res], { type: 'application/text' });
-            const link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = `messages_${SystemLoggingConstants?.logFileName?.[params?.id]}.log`;
-            link.click();
-            window.URL.revokeObjectURL(link.href);
-        })
-    }
-
-    const refreshPage = () => {
-        dispatch(fetchDateTimeRequest())
-        window.scrollTo(0, 0)
-        setCurrentData([])
-        setCumulativeOffset(100)
-        filterLogs({ type: "prevDay" })
-    }
-    useEffect(() => {
-        dispatch(fetchDateTimeRequest())
-        setSelectedLogType(params?.id)
-        if (timeData?.time) {
-            setStartTimeData(subtractDaysFromLocalDateTime(1))
-            setEndTimeData(subtractDaysFromLocalDateTime(0))
-        }
-        // eslint-disable-next-line
-    }, [params])
-
-    useEffect(() => {
-        if (startTimeData && endTimeData) {
-            window.scrollTo(0, 0)
-            setCurrentData([])
-            setLoadPage(false)
-            setCumulativeOffset(100)
-            dispatch(fetchSysLogRequest({ body: { ...requestData, requestId: uuidv4() } }))
-        }
-        // eslint-disable-next-line
-    }, [ dispatch, requestData])
-
-    useEffect(() => {
-        if (localDateTimeData && Object.keys(localDateTimeData)?.length) {
-            setTimeData({
-                time: localDateTimeData?.localDateTime,
-            })
-        }
-    }, [localDateTimeData])
-
-    useEffect(() => {
-        if (timeData?.time) {
-            setStartTimeData(subtractDaysFromLocalDateTime(1))
-            setEndTimeData(new Date(timeData?.time).toISOString())
-        }
-        // eslint-disable-next-line
-    }, [timeData])
-
-    useEffect(() => {
-        dispatch(fetchDateTimeRequest())
-        setComponentId(uuidv4())
-        return () => {
-            setComponentId(null)
-        }
-        // eslint-disable-next-line
-    }, [])
-
-    const callNextLogs = () => {
-        const updatedRequestData = { ...requestData, offset: cumulativeOffset, }
-        apiData?.logList?.length !== 0 && dispatch(fetchSysLogRequest({ body: updatedRequestData }))
-        setCumulativeOffset((prev) => prev + requestData?.limit)
-    }
-
-    const HeaderOptions = () => {
-        return (
-            <div className="sys-log-option-row">
-                {params?.id === 'firewall' && (
-                    <button id="sysLogSettingsButton"
-                        className="sys-log-button-1 b"
-                        onClick={() => setSelectedPageType(2)}
-                    >
-                        {SystemLoggingConstants?.settings}
-                    </button>
-                )}
-                <button id="sysLogOptionsButton"
-                    className="sys-log-button-1 b"
-                    onClick={() => setSelectedPageType(1)}
-                >
-                    {SystemLoggingConstants?.opt}
-                </button>
-                <button id="sysLogRefreshButton" className="sys-log-button-1 b" onClick={refreshPage}>
-                    {SystemLoggingConstants?.refresh}
-                </button>
-                <button id="sysLogSaveButton"
-                    className="sys-log-button-1 sys-log-save-button b"
-                    onClick={saveLogs}
-                >
-                    {SystemLoggingConstants?.save}
-                </button>
-            </div>
-        )
-    }
-
-    useEffect(() => {
-        if (apiData && Object?.keys(apiData)?.length !== 0 && apiData?.isLogList) {
-            setIsDataRemaining(apiData?.logList?.length !== 0)
-            setCurrentData(c => { return [...c, ...apiData?.logList] })
-            setLoadPage(true);
-        }
-    }, [apiData])
-
-    return (
-        <>
-            <HeaderWithBody
-                title={SystemLoggingConstants?.title}
-                breadcrumbData={SystemLoggingConstants?.breadcrumbData?.concat([
-                    [SystemLoggingConstants?.availablePages?.[params?.id], ''],
-                ])}
-                extra={TypeSelectionHeader({
-                    currentSelectedType: selectedLogType,
-                    setSelectedPageType: setSelectedPageType,
-                    navigate: navigate,
-                })}
-                lineMargin={'sys-log-no-mar'}
-                body={selectedPageType === 0 && HeaderOptions()}
-            />
-            {loadPage ?
-                <div className="sys-log-page">
-                    <div className="flex-1">
-                        {selectedPageType === 0 &&
-                            Object?.keys(
-                                SystemLoggingConstants?.availablePages
-                            )?.indexOf(params?.id) !== -1 && (
-                                <MainLoggingPage
-                                    selectedLogType={selectedLogType}
-                                    currentValue={currentData}
-                                    clearLog={clearLog}
-                                    nextLog={callNextLogs}
-                                    hasMore={isDataRemaining}
-                                    defaultTimezone={localDateTimeData?.timeZone}
-                                />
-                            )}
-                        {selectedPageType === 1 &&
-                            Object?.keys(
-                                SystemLoggingConstants?.availablePages
-                            )?.indexOf(params?.id) !== -1 && (
-                                <TimeSettingsPage
-                                    filterLogs={filterLogs}
-                                    back={() => setSelectedPageType(0)}
-                                    defaultTime={localDateTimeData?.localDateTime?.endsWith('Z') ? localDateTimeData?.localDateTime?.slice(0, -1) : localDateTimeData?.localDateTime?.slice(0, -6)}
-                                    defaultTimezone={localDateTimeData?.localDateTime?.endsWith('Z') ? "Z" : localDateTimeData?.localDateTime?.slice(-6)}
-                                />
-                            )}
-                        {selectedPageType === 2 &&
-                            Object?.keys(
-                                SystemLoggingConstants?.availablePages
-                            )?.indexOf(params?.id) !== -1 && (
-                                <FirewallLoggingSettings
-                                    back={() => setSelectedPageType(0)}
-                                    refreshPage={refreshPage}
-                                />
-                            )}
-                    </div>
-                    {selectedPageType !== 0 && <Footer />}
-                </div>
-                : <VZLoader timeoutLoader={0} inDiv={true} />}
-        </>
-    )
-
+  if (fsamLaptopArray.includes(iconId)) {
+    return Laptop;
+  }
+  switch (iconId) {
+    case 10000:
+    case 10001:
+    case 10002:
+      return Mobile;
+    case 30000:
+    case 30001:
+    case 30002:
+    case 30003:
+      return Tablet;
+  }
 }
 
-export default SystemLogging
 
-
-everthing is working fine you need to fix this last thing when this page loads up fetchdatetime Api is called twice
+Could you complete this switch 
