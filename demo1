@@ -1,27 +1,33 @@
-so write a function in type scroipt which will take icon id as the param and will return FsamType Enum 
-export enum FsamDeviceType {
-  Computer,
-  SmartHomeProduct,
-  SmartPhone,
-  Tablet,
-  GameConsole,
-  StreamBox,
-  Printer,
-  Phone,
-  Speaker,
-  Ups,
-  Repeater,
-  Nas,
-  Security,
-  SmartWatch,
-  SmartAssistant,
-  BabyMonitor,
-  SmartRide,
-  Gps,
-  Firewall,
-  EReader,
-  SmartTv,
+export function convertIconIdToUIString(iconId:number):string{
+  switch(iconId){
+    case 8000:
+      return "Smart Home Product"
+    case 10000:return 
+  }
 }
 
+compete this function take ref from the following mapping
 
-you already know how to do just complete it
+const deviceOptions = {
+    "Computer": "0",
+    "Smart Home Product": "8000",
+    "Smartphone": "10000",
+    "Tablet": "30000",
+    "Game Console": "40003",
+    "Stream Box": "40005",
+    "Printer": "40008",
+    "Phone": "40010",
+    "Speaker": "40011",
+    "UPS": "40012",
+    "Repeater": "40013",
+    "NAS": "40015",
+    "Security": "40017",
+    "Smart Watch": "40023",
+    "Smart Assistant": "40025",
+    "Baby Monitor": "40065",
+    "Smart Ride": "40075",
+    "GPS": "40076",
+    "Firewall": "40078",
+    "eReader": "40300",
+    "Smart TV": "40700"
+}
