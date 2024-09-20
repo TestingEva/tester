@@ -1,13 +1,32 @@
+export function validateDomainName(text: string): boolean {
+  const splitRoutername = text.split(".");
+  for (let idx = 0; idx < splitRoutername.length; ++idx) {
+    const element = splitRoutername[idx];
+    if (element.length === 0 || element.length > 63 || (idx === splitRoutername.length - 1 && element.length > 12))
+      return false;
+  }
+  return /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$/.test(text);
+}
 
-so i want to perform the validation
-i have a string which can be either to be valid domainname or valid Ip Address
-validateDomainName
-validateIp
-I have these fucntions which returns true is they are valid
+export function validateIp(ip: string, kind: "v4" | "v6" | "any" = "any"): boolean {
+  const lowerCasedIp = ip.toLocaleLowerCase();
+  if (kind === "v4") {
+    return IPv4.isValid(lowerCasedIp) || IPv4.isValidCIDR(lowerCasedIp);
+  } else if (kind === "v6") {
+    return IPv6.isValid(lowerCasedIp) || IPv6.isValidCIDR(lowerCasedIp);
+  }
+  return isValid(lowerCasedIp) || isValidCIDR(lowerCasedIp);
+}
 
-only number cannot be valid
 
-so first it should check if it is a valid domainName and if it is not then i neeed to check wheter its a valid ipAddress can you help me in doing this 
+these are the functions 
 
+i got a input string and i want to test whether the string is valid domainname or valid ip Address and if it is not then we should return false 
 
-just give me the condition of the if case when it should be valid
+case 1:
+  256.256.0.0 is not a valid IP nor is valid domainName so we need to return false 
+
+case 2: 
+3421 is not a valid domain name nor its a valid ip so we need to return false 
+
+and check for the all the edge cases 
