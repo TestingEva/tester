@@ -1,29 +1,5 @@
-import { z } from "zod";
-import { getEnumValues } from "../../ui/utils";
-import { convertPortForwardingProtocolDataToString } from "../port-forwarding/mappings";
-import { PortForwardingProtocolData } from "../port-forwarding/models";
-const PortTriggerDataResponseSchema = z.object({
-  enabled: z.boolean(),
-  name: z.string().min(1),
-  portFwdRange: 
-  portTriggerId: z.string().min(1),
-  portTriggerRange: 
-  protocol: z.enum(
-    getEnumValues(PortForwardingProtocolData).map(convertPortForwardingProtocolDataToString) as [string]
-  ),
-  scheduleId: z.string(),
-});
-
-
-export type PortTriggeringData = {
-  enabled: boolean;
-  name: string;
-  portFwdRange: [number, number];
-  portTriggerId: string;
-  portTriggerRange: [number, number];
-  protocol: PortForwardingProtocolData.Tcp | PortForwardingProtocolData.Udp | PortForwardingProtocolData.Both;
-  scheduleId: string;
-};
-
-This is my model for which i am writing the schema portFwdRange can be a array which must have only two numbers same goes for the port Trigger Range 
-how can i complete my schema
+Conversion of type '{ enabled: boolean; name: string; portFwdRange: number[]; portTriggerId: string; portTriggerRange: number[]; protocol: string; scheduleId: string; }[]' to type 'PortTriggeringData[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Type '{ enabled: boolean; name: string; portFwdRange: number[]; portTriggerId: string; portTriggerRange: number[]; protocol: string; scheduleId: string; }' is not comparable to type 'PortTriggeringData'.
+    Types of property 'portFwdRange' are incompatible.
+      Type 'number[]' is not comparable to type '[number, number]'.
+        Target requires 2 element(s) but source may have fewer.
