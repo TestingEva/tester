@@ -1,32 +1,29 @@
-export function validateDomainName(text: string): boolean {
-  const splitRoutername = text.split(".");
-  for (let idx = 0; idx < splitRoutername.length; ++idx) {
-    const element = splitRoutername[idx];
-    if (element.length === 0 || element.length > 63 || (idx === splitRoutername.length - 1 && element.length > 12))
-      return false;
-  }
-  return /^[a-zA-Z0-9](?:[a-zA-Z0-9._-]*[a-zA-Z0-9])?$/.test(text);
-}
-
-export function validateIp(ip: string, kind: "v4" | "v6" | "any" = "any"): boolean {
-  const lowerCasedIp = ip.toLocaleLowerCase();
-  if (kind === "v4") {
-    return IPv4.isValid(lowerCasedIp) || IPv4.isValidCIDR(lowerCasedIp);
-  } else if (kind === "v6") {
-    return IPv6.isValid(lowerCasedIp) || IPv6.isValidCIDR(lowerCasedIp);
-  }
-  return isValid(lowerCasedIp) || isValidCIDR(lowerCasedIp);
-}
+import { z } from "zod";
+import { getEnumValues } from "../../ui/utils";
+import { convertPortForwardingProtocolDataToString } from "../port-forwarding/mappings";
+import { PortForwardingProtocolData } from "../port-forwarding/models";
+const PortTriggerDataResponseSchema = z.object({
+  enabled: z.boolean(),
+  name: z.string().min(1),
+  portFwdRange: 
+  portTriggerId: z.string().min(1),
+  portTriggerRange: 
+  protocol: z.enum(
+    getEnumValues(PortForwardingProtocolData).map(convertPortForwardingProtocolDataToString) as [string]
+  ),
+  scheduleId: z.string(),
+});
 
 
-these are the functions 
+export type PortTriggeringData = {
+  enabled: boolean;
+  name: string;
+  portFwdRange: [number, number];
+  portTriggerId: string;
+  portTriggerRange: [number, number];
+  protocol: PortForwardingProtocolData.Tcp | PortForwardingProtocolData.Udp | PortForwardingProtocolData.Both;
+  scheduleId: string;
+};
 
-i got a input string and i want to test whether the string is valid domainname or valid ip Address and if it is not then we should return false 
-
-case 1:
-  256.256.0.0 is not a valid IP nor is valid domainName so we need to return false 
-
-case 2: 
-3421 is not a valid domain name nor its a valid ip so we need to return false 
-
-and check for the all the edge cases 
+This is my model for which i am writing the schema portFwdRange can be a array which must have only two numbers same goes for the port Trigger Range 
+how can i complete my schema
