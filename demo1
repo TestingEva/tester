@@ -57,10 +57,10 @@ and this was my triggerdata initially
 [
     {
         "id": "1ffb8d54-09ea-4d56-ab1c-4e8b94934947",
-        "name": "Sushant",
-        "portTiggerStart": 123,
+        "name": "Sushant123",
+        "portTiggerStart": 12322,
         "portTriggerEnd": 234,
-        "portFwdStart": 234,
+        "portFwdStart": 2324,
         "portFwdEnd": 2344,
         "protocol": 1,
         "schedule": {
@@ -72,7 +72,7 @@ and this was my triggerdata initially
                         0,
                         1,
                         2,
-                        3
+                        3,4,5
                     ],
                     "startTime": "1970-01-01T09:00:00.000Z",
                     "endTime": "1970-01-01T00:00:00.000Z"
@@ -191,12 +191,12 @@ so the triggerData should also maintain the order in which id is
         "isEnabled": true,
         "isEditing": true
     },
-{
+ {
         "id": "1ffb8d54-09ea-4d56-ab1c-4e8b94934947",
-        "name": "Sushant",
-        "portTiggerStart": 123,
+        "name": "Sushant123",
+        "portTiggerStart": 12322,
         "portTriggerEnd": 234,
-        "portFwdStart": 234,
+        "portFwdStart": 2324,
         "portFwdEnd": 2344,
         "protocol": 1,
         "schedule": {
@@ -208,7 +208,7 @@ so the triggerData should also maintain the order in which id is
                         0,
                         1,
                         2,
-                        3
+                        3,4,5
                     ],
                     "startTime": "1970-01-01T09:00:00.000Z",
                     "endTime": "1970-01-01T00:00:00.000Z"
@@ -221,3 +221,5 @@ so the triggerData should also maintain the order in which id is
         "isEditing": false
     },
 ]
+
+see for this scenario i want the order to maintained based on id only 
