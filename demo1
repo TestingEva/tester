@@ -1,110 +1,223 @@
-type SortStateProps = {
-  key: keyof PortTriggeringInfo;
-  order: "asc" | "desc";
-};
-
-export type PortTriggeringUiModel = {
-  id: string;
-  name: string;
-  portTiggerStart: number;
-  portTriggerEnd: number;
-  portFwdStart: number;
-  portFwdEnd: number;
-  protocol: PortForwardingProtocol.Tcp | PortForwardingProtocol.Udp | PortForwardingProtocol.Both;
-  schedule: "Always" | SchedulerRuleInfo;
-  isEnabled: boolean;
-  isEditing: boolean;
-};
-
-export type PortTriggeringInfo = {
-  id: string;
-  name: string;
-  portTiggerStart: number;
-  portTriggerEnd: number;
-  portFwdStart: number;
-  portFwdEnd: number;
-  protocol: PortForwardingProtocol.Tcp | PortForwardingProtocol.Udp | PortForwardingProtocol.Both;
-  schedule: "Always" | SchedulerRuleInfo;
-  isEnabled: boolean;
-};
-
-export const PortTriggering = () => {
-  const { data, isError, isPending, isFetching } = usePortTriggeringInfo();
-  const [triggerRules, setTriggerRules] = useState<PortTriggeringUiModel[]>();
-
-  const initialData = useMemo(() => {
-    if (data === undefined) {
-      return [];
+suppose this was my sorteddata initially 
+[
+    {
+        "id": "1ffb8d54-09ea-4d56-ab1c-4e8b94934947",
+        "name": "Sushant",
+        "portTiggerStart": 123,
+        "portTriggerEnd": 234,
+        "portFwdStart": 234,
+        "portFwdEnd": 2344,
+        "protocol": 1,
+        "schedule": {
+            "id": "621fc5f7-8684-4c99-b508-238106ceef74",
+            "name": "TESt",
+            "schedules": [
+                {
+                    "scheduleDays": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "startTime": "1970-01-01T09:00:00.000Z",
+                    "endTime": "1970-01-01T00:00:00.000Z"
+                }
+            ],
+            "mode": true,
+            "status": false
+        },
+        "isEnabled": true
+    },
+    {
+        "id": "617239bc-ee7f-473b-9505-ec50782a4492",
+        "name": "TEST",
+        "portTiggerStart": 32,
+        "portTriggerEnd": 35,
+        "portFwdStart": 45,
+        "portFwdEnd": 67,
+        "protocol": 1,
+        "schedule": "Always",
+        "isEnabled": true
+    },
+    {
+        "id": "7bf8c557-821c-4516-9978-5fe6c478e055",
+        "name": "TEsting",
+        "portTiggerStart": 424,
+        "portTriggerEnd": 4444,
+        "portFwdStart": 4666,
+        "portFwdEnd": 6432,
+        "protocol": 0,
+        "schedule": "Always",
+        "isEnabled": true
     }
-    return data;
-  }, [data]);
-  const { addItem, removeItem, updateItem, getResult, list, hasChanges } = useListTracker(initialData, "id");
+]
 
-  useEffect(() => {
-    if (data !== undefined) {
-      const portTrigRules = data.map(convertPortTriggeringInfoToUiInfo);
-      setTriggerRules([...portTrigRules]);
+
+and this was my triggerdata initially 
+[
+    {
+        "id": "1ffb8d54-09ea-4d56-ab1c-4e8b94934947",
+        "name": "Sushant",
+        "portTiggerStart": 123,
+        "portTriggerEnd": 234,
+        "portFwdStart": 234,
+        "portFwdEnd": 2344,
+        "protocol": 1,
+        "schedule": {
+            "id": "621fc5f7-8684-4c99-b508-238106ceef74",
+            "name": "TESt",
+            "schedules": [
+                {
+                    "scheduleDays": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "startTime": "1970-01-01T09:00:00.000Z",
+                    "endTime": "1970-01-01T00:00:00.000Z"
+                }
+            ],
+            "mode": true,
+            "status": false
+        },
+        "isEnabled": true,
+        "isEditing": false
+    },
+    {
+        "id": "7bf8c557-821c-4516-9978-5fe6c478e055",
+        "name": "TEsting",
+        "portTiggerStart": 424,
+        "portTriggerEnd": 4444,
+        "portFwdStart": 4666,
+        "portFwdEnd": 6432,
+        "protocol": 0,
+        "schedule": "Always",
+        "isEnabled": true,
+        "isEditing": false
+    },
+    {
+        "id": "617239bc-ee7f-473b-9505-ec50782a4492",
+        "name": "TEST",
+        "portTiggerStart": 32,
+        "portTriggerEnd": 35,
+        "portFwdStart": 45,
+        "portFwdEnd": 67,
+        "protocol": 1,
+        "schedule": "Always",
+        "isEnabled": true,
+        "isEditing": true
     }
-    //eslint-disable-next-line
-  }, [data, isFetching]);
+]
 
-  const defaultSortState: SortStateProps = useMemo(
-    () => ({
-      key: "name",
-      order: "asc",
-    }),
-    // eslint-disable-next-line
-    []
-  );
-  const [sortState, setSortState] = useState<SortStateProps>(defaultSortState);
+now we clicked on sort and the sorted data changed to 
+[
+    {
+        "id": "617239bc-ee7f-473b-9505-ec50782a4492",
+        "name": "TEST",
+        "portTiggerStart": 32,
+        "portTriggerEnd": 35,
+        "portFwdStart": 45,
+        "portFwdEnd": 67,
+        "protocol": 1,
+        "schedule": "Always",
+        "isEnabled": true
+    },
+    {
+        "id": "7bf8c557-821c-4516-9978-5fe6c478e055",
+        "name": "TEsting",
+        "portTiggerStart": 424,
+        "portTriggerEnd": 4444,
+        "portFwdStart": 4666,
+        "portFwdEnd": 6432,
+        "protocol": 0,
+        "schedule": "Always",
+        "isEnabled": true
+    },
+{
+        "id": "1ffb8d54-09ea-4d56-ab1c-4e8b94934947",
+        "name": "Sushant",
+        "portTiggerStart": 123,
+        "portTriggerEnd": 234,
+        "portFwdStart": 234,
+        "portFwdEnd": 2344,
+        "protocol": 1,
+        "schedule": {
+            "id": "621fc5f7-8684-4c99-b508-238106ceef74",
+            "name": "TESt",
+            "schedules": [
+                {
+                    "scheduleDays": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "startTime": "1970-01-01T09:00:00.000Z",
+                    "endTime": "1970-01-01T00:00:00.000Z"
+                }
+            ],
+            "mode": true,
+            "status": false
+        },
+        "isEnabled": true
+    }
+]
 
-  const sortedData = useMemo(() => {
-    return sortBy(sortState.order, list, (item) => {
-      const sortKey = sortState.key;
-      if (sortKey === "schedule") {
-        if (typeof item.schedule === "string") {
-          return item.schedule;
-        }
-        return item.schedule.name;
-      } else {
-        return item[sortKey];
-      }
-    });
-  }, [list, sortState.key, sortState.order]);
-
-  const onSortClick = (key: keyof PortTriggeringInfo, sortOrder: "asc" | "desc") => {
-    setSortState({ key: key, order: sortOrder });
-    setTriggerRules(() => {
-      if (triggerRules !== undefined) {
-        console.log("inside this");
-        return sortBy(sortState.order, triggerRules, (item) => {
-          const sortKey = sortState.key;
-          if (sortKey === "schedule") {
-            if (typeof item.schedule === "string") {
-              return item.schedule;
-            }
-            return item.schedule.name;
-          } else {
-            return item[sortKey];
-          }
-        });
-      }
-    });
-  };
-
-  if (isError) {
-    return <ErrorIndicator />;
-  }
-
-  if (data === undefined || isPending || triggerRules === undefined) {
-    return <LoadingIndicator />;
-  }
-
-  return <PortTriggeringView list={sortedData} triggerRules={triggerRules} onSortClick={onSortClick} />;
-};
-
-the main problem i am facing is that the same function is sorting the sortedData but the trigger data is not being sorted its having the value of previus sort
-also its like suppose all are forms in the which i can edit the fields Ui model will be saying it
-
-suggest me the things
-
+so the triggerData should also maintain the order in which id is
+[
+    
+    {
+        "id": "7bf8c557-821c-4516-9978-5fe6c478e055",
+        "name": "TEsting",
+        "portTiggerStart": 424,
+        "portTriggerEnd": 4444,
+        "portFwdStart": 4666,
+        "portFwdEnd": 6432,
+        "protocol": 0,
+        "schedule": "Always",
+        "isEnabled": true,
+        "isEditing": false
+    },
+    {
+        "id": "617239bc-ee7f-473b-9505-ec50782a4492",
+        "name": "TEST",
+        "portTiggerStart": 32,
+        "portTriggerEnd": 35,
+        "portFwdStart": 45,
+        "portFwdEnd": 67,
+        "protocol": 1,
+        "schedule": "Always",
+        "isEnabled": true,
+        "isEditing": true
+    },
+{
+        "id": "1ffb8d54-09ea-4d56-ab1c-4e8b94934947",
+        "name": "Sushant",
+        "portTiggerStart": 123,
+        "portTriggerEnd": 234,
+        "portFwdStart": 234,
+        "portFwdEnd": 2344,
+        "protocol": 1,
+        "schedule": {
+            "id": "621fc5f7-8684-4c99-b508-238106ceef74",
+            "name": "TESt",
+            "schedules": [
+                {
+                    "scheduleDays": [
+                        0,
+                        1,
+                        2,
+                        3
+                    ],
+                    "startTime": "1970-01-01T09:00:00.000Z",
+                    "endTime": "1970-01-01T00:00:00.000Z"
+                }
+            ],
+            "mode": true,
+            "status": false
+        },
+        "isEnabled": true,
+        "isEditing": false
+    },
+]
