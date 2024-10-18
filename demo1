@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
-import dayjs from 'dayjs'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { v4 as uuidv4 } from 'uuid'
@@ -20,6 +19,7 @@ import { TypeSelectionHeader } from './sys-log-components/TypeSelectionHeader'
 import FirewallLoggingSettings from './sys-logging-pages/FirewallLoggingSettings'
 import { MainLoggingPage } from './sys-logging-pages/MainLoggingPage'
 import TimeSettingsPage from './sys-logging-pages/TimeSettingsPage'
+import dayjs from 'dayjs'
 
 const SystemLogging = () => {
     const apiData = useSelector((state) => {
@@ -51,7 +51,7 @@ const SystemLogging = () => {
             limit: 100,
         }
         //eslint-disable-next-line
-    }, [startTimeData,endTimeData])
+    }, [startTimeData, endTimeData,selectedLogType])
 
 
     const clearLog = () => {
@@ -106,6 +106,19 @@ const SystemLogging = () => {
     }
 
     useEffect(() => {
+        console.log("second")
+        setSelectedLogType(params?.id)
+        dispatch(fetchDateTimeRequest())
+        if (timeData?.time) {
+            setStartTimeData(subtractDaysFromLocalDateTime(1))
+            setEndTimeData(subtractDaysFromLocalDateTime(0))
+        }
+        setLoadPage(false)
+        // eslint-disable-next-line
+    }, [params?.id])
+
+    useEffect(() => {
+        console.log("third",localDateTimeData)
         if (localDateTimeData && Object.keys(localDateTimeData)?.length) {
             setTimeData({
                 time: localDateTimeData?.localDateTime,
@@ -113,35 +126,28 @@ const SystemLogging = () => {
         }
     }, [localDateTimeData])
 
-    useEffect(() => {
-          if (timeData?.time) {
-              setStartTimeData(subtractDaysFromLocalDateTime(1))
-              setEndTimeData(dayjs(timeData?.time.slice(0, -6)).format('YYYY-MM-DDTHH:mm:ss'))
-          }
-          // eslint-disable-next-line
-    }, [timeData])
 
     useEffect(() => {
-        dispatch(fetchDateTimeRequest())
-        setSelectedLogType(params?.id)
-        // if (timeData?.time) {
-        //     setStartTimeData(subtractDaysFromLocalDateTime(1))
-        //     setEndTimeData(subtractDaysFromLocalDateTime(0))
-        // }
-        setLoadPage(false)
-        // eslint-disable-next-line
-    }, [params?.id])
-
-    useEffect(() => {
-        if (startTimeData && endTimeData && localDateTimeData) {
+        if (startTimeData && endTimeData && localDateTimeData?.localDateTime) {
+            console.log("first")
             window.scrollTo(0, 0)
             setCurrentData([])   
             setCumulativeOffset(100)
             logUsageEvent(shaReportMessage.sysLogPage.replace("{SYS_LOG_TYPE}", SystemLoggingConstants.eventLog[params?.id]))
-            dispatch(fetchSysLogRequest({ body: { ...requestData, requestId: uuidv4() } }))
+            dispatch(fetchSysLogRequest({ body: { ...requestData,logType: selectedLogType, requestId: uuidv4() } }))
         }
         // eslint-disable-next-line
-    }, [requestData.startDateTime,requestData.endDateTime,selectedLogType])
+    }, [requestData])
+
+    
+    useEffect(() => {
+        console.log("forth")
+        if (timeData?.time) {
+            setStartTimeData(subtractDaysFromLocalDateTime(1))
+            setEndTimeData(dayjs(timeData?.time.slice(0, -6)).format("YYYY-MM-DDTHH:mm:ss"))
+        }
+        // eslint-disable-next-line
+    }, [timeData?.time])
 
     useEffect(() => {
         setComponentId(uuidv4())
@@ -250,11 +256,11 @@ const SystemLogging = () => {
 
 export default SystemLogging
 
+I found the reason for the two dispatch its as the dateandtime changes it calls in the following manner suppose the initial request data was {"requestId":"8369f8c5-5a06-4eeb-8cbe-499201dcb7b5","logType":"system","startDateTime":"2024-10-14T01:09:32","endDateTime":"2024-10-15T01:09:32","offset":0,"limit":100}
+now the dateTime api called and the localtime has been changed so the first call payload after fetching the date and time is {"requestId":"2a5e0c04-1a66-4810-8ce5-5aa0215bcdbd","logType":"wandhcp","startDateTime":"2024-10-14T01:09:32","endDateTime":"2024-10-15T01:09:32","offset":0,"limit":100}
+and the second call payload after this which should be only call after fetching the date is {"requestId":"a1770c23-b995-4aa5-bba8-9ce4364492b3","logType":"wandhcp","startDateTime":"2024-10-14T01:08:32","endDateTime":"2024-10-15T01:08:32","offset":0,"limit":100}
 
-This is my main component the issue is that when ever i am changing the week and then changing the param its calling two times 
-here are the payloads -  {"requestId":"ddac5443-26c7-4de5-bda0-c2e24200522c","logType":"system","startDateTime":"2024-10-08T01:08:32","endDateTime":"2024-10-15T01:08:32","offset":0,"limit":100}
-for the second call payload is {"requestId":"1cf43234-abe2-427e-99a1-2dba27912606","logType":"advanced","startDateTime":"2024-10-14T01:08:32","endDateTime":"2024-10-15T01:08:32","offset":0,"limit":100}
+so how can i avoid the first call could you please suggest
 
-but i want only the second call not the first call because when the param changes we need to just subsract one daY FROM the enddate 
 
-could you help me to fix this 
+
