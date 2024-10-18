@@ -1,90 +1,253 @@
-type SortStateProps = {
-  key: keyof PortTriggeringInfo;
-  order: "asc" | "desc";
-};
+import React, { useEffect, useMemo, useState } from 'react'
 
-export const PortTriggering = () => {
-  const { data, isError, isPending, isFetching } = usePortTriggeringInfo();
-  const [triggerRules, setTriggerRules] = useState<PortTriggeringUiModel[]>([]);
+import { useDispatch, useSelector } from 'react-redux'
+import { useNavigate, useParams } from 'react-router-dom'
+import { v4 as uuidv4 } from 'uuid'
+import { ButtonBG, RouterButton } from '../../../common/button/RouterButton'
+import Footer from '../../../common/footer/Footer'
+import { HeaderWithBody } from '../../../common/header/Header'
+import VZLoader from '../../../common/loader/Loader'
+import CONFIG from '../../../config/env.json'
+import { SystemLoggingConstants } from '../../../constants/Diagnostics'
+import { shaReportMessage } from '../../../constants/ShaReport'
+import { fetchRequests } from '../../../utils/FetchRequest'
+import { logUsageEvent } from '../../../utils/Logger'
+import { fetchDateTimeRequest } from '../../system/date-time/Action'
+import { clearSysLogRequest, fetchSysLogRequest } from './Action'
+import './SystemLogging.css'
+import { TypeSelectionHeader } from './sys-log-components/TypeSelectionHeader'
+import FirewallLoggingSettings from './sys-logging-pages/FirewallLoggingSettings'
+import { MainLoggingPage } from './sys-logging-pages/MainLoggingPage'
+import TimeSettingsPage from './sys-logging-pages/TimeSettingsPage'
+import dayjs from 'dayjs'
 
-  const initialData = useMemo(() => {
-    if (data === undefined) {
-      return [];
-    }
-    return data;
-  }, [data]);
-  const { addItem, removeItem, updateItem, getResult, list, hasChanges } = useListTracker(initialData, "id");
+const SystemLogging = () => {
+    const apiData = useSelector((state) => {
+        return state?.sysLog?.data
+    })
+    const localDateTimeData = useSelector((state) => state?.dateTime?.data)
+    const params = useParams()
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const [loadPage, setLoadPage] = useState(false)
+    const [selectedLogType, setSelectedLogType] = useState('system')
+    const [currentData, setCurrentData] = useState([])
+    const [selectedPageType, setSelectedPageType] = useState(0)
+    const [timeData, setTimeData] = useState({})
+    const [startTimeData, setStartTimeData] = useState()
+    const [endTimeData, setEndTimeData] = useState()
+    const [componentId, setComponentId] = useState(uuidv4())
+    const [cumulativeOffset, setCumulativeOffset] = useState(100)
+    const [isDataRemaining, setIsDataRemaining] = useState(false)
 
-  useEffect(() => {
-    if (data !== undefined) {
-      const portTrigRules = data.map(convertPortTriggeringInfoToUiInfo);
-      setTriggerRules([...portTrigRules]);
-    }
-    //eslint-disable-next-line
-  }, [data, isFetching]);
-
-  const defaultSortState: SortStateProps = useMemo(
-    () => ({
-      key: "name",
-      order: "asc",
-    }),
-    // eslint-disable-next-line
-    []
-  );
-  const [sortState, setSortState] = useState<SortStateProps>(defaultSortState);
-
-  const sortedData = useMemo(() => {
-    return sortBy(sortState.order, list, (item) => {
-      const sortKey = sortState.key;
-      if (sortKey === "schedule") {
-        if (typeof item.schedule === "string") {
-          return item.schedule;
+    const requestData = useMemo(() => {
+        setLoadPage(false)
+        return {
+            requestId: componentId,
+            logType: SystemLoggingConstants?.requestLogType?.[params?.id],
+            startDateTime: startTimeData,
+            endDateTime: endTimeData,
+            offset: 0,
+            limit: 100,
         }
-        return item.schedule.name;
-      } else {
-        return item[sortKey];
-      }
-    });
-  }, [list, sortState.key, sortState.order]);
-
-  const onSortClick = (key: keyof PortTriggeringInfo, sortOrder: "asc" | "desc") => {
-    setSortState({ key: key, order: sortOrder });
-    setTriggerRules(() => {
-      if (triggerRules !== undefined) {
-        return sortBy(sortState.order, triggerRules, (item) => {
-          const sortKey = sortState.key;
-          if (sortKey === "schedule") {
-            if (typeof item.schedule === "string") {
-              return item.schedule;
-            }
-            return item.schedule.name;
-          } else {
-            return item[sortKey];
-          }
-        });
-      }
-      return [];
-    });
-  };
-
-  const onChange = <K extends keyof PortTriggeringUiModel>(index: number, key: K, value: PortTriggeringUiModel[K]) => {
-    const temp = triggerRules;
-    temp[index][key] = value;
-    setTriggerRules([...temp]);
-  };
-
-  if (isError) {
-    return <ErrorIndicator />;
-  }
-
-  if (data === undefined || isPending || triggerRules === undefined) {
-    return <LoadingIndicator />;
-  }
-
-  return (
-    <PortTriggeringView list={sortedData} triggerRules={triggerRules} onSortClick={onSortClick} onChange={onChange} />
-  );
-};
+        //eslint-disable-next-line
+    }, [startTimeData, endTimeData])
 
 
-you did well but you need to reorder this triggerData in the order of the sortedData can you do this 
+    const clearLog = () => {
+        setCurrentData([])
+        dispatch(
+            clearSysLogRequest({
+                body: { logType: SystemLoggingConstants?.requestLogType?.[params?.id] },
+            })
+        )
+    }
+
+    const subtractDaysFromLocalDateTime = (days) => {
+        return dayjs(timeData?.time.slice(0, -6)).subtract(days,"days").format("YYYY-MM-DDTHH:mm:ss")
+    }
+
+    const filterLogs = ({ type = 'prevDay', startTime, endTime }) => {
+
+        switch (type) {
+            case 'prevDay':
+                setStartTimeData(subtractDaysFromLocalDateTime(1))
+                setEndTimeData(dayjs(timeData?.time.slice(0,-6)).format("YYYY-MM-DDTHH:mm:ss"))
+                break
+            case 'prevWeek':
+                setStartTimeData(subtractDaysFromLocalDateTime(7))
+                setEndTimeData(dayjs(timeData?.time.slice(0,-6)).format("YYYY-MM-DDTHH:mm:ss"))
+                break
+            default:
+                setStartTimeData(startTime)
+                setEndTimeData(endTime)
+                break
+        }
+        setSelectedPageType(0)
+    }
+
+    function saveLogs() {
+        fetchRequests({ url: CONFIG?.SYS_LOGGING_DOWNLOAD_LOG, headers: { responseType: "blob" }, needJson: false, body: JSON.stringify({ logType: SystemLoggingConstants?.requestLogType?.[params?.id] }) }).then(rData => { return rData?.blob() }).then(res => {
+            const blob = new Blob([res], { type: 'application/text' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `messages_${SystemLoggingConstants?.logFileName?.[params?.id]}.log`;
+            link.click();
+            window.URL.revokeObjectURL(link.href);
+        })
+    }
+
+    const refreshPage = () => {
+        dispatch(fetchDateTimeRequest())
+        window.scrollTo(0, 0)
+        setCurrentData([])
+        setCumulativeOffset(100)
+        filterLogs({ type: "prevDay" })
+    }
+
+    useEffect(() => {
+        dispatch(fetchDateTimeRequest())
+        setSelectedLogType(params?.id)
+        if (timeData?.time) {
+            setStartTimeData(subtractDaysFromLocalDateTime(1))
+            setEndTimeData(subtractDaysFromLocalDateTime(0))
+        }
+        setLoadPage(false)
+        // eslint-disable-next-line
+    }, [params])
+
+    useEffect(() => {
+        if (startTimeData && endTimeData) {
+            window.scrollTo(0, 0)
+            setCurrentData([])   
+            setCumulativeOffset(100)
+            logUsageEvent(shaReportMessage.sysLogPage.replace("{SYS_LOG_TYPE}", SystemLoggingConstants.eventLog[params?.id]))
+            dispatch(fetchSysLogRequest({ body: { ...requestData, requestId: uuidv4() } }))
+        }
+        // eslint-disable-next-line
+    }, [dispatch, requestData])
+
+    useEffect(() => {
+        if (localDateTimeData && Object.keys(localDateTimeData)?.length) {
+            setTimeData({
+                time: localDateTimeData?.localDateTime,
+            })
+        }
+    }, [localDateTimeData])
+
+    useEffect(() => {
+        if (timeData?.time) {
+            setStartTimeData(subtractDaysFromLocalDateTime(1))
+            setEndTimeData(dayjs(timeData?.time.slice(0, -6)).format("YYYY-MM-DDTHH:mm:ss"))
+        }
+        // eslint-disable-next-line
+    }, [timeData])
+
+    useEffect(() => {
+        setComponentId(uuidv4())
+        return () => {
+            setComponentId(null)
+        }
+        // eslint-disable-next-line
+    }, [])
+
+    const callNextLogs = () => {
+        const updatedRequestData = { ...requestData, offset: cumulativeOffset, }
+        apiData?.logList?.length !== 0 && dispatch(fetchSysLogRequest({ body: updatedRequestData }))
+        setCumulativeOffset((prev) => prev + requestData?.limit)
+    }
+
+    const HeaderOptions = () => {
+        return (
+            <div className="sys-log-option-row">
+                {params?.id === 'firewall' && (
+                    <ButtonBG id="sysLogSettingsButton"
+                        className="sys-log-button-1 b"
+                        onEvent={() => setSelectedPageType(2)}
+                        label={SystemLoggingConstants?.settings}
+                        eventLabel={shaReportMessage.sysLogSettingsClick}
+                    />
+                )}
+                <ButtonBG id="sysLogOptionsButton"
+                    className="sys-log-button-1 b"
+                    onEvent={() => setSelectedPageType(1)}
+                    label={SystemLoggingConstants?.opt}
+                    eventLabel={shaReportMessage.sysLogOptionsClick}
+                />
+                <ButtonBG id="sysLogRefreshButton" className="sys-log-button-1 b" onEvent={refreshPage} label={SystemLoggingConstants?.refresh} eventLabel={shaReportMessage.sysLogRefreshClick} />
+                <RouterButton id="sysLogSaveButton" className="sys-log-button-1 sys-log-save-button b" onEvent={saveLogs} label={SystemLoggingConstants?.save} eventLabel={shaReportMessage.sysLogSaveClick} />
+            </div>
+        )
+    }
+
+    useEffect(() => {
+        if (apiData && Object?.keys(apiData)?.length !== 0 && apiData?.isLogList) {
+            setIsDataRemaining(apiData?.logList?.length !== 0)
+            setCurrentData(c => { return [...c, ...apiData?.logList] })
+            setLoadPage(true);
+        }
+    }, [apiData])
+
+    return (
+        <>
+            <HeaderWithBody
+                title={SystemLoggingConstants?.title}
+                breadcrumbData={SystemLoggingConstants?.breadcrumbData?.concat([
+                    [SystemLoggingConstants?.availablePages?.[params?.id], ''],
+                ])}
+                extra={TypeSelectionHeader({
+                    currentSelectedType: selectedLogType,
+                    setSelectedPageType: setSelectedPageType,
+                    navigate: navigate,
+                })}
+                lineMargin={'sys-log-no-mar'}
+                body={selectedPageType === 0 && HeaderOptions()}
+            />
+            {loadPage ?
+                <div className="sys-log-page">
+                    <div className="flex-1">
+                        {selectedPageType === 0 &&
+                            Object?.keys(
+                                SystemLoggingConstants?.availablePages
+                            )?.indexOf(params?.id) !== -1 && (
+                                <MainLoggingPage
+                                    selectedLogType={selectedLogType}
+                                    currentValue={currentData}
+                                    clearLog={clearLog}
+                                    nextLog={callNextLogs}
+                                    hasMore={isDataRemaining}
+                                    defaultTimezone={localDateTimeData?.timeZone}
+                                />
+                            )}
+                        {selectedPageType === 1 &&
+                            Object?.keys(
+                                SystemLoggingConstants?.availablePages
+                            )?.indexOf(params?.id) !== -1 && (
+                                <TimeSettingsPage
+                                    filterLogs={filterLogs}
+                                    back={() => setSelectedPageType(0)}
+                                    defaultTime={localDateTimeData?.localDateTime?.endsWith('Z') ? localDateTimeData?.localDateTime?.slice(0, -1) : localDateTimeData?.localDateTime?.slice(0, -6)}
+                                    defaultTimezone={localDateTimeData?.localDateTime?.endsWith('Z') ? "Z" : localDateTimeData?.localDateTime?.slice(-6)}
+                                />
+                            )}
+                        {selectedPageType === 2 &&
+                            Object?.keys(
+                                SystemLoggingConstants?.availablePages
+                            )?.indexOf(params?.id) !== -1 && (
+                                <FirewallLoggingSettings
+                                    back={() => setSelectedPageType(0)}
+                                    refreshPage={refreshPage}
+                                />
+                            )}
+                    </div>
+                    {selectedPageType !== 0 && <Footer />}
+                </div>
+                : <VZLoader showWarning={false} timeoutLoader={2000} inDiv={true} />}
+        </>
+    )
+
+}
+
+export default SystemLogging
+
+whenever my params is changing it is not calling the fetchSysLogRequest could you give me the reason for this
