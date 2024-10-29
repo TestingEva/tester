@@ -1,26 +1,38 @@
-import { Dayjs } from "dayjs";
 import { useState } from "react";
-import { DayPicker, getDefaultClassNames } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 import "react-day-picker/style.css";
+import { OptionalComponent } from "../../../components/OptionalComponent";
+import { VZInputTextField } from "../../../components/vz-input/VZInput";
+import "./Datepicker.css";
 
 type DatePickerProps = {
-  selectedDate?: Dayjs;
-  onDaySelect?: (selectedDate: Dayjs) => void;
+  selectedDate: Date;
+  onDaySelect: (selectedDate?: Date) => void;
 };
 
-export const DatePickerComponent: React.FC<DatePickerProps> = (props) => {
-  const defaultClassNames = getDefaultClassNames();
-  const [selected, setSelected] = useState<Date>();
-
+export const DatePickerComponent: React.FC<DatePickerProps> = ({ selectedDate, onDaySelect }) => {
+  const [showDatePicker, setDatePicker] = useState(false);
   return (
-    <DayPicker
-      mode="single"
-      selected={selected}
-      onSelect={setSelected}
-      captionLayout="dropdown"
-    />
+    <>
+      <VZInputTextField
+        value={`${selectedDate.getMonth()}/${selectedDate.getDay()}/${selectedDate.getFullYear().toString().slice(-2)}`}
+        onChange={() => {}}
+        disabled
+      />
+      <OptionalComponent show={showDatePicker}>
+        <DayPicker
+          mode="single"
+          selected={selectedDate}
+          onSelect={(e) => onDaySelect(e)}
+          captionLayout="dropdown"
+          classNames={{
+            day: "text-dark",
+          }}
+        />
+      </OptionalComponent>
+    </>
   );
 };
 
 
-Hi could you help me in styling this component I want the selected day color white and background of the selected day to be black and it should be having 0 boreder radius
+Hi I want to show the date picker when the mouse enters the text field and close the datePicker when the Mouse goes off the Date Picker 
