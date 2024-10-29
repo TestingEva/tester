@@ -1,70 +1,18 @@
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.module.css";
+import styled from "styled-components";
+import dayjs from "dayjs";
 
 import { logUsageEvent } from "../../utils/Logger";
-import "./DatePicker.css";
 
-
-const formatDate = (date) => {
-    const options = { year: 'numeric', month: 'long' };
-    return new Date(date).toLocaleString('en-US', options);
+interface VZDatePickerProps {
+    selectedDate: dayjs.Dayjs | null;
+    setSelectedDate: (date: dayjs.Dayjs | null) => void;
+    datePickerId?: string;
+    eventLabel?: string;
 }
 
-const CustomInput = ({ value, onClick }) => {
-    return (<div className="vz-custom-calendar-input hb" onClick={onClick}>{formatDate(value)}</div>)
-}
-
-const CustomHeader = ({ event, selectedDate, setSelectedDate }) => {
-
-    return (
-        <div className="vz-custom-date-picker-header">
-            <i onClick={event?.decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
-            <div className="flex-1" />
-            <DatePicker
-                selected={selectedDate}
-                onChange={e => setSelectedDate(e)}
-                showMonthYearPicker
-                customInput={<CustomInput />}
-                className="vz-date-picker h"
-                calendarClassName="vz-month-calendar"
-            />
-            <div className="flex-1" />
-            <i onClick={event?.increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
-        </div>
-    )
-}
-
-export const VZDatePicker = ({ selectedDate, setSelectedDate, datePickerId = "vzDatePicker", eventLabel }) => {
-
-    const [openCalendar, setOpenCalendar] = useState(false);
-
-    const setDate = (date) => {
-        setSelectedDate(date)
-        logUsageEvent(eventLabel)
-    }
-
-    return (
-        <div onMouseEnter={() => setOpenCalendar(true)} onMouseLeave={() => setOpenCalendar(false)}>
-            <DatePicker
-                id={`vzDatePicker-${datePickerId}`}
-                selected={selectedDate}
-                onChange={setDate}
-                dateFormat={"MM/dd/yy"}
-                calendarClassName="vz-calendar"
-                showIcon icon="icon icon-calendar"
-                className="vz-date-picker h"
-                formatWeekDay={nameOfDay => nameOfDay.slice(0, 1)}
-                forceShowMonthNavigation={true}
-                renderCustomHeader={(e) => <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setDate} />}
-                open={openCalendar}
-            />
-        </div>
-    )
-}
-
-here is the CSS file 
-.vz-date-picker {
+const VZDatePickerContainer = styled.div`
     width: 100%;
     border: 1px solid #d8dada;
     border-bottom-color: #000;
@@ -72,110 +20,98 @@ here is the CSS file
     font-size: 16px;
     line-height: 16px;
     padding: 12px 0 12px 44px !important;
-}
+`;
 
-.vz-calendar {
+const CalendarContainer = styled.div`
     border-radius: 0;
     border: 1px solid black;
-}
+`;
 
-.react-datepicker__header {
-    background-color: white !important;
-    border-bottom: none !important;
-    gap: 10px;
-    display: flex;
-    flex-direction: column;
-}
-
-.react-datepicker__day--outside-month {
-    color: transparent !important;
-    pointer-events: none;
-    background-color: white !important;
-}
-
-.react-datepicker__day--selected {
-    background-color: black;
-    border-radius: 0;
-}
-
-.react-datepicker__input-container {
-    display: flex;
-    align-items: center;
-}
-
-.react-datepicker__current-month {
-    font-size: 12px !important;
-    font-family: 'Verizon NHG eDS Bold';
-    padding-top: 5px;
+const CustomCalendarInput = styled.div`
     cursor: pointer;
-}
+`;
 
-.react-datepicker__day-name {
-    font-family: 'Verizon NHG eDS Bold';
-    color: grey;
-}
-
-.react-datepicker__day {
-    font-family: 'Verizon NHG eDS Bold';
-}
-
-.react-datepicker__day:hover {
-    border-radius: 0 !important;
-}
-
-.react-datepicker__day--keyboard-selected {
-    background-color: black !important;
-    border-radius: 0 !important;
-    color: white;
-}
-
-.vz-custom-date-picker-header {
+const CustomHeaderContainer = styled.div`
     display: flex;
     align-content: space-between;
     width: 100%;
     padding: 5px 15px;
-}
+`;
 
-.vz-date-left-arrow {
+const ArrowLeft = styled.i`
     transform: rotateZ(90deg);
     cursor: pointer;
-}
+`;
 
-.vz-date-right-arrow {
+const ArrowRight = styled.i`
     transform: rotateZ(-90deg);
     cursor: pointer;
-}
+`;
 
-.vz-custom-calendar-input {
-    cursor: pointer;
-}
+const CustomInput = ({ value, onClick }: { value?: string; onClick?: () => void }) => (
+    <CustomCalendarInput onClick={onClick}>{value}</CustomCalendarInput>
+);
 
-.vz-month-calendar {
-    border-radius: 0;
-    border: 1px solid black;
-    background-color: black;
-    color: white;
-    left: -62px
-}
+const formatDayJsDate = (date: dayjs.Dayjs | null) => {
+    return date ? date.format("MMMM YYYY") : "";
+};
 
-.react-datepicker-year-header {
-    background-color: black !important;
-    color: white;
-}
+const CustomHeader = ({
+    event,
+    selectedDate,
+    setSelectedDate,
+}: {
+    event: any;
+    selectedDate: dayjs.Dayjs | null;
+    setSelectedDate: (date: dayjs.Dayjs | null) => void;
+}) => (
+    <CustomHeaderContainer>
+        <ArrowLeft onClick={event?.decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
+        <div className="flex-1" />
+        <DatePicker
+            selected={selectedDate?.toDate()}
+            onChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
+            showMonthYearPicker
+            customInput={<CustomInput value={formatDayJsDate(selectedDate)} />}
+            calendarClassName="vz-month-calendar"
+        />
+        <div className="flex-1" />
+        <ArrowRight onClick={event?.increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
+    </CustomHeaderContainer>
+);
 
-.react-datepicker__month-text--keyboard-selected {
-    background-color: white;
-    border-radius: 0;
-}
+export const VZDatePicker: React.FC<VZDatePickerProps> = ({
+    selectedDate,
+    setSelectedDate,
+    datePickerId = "vzDatePicker",
+    eventLabel,
+}) => {
+    const [openCalendar, setOpenCalendar] = useState(false);
 
-.react-datepicker__month-text {
-    font-family: 'Verizon NHG eDS Bold';
-}
+    const setDate = (date: Date | null) => {
+        const newDate = date ? dayjs(date) : null;
+        setSelectedDate(newDate);
+        logUsageEvent(eventLabel);
+    };
 
-.react-datepicker__month-text:hover {
-    border-radius: 0;
-    color: black;
-}
-
-we are using Styled Components so i want you to use Styled component and create a new component whose functionlity should be same it should accept a Day js instead of DAte
-Could you generate the typescript file for the same 
+    return (
+        <VZDatePickerContainer
+            onMouseEnter={() => setOpenCalendar(true)}
+            onMouseLeave={() => setOpenCalendar(false)}
+        >
+            <DatePicker
+                id={`vzDatePicker-${datePickerId}`}
+                selected={selectedDate?.toDate()}
+                onChange={date => setDate(date)}
+                dateFormat={"MM/dd/yy"}
+                calendarClassName="vz-calendar"
+                className="vz-date-picker h"
+                formatWeekDay={nameOfDay => nameOfDay.slice(0, 1)}
+                renderCustomHeader={(e) => (
+                    <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setDate} />
+                )}
+                open={openCalendar}
+            />
+        </VZDatePickerContainer>
+    );
+};
