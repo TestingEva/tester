@@ -1,117 +1,104 @@
+import dayjs from "dayjs";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
 import styled from "styled-components";
-import dayjs from "dayjs";
-
-import { logUsageEvent } from "../../utils/Logger";
 
 interface VZDatePickerProps {
-    selectedDate: dayjs.Dayjs | null;
-    setSelectedDate: (date: dayjs.Dayjs | null) => void;
-    datePickerId?: string;
-    eventLabel?: string;
+  selectedDate: dayjs.Dayjs | null;
+  setSelectedDate: (date: dayjs.Dayjs | null) => void;
 }
 
 const VZDatePickerContainer = styled.div`
-    width: 100%;
-    border: 1px solid #d8dada;
-    border-bottom-color: #000;
-    color: #000;
-    font-size: 16px;
-    line-height: 16px;
-    padding: 12px 0 12px 44px !important;
-`;
-
-const CalendarContainer = styled.div`
-    border-radius: 0;
-    border: 1px solid black;
+  width: 100%;
+  border: 1px solid #d8dada;
+  border-bottom-color: #000;
+  color: #000;
+  font-size: 16px;
+  line-height: 16px;
+  padding: 12px 0 12px 44px !important;
 `;
 
 const CustomCalendarInput = styled.div`
-    cursor: pointer;
+  cursor: pointer;
 `;
 
 const CustomHeaderContainer = styled.div`
-    display: flex;
-    align-content: space-between;
-    width: 100%;
-    padding: 5px 15px;
+  display: flex;
+  align-content: space-between;
+  width: 100%;
+  padding: 5px 15px;
 `;
 
 const ArrowLeft = styled.i`
-    transform: rotateZ(90deg);
-    cursor: pointer;
+  transform: rotateZ(90deg);
+  cursor: pointer;
 `;
 
 const ArrowRight = styled.i`
-    transform: rotateZ(-90deg);
-    cursor: pointer;
+  transform: rotateZ(-90deg);
+  cursor: pointer;
 `;
 
 const CustomInput = ({ value, onClick }: { value?: string; onClick?: () => void }) => (
-    <CustomCalendarInput onClick={onClick}>{value}</CustomCalendarInput>
+  <CustomCalendarInput onClick={onClick}>{value}</CustomCalendarInput>
 );
 
 const formatDayJsDate = (date: dayjs.Dayjs | null) => {
-    return date ? date.format("MMMM YYYY") : "";
+  return date ? date.format("MMMM YYYY") : "";
 };
 
 const CustomHeader = ({
-    event,
-    selectedDate,
-    setSelectedDate,
+  event,
+  selectedDate,
+  setSelectedDate,
 }: {
-    event: any;
-    selectedDate: dayjs.Dayjs | null;
-    setSelectedDate: (date: dayjs.Dayjs | null) => void;
+  event: any;
+  selectedDate: dayjs.Dayjs | null;
+  setSelectedDate: (date: dayjs.Dayjs | null) => void;
 }) => (
-    <CustomHeaderContainer>
-        <ArrowLeft onClick={event?.decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
-        <div className="flex-1" />
-        <DatePicker
-            selected={selectedDate?.toDate()}
-            onChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
-            showMonthYearPicker
-            customInput={<CustomInput value={formatDayJsDate(selectedDate)} />}
-            calendarClassName="vz-month-calendar"
-        />
-        <div className="flex-1" />
-        <ArrowRight onClick={event?.increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
-    </CustomHeaderContainer>
+  <CustomHeaderContainer>
+    <ArrowLeft onClick={event?.decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
+    <div className="flex-1" />
+    <DatePicker
+      selected={selectedDate?.toDate()}
+      onChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
+      showMonthYearPicker
+      customInput={<CustomInput value={formatDayJsDate(selectedDate)} />}
+      calendarClassName="vz-month-calendar"
+    />
+    <div className="flex-1" />
+    <ArrowRight onClick={event?.increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
+  </CustomHeaderContainer>
 );
 
-export const VZDatePicker: React.FC<VZDatePickerProps> = ({
-    selectedDate,
-    setSelectedDate,
-    datePickerId = "vzDatePicker",
-    eventLabel,
-}) => {
-    const [openCalendar, setOpenCalendar] = useState(false);
+export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSelectedDate }) => {
+  const [openCalendar, setOpenCalendar] = useState(false);
 
-    const setDate = (date: Date | null) => {
-        const newDate = date ? dayjs(date) : null;
-        setSelectedDate(newDate);
-        logUsageEvent(eventLabel);
-    };
+  const setDate = (date: Date | null) => {
+    const newDate = date ? dayjs(date) : null;
+    setSelectedDate(newDate);
+  };
 
-    return (
-        <VZDatePickerContainer
-            onMouseEnter={() => setOpenCalendar(true)}
-            onMouseLeave={() => setOpenCalendar(false)}
-        >
-            <DatePicker
-                id={`vzDatePicker-${datePickerId}`}
-                selected={selectedDate?.toDate()}
-                onChange={date => setDate(date)}
-                dateFormat={"MM/dd/yy"}
-                calendarClassName="vz-calendar"
-                className="vz-date-picker h"
-                formatWeekDay={nameOfDay => nameOfDay.slice(0, 1)}
-                renderCustomHeader={(e) => (
-                    <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setDate} />
-                )}
-                open={openCalendar}
-            />
-        </VZDatePickerContainer>
-    );
+  return (
+    <VZDatePickerContainer onMouseEnter={() => setOpenCalendar(true)} onMouseLeave={() => setOpenCalendar(false)}>
+      <DatePicker
+        selected={selectedDate?.toDate()}
+        onChange={(date) => setDate(date)}
+        dateFormat={"MM/dd/yy"}
+        calendarClassName="vz-calendar"
+        className="vz-date-picker h"
+        formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
+        renderCustomHeader={(e) => <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setDate} />}
+        open={openCalendar}
+      />
+    </VZDatePickerContainer>
+  );
 };
+
+This error I am getting
+
+Type '(date: Date | null) => void' is not assignable to type '(date: Dayjs | null) => void'.
+  Types of parameters 'date' and 'date' are incompatible.
+    Type 'Dayjs | null' is not assignable to type 'Date | null'.
+      Type 'Dayjs' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 35 more.ts(2322)
+DatePicker.tsx(57, 3): The expected type comes from property 'setSelectedDate' which is declared here on type 'IntrinsicAttributes & { event: any; selectedDate: Dayjs | null; setSelectedDate: (date: Dayjs | null) => void; }'
