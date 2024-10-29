@@ -75,8 +75,7 @@ export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSel
   const [openCalendar, setOpenCalendar] = useState(false);
 
   const setDate = (date: Date | null) => {
-    const newDate = date ? dayjs(date) : null;
-    setSelectedDate(newDate);
+    setSelectedDate(date ? dayjs(date) : null);
   };
 
   return (
@@ -88,17 +87,9 @@ export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSel
         calendarClassName="vz-calendar"
         className="vz-date-picker h"
         formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
-        renderCustomHeader={(e) => <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setDate} />}
+        renderCustomHeader={(e) => <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />}
         open={openCalendar}
       />
     </VZDatePickerContainer>
   );
 };
-
-This error I am getting
-
-Type '(date: Date | null) => void' is not assignable to type '(date: Dayjs | null) => void'.
-  Types of parameters 'date' and 'date' are incompatible.
-    Type 'Dayjs | null' is not assignable to type 'Date | null'.
-      Type 'Dayjs' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 35 more.ts(2322)
-DatePicker.tsx(57, 3): The expected type comes from property 'setSelectedDate' which is declared here on type 'IntrinsicAttributes & { event: any; selectedDate: Dayjs | null; setSelectedDate: (date: Dayjs | null) => void; }'
