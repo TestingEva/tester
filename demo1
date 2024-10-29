@@ -24,7 +24,8 @@ const CustomCalendarInput = styled.div`
 
 const CustomHeaderContainer = styled.div`
   display: flex;
-  align-content: space-between;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   padding: 5px 15px;
 `;
@@ -48,26 +49,18 @@ const formatDayJsDate = (date: dayjs.Dayjs | null) => {
 };
 
 const CustomHeader = ({
-  event,
+  decreaseMonth,
+  increaseMonth,
   selectedDate,
-  setSelectedDate,
 }: {
-  event: any;
+  decreaseMonth: () => void;
+  increaseMonth: () => void;
   selectedDate: dayjs.Dayjs | null;
-  setSelectedDate: (date: dayjs.Dayjs | null) => void;
 }) => (
   <CustomHeaderContainer>
-    <ArrowLeft onClick={event?.decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
-    <div className="flex-1" />
-    <DatePicker
-      selected={selectedDate?.toDate()}
-      onChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
-      showMonthYearPicker
-      customInput={<CustomInput value={formatDayJsDate(selectedDate)} />}
-      calendarClassName="vz-month-calendar"
-    />
-    <div className="flex-1" />
-    <ArrowRight onClick={event?.increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
+    <ArrowLeft onClick={decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
+    <span>{formatDayJsDate(selectedDate)}</span>
+    <ArrowRight onClick={increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
   </CustomHeaderContainer>
 );
 
@@ -75,7 +68,8 @@ export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSel
   const [openCalendar, setOpenCalendar] = useState(false);
 
   const setDate = (date: Date | null) => {
-    setSelectedDate(date ? dayjs(date) : null);
+    const newDate = date ? dayjs(date) : null;
+    setSelectedDate(newDate);
   };
 
   return (
@@ -87,7 +81,13 @@ export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSel
         calendarClassName="vz-calendar"
         className="vz-date-picker h"
         formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
-        renderCustomHeader={(e) => <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />}
+        renderCustomHeader={(e) => (
+          <CustomHeader
+            decreaseMonth={e.decreaseMonth}
+            increaseMonth={e.increaseMonth}
+            selectedDate={selectedDate}
+          />
+        )}
         open={openCalendar}
       />
     </VZDatePickerContainer>
