@@ -1,38 +1,67 @@
-import { useState } from "react";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/style.css";
-import { OptionalComponent } from "../../../components/OptionalComponent";
-import { VZInputTextField } from "../../../components/vz-input/VZInput";
-import "./Datepicker.css";
+import React, { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.module.css";
 
-type DatePickerProps = {
-  selectedDate: Date;
-  onDaySelect: (selectedDate?: Date) => void;
-};
-
-export const DatePickerComponent: React.FC<DatePickerProps> = ({ selectedDate, onDaySelect }) => {
-  const [showDatePicker, setDatePicker] = useState(false);
-  return (
-    <>
-      <VZInputTextField
-        value={`${selectedDate.getMonth()}/${selectedDate.getDay()}/${selectedDate.getFullYear().toString().slice(-2)}`}
-        onChange={() => {}}
-        disabled
-      />
-      <OptionalComponent show={showDatePicker}>
-        <DayPicker
-          mode="single"
-          selected={selectedDate}
-          onSelect={(e) => onDaySelect(e)}
-          captionLayout="dropdown"
-          classNames={{
-            day: "text-dark",
-          }}
-        />
-      </OptionalComponent>
-    </>
-  );
-};
+import { logUsageEvent } from "../../utils/Logger";
+import "./DatePicker.css";
 
 
-Hi I want to show the date picker when the mouse enters the text field and close the datePicker when the Mouse goes off the Date Picker 
+const formatDate = (date) => {
+    const options = { year: 'numeric', month: 'long' };
+    return new Date(date).toLocaleString('en-US', options);
+}
+
+const CustomInput = ({ value, onClick }) => {
+    return (<div className="vz-custom-calendar-input hb" onClick={onClick}>{formatDate(value)}</div>)
+}
+
+const CustomHeader = ({ event, selectedDate, setSelectedDate }) => {
+
+    return (
+        <div className="vz-custom-date-picker-header">
+            <i onClick={event?.decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
+            <div className="flex-1" />
+            <DatePicker
+                selected={selectedDate}
+                onChange={e => setSelectedDate(e)}
+                showMonthYearPicker
+                customInput={<CustomInput />}
+                className="vz-date-picker h"
+                calendarClassName="vz-month-calendar"
+            />
+            <div className="flex-1" />
+            <i onClick={event?.increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
+        </div>
+    )
+}
+
+export const VZDatePicker = ({ selectedDate, setSelectedDate, datePickerId = "vzDatePicker", eventLabel }) => {
+
+    const [openCalendar, setOpenCalendar] = useState(false);
+
+    const setDate = (date) => {
+        setSelectedDate(date)
+        logUsageEvent(eventLabel)
+    }
+
+    return (
+        <div onMouseEnter={() => setOpenCalendar(true)} onMouseLeave={() => setOpenCalendar(false)}>
+            <DatePicker
+                id={`vzDatePicker-${datePickerId}`}
+                selected={selectedDate}
+                onChange={setDate}
+                dateFormat={"MM/dd/yy"}
+                calendarClassName="vz-calendar"
+                showIcon icon="icon icon-calendar"
+                className="vz-date-picker h"
+                formatWeekDay={nameOfDay => nameOfDay.slice(0, 1)}
+                forceShowMonthNavigation={true}
+                renderCustomHeader={(e) => <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setDate} />}
+                open={openCalendar}
+            />
+        </div>
+    )
+}
+
+I want to create this component and the major thing i want is the component to be in typescript and this component is accepting Date but i want to use Day js 
+could you do the neccesary changes
