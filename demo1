@@ -1,66 +1,56 @@
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import DatePicker from "react-datepicker";
-import styled from "styled-components";
+import "react-datepicker/dist/react-datepicker.module.css";
+import "./DatePicker.css";
+import { ArrowLeft, ArrowRight, CustomCalendarInput, CustomHeaderContainer, VZDatePickerContainer } from "./styles";
 
 interface VZDatePickerProps {
   selectedDate: dayjs.Dayjs | null;
   setSelectedDate: (date: dayjs.Dayjs | null) => void;
 }
 
-const VZDatePickerContainer = styled.div`
-  width: 100%;
-  border: 1px solid #d8dada;
-  border-bottom-color: #000;
-  color: #000;
-  font-size: 16px;
-  line-height: 16px;
-  padding: 12px 0 12px 44px !important;
-`;
-
-const CustomCalendarInput = styled.div`
-  cursor: pointer;
-`;
-
-const CustomHeaderContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 5px 15px;
-`;
-
-const ArrowLeft = styled.i`
-  transform: rotateZ(90deg);
-  cursor: pointer;
-`;
-
-const ArrowRight = styled.i`
-  transform: rotateZ(-90deg);
-  cursor: pointer;
-`;
-
-const CustomInput = ({ value, onClick }: { value?: string; onClick?: () => void }) => (
-  <CustomCalendarInput onClick={onClick}>{value}</CustomCalendarInput>
-);
-
 const formatDayJsDate = (date: dayjs.Dayjs | null) => {
-  return date ? date.format("MMMM YYYY") : "";
+  return date ? date.format("MMM YYYY") : "";
 };
 
 const CustomHeader = ({
-  decreaseMonth,
-  increaseMonth,
+  event,
   selectedDate,
+  setSelectedDate,
 }: {
-  decreaseMonth: () => void;
-  increaseMonth: () => void;
+  event: any;
   selectedDate: dayjs.Dayjs | null;
+  setSelectedDate: (date: dayjs.Dayjs | null) => void;
 }) => (
   <CustomHeaderContainer>
-    <ArrowLeft onClick={decreaseMonth} className="icon icon-arrow vz-date-left-arrow" />
-    <span>{formatDayJsDate(selectedDate)}</span>
-    <ArrowRight onClick={increaseMonth} className="icon icon-arrow vz-date-right-arrow" />
+    <ArrowLeft
+      onClick={() => {
+        event?.decreaseMonth();
+        setSelectedDate(dayjs(selectedDate).subtract(1, "month"));
+      }}
+      className="icon icon--arrow vz-date-left-arrow"
+    />
+    <div className="flex-1" />
+    <DatePicker
+      selected={selectedDate?.toDate()}
+      onChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
+      onSelect={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
+      onYearChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
+      showMonthYearPicker
+      adjustDateOnChange
+      customInput={<CustomCalendarInput>{formatDayJsDate(selectedDate)}</CustomCalendarInput>}
+      calendarClassName="vz-month-calendar"
+      dateFormat={"MMM YYYY"}
+    />
+    <div className="flex-1" />
+    <ArrowRight
+      onClick={() => {
+        event?.increaseMonth();
+        setSelectedDate(dayjs(selectedDate).add(1, "month"));
+      }}
+      className="icon icon--arrow vz-date-right-arrow"
+    />
   </CustomHeaderContainer>
 );
 
@@ -68,8 +58,7 @@ export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSel
   const [openCalendar, setOpenCalendar] = useState(false);
 
   const setDate = (date: Date | null) => {
-    const newDate = date ? dayjs(date) : null;
-    setSelectedDate(newDate);
+    setSelectedDate(date ? dayjs(date) : null);
   };
 
   return (
@@ -80,16 +69,21 @@ export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSel
         dateFormat={"MM/dd/yy"}
         calendarClassName="vz-calendar"
         className="vz-date-picker h"
+        adjustDateOnChange
         formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
         renderCustomHeader={(e) => (
-          <CustomHeader
-            decreaseMonth={e.decreaseMonth}
-            increaseMonth={e.increaseMonth}
-            selectedDate={selectedDate}
-          />
+          <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
         )}
         open={openCalendar}
       />
     </VZDatePickerContainer>
   );
 };
+
+
+This one is working fine as of my expectations  but i have some issues while using this as my component when i change the month and Year by the inner Date Picker its changed as expected but the days are not getting rendered at soon as i change I need to move my mouse outside the DatePicker Component and again open the componnet then the new dates are rendered
+
+steps to produce this scenario:
+open the DatePicker , click on the month and select the a new month from the Month Picker and see the dates are not changed its still of the preious month the new dates will be rendered when you move your cursor out of date Picker and again hover back
+
+could you fix this case 
