@@ -1,4 +1,4 @@
-import dayjs, { Dayjs } from "dayjs";
+import { Dayjs } from "dayjs";
 import { useMemo, useState } from "react";
 import { Col } from "react-bootstrap";
 import { useEventLogger } from "../../../../domain/event-logger/hooks";
@@ -24,6 +24,7 @@ type Props = {
 };
 export const OptionsView: React.FC<Props> = ({ onCancelClick, onChangeDateTimeRange, endDateTime, selectedType }) => {
   const [selectedDateOption, setSelectedDateOption] = useState<0 | 1 | 2>(0);
+  const { logShaEvent } = useEventLogger();
   const timeOptions = useMemo(() => Array.from({ length: 24 }, (_, ind) => getUnixEpochUtc().hour(ind)), []);
 
   const initialFormData: SystemLoggingCustomRange = useMemo(
@@ -35,10 +36,22 @@ export const OptionsView: React.FC<Props> = ({ onCancelClick, onChangeDateTimeRa
     }),
     [endDateTime]
   );
-
   const { currentState, setValue } = useFormState(initialFormData);
 
-  const { logShaEvent } = useEventLogger();
+  const onDateRangeOptionSaveClicked = () => {
+    const selectedStartDateTime = currentState.startDate
+      .set("hour", currentState.startTime.hour())
+      .set("minutes", 0)
+      .set("seconds", 0)
+      .set("millisecond", 0);
+    const selectedEndDateTime = currentState.endDate
+      .set("hour", currentState.endTime.hour())
+      .set("minutes", 0)
+      .set("seconds", 0)
+      .set("millisecond", 0);
+      const errors = validateDateRange(selectedStartDateTime,selectedEndDateTime)
+    onChangeDateTimeRange(selectedStartDateTime, selectedEndDateTime);
+  };
 
   const onSaveButtonClicked = () => {
     logShaEvent(shaEvents.sysLogOptionsSaveClick.replace("{SYS_LOG_TYPE}", convertLogCategoryToString(selectedType)));
@@ -50,7 +63,7 @@ export const OptionsView: React.FC<Props> = ({ onCancelClick, onChangeDateTimeRa
         onChangeDateTimeRange(endDateTime.subtract(1, "weeks"), endDateTime);
         break;
       case 2:
-      //here
+        onDateRangeOptionSaveClicked();
         break;
     }
   };
@@ -140,7 +153,16 @@ export const OptionsView: React.FC<Props> = ({ onCancelClick, onChangeDateTimeRa
           </Col>
         </OptionsViewDateRow>
 
-        
+        {/* 
+        For start time add the sha event - sysLogOptionsStartTime:
+          "Diagnostics & Monitoring > System Logging > {SYS_LOG_TYPE} Log > Log viewing options > Click Start Time Selector" ,
+        For start date add the sha event - sysLogOptionsStartDate:
+          "Diagnostics & Monitoring > System Logging > {SYS_LOG_TYPE} Log > Log viewing options > Click Start Date", 
+        For end time add the sha event - sysLogOptionsEndTime:
+          "Diagnostics & Monitoring > System Logging > {SYS_LOG_TYPE} Log > Log viewing options > Click End Time Selector",
+        For end date tha sha event - sysLogOptionsEndDate:
+          "Diagnostics & Monitoring > System Logging > {SYS_LOG_TYPE} Log > Log viewing options > Click End Date"  
+        */}
       </OptionalComponent>
       <OptionsButtonCol>
         <VZButton small secondary onClick={onCancelClicked}>
@@ -157,14 +179,5 @@ export const OptionsView: React.FC<Props> = ({ onCancelClick, onChangeDateTimeRa
 export default OptionsView;
 
 
-Hi I want to send the date and Time when the save button is clicked 
-I have marked the place where you need to add the code //here
-
-take the currentState and use it construct the startDateTime and EndDateTime 
-
-suppose for the startDateTime  user selected 20 Oct 2023 and time as 6 pm then it should construct a Dayjs such that time is the in 24 hour and date should be there
-please make sure there should not be any impact of the timezone the thing user selected should be gone as it is 
-
-onChangeDateTimeRange(startDateTime,endDateTime)
-
-could you please do this
+finish this function validateDateRange 
+it should validate startDateTime should be less than or endDateTime
