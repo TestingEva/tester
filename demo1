@@ -1,95 +1,170 @@
-import dayjs from "dayjs";
-import React, { useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.module.css";
-import "./DatePicker.css";
-import { ArrowLeft, ArrowRight, CustomCalendarInput, CustomHeaderContainer, VZDatePickerContainer } from "./styles";
+import dayjs, { Dayjs } from "dayjs";
+import { useMemo, useState } from "react";
+import { Col } from "react-bootstrap";
+import { useEventLogger } from "../../../../domain/event-logger/hooks";
+import { LogCategory } from "../../../../domain/system-logging/models";
+import { getUnixEpochUtc } from "../../../../domain/utils";
+import { useFormState } from "../../../components/form";
+import { OptionalComponent } from "../../../components/OptionalComponent";
+import { VZButton } from "../../../components/vz-button/VZButton";
+import { VZDropdown } from "../../../components/vz-dropdown/VZDropdown";
+import { VZRadioButton } from "../../../components/vz-radio-button/VZRadioButton";
+import { shaEvents } from "../../../shaEvents";
+import { getHours12 } from "../../scheduler-rules/utils";
+import { SystemLoggingCustomRange } from "../models";
+import { convertLogCategoryToString } from "../utils";
+import { VZDatePicker } from "./DatePicker";
+import { OptionViewContainer, OptionsButtonCol, OptionsViewDateRow, OptionsViewHeader, OptionsViewRow } from "./styles";
 
-interface VZDatePickerProps {
-  selectedDate: dayjs.Dayjs | null;
-  setSelectedDate: (date: dayjs.Dayjs | null) => void;
-}
-
-const formatDayJsDate = (date: dayjs.Dayjs | null) => {
-  return date ? date.format("MMM YYYY") : "";
+type Props = {
+  onChangeDateTimeRange: (start: Dayjs, end: Dayjs) => void;
+  onCancelClick: () => void;
+  endDateTime: Dayjs;
+  selectedType: LogCategory;
 };
+export const OptionsView: React.FC<Props> = ({ onCancelClick, onChangeDateTimeRange, endDateTime, selectedType }) => {
+  const [selectedDateOption, setSelectedDateOption] = useState<0 | 1 | 2>(0);
+  const timeOptions = useMemo(() => Array.from({ length: 24 }, (_, ind) => getUnixEpochUtc().hour(ind)), []);
 
-const CustomHeader = ({
-  event,
-  selectedDate,
-  setSelectedDate,
-  setOpenCalendar,
-}: {
-  event: any;
-  selectedDate: dayjs.Dayjs | null;
-  setSelectedDate: (date: dayjs.Dayjs | null) => void;
-  setOpenCalendar: (open: boolean) => void;
-}) => (
-  <CustomHeaderContainer>
-    <ArrowLeft
-      onClick={() => {
-        event?.decreaseMonth();
-        setSelectedDate(dayjs(selectedDate).subtract(1, "month"));
-        setOpenCalendar(false);
-        setTimeout(() => setOpenCalendar(true), 0);  // Close and reopen to refresh
-      }}
-      className="icon icon--arrow vz-date-left-arrow"
-    />
-    <div className="flex-1" />
-    <DatePicker
-      selected={selectedDate?.toDate()}
-      onChange={(date: Date | null) => setSelectedDate(date ? dayjs(date) : null)}
-      onSelect={(date: Date | null) => {
-        setSelectedDate(date ? dayjs(date) : null);
-        setOpenCalendar(false);
-        setTimeout(() => setOpenCalendar(true), 0);  // Close and reopen to refresh
-      }}
-      onYearChange={(date: Date | null) => {
-        setSelectedDate(date ? dayjs(date) : null);
-        setOpenCalendar(false);
-        setTimeout(() => setOpenCalendar(true), 0);  // Close and reopen to refresh
-      }}
-      showMonthYearPicker
-      adjustDateOnChange
-      customInput={<CustomCalendarInput>{formatDayJsDate(selectedDate)}</CustomCalendarInput>}
-      calendarClassName="vz-month-calendar"
-      dateFormat={"MMM YYYY"}
-    />
-    <div className="flex-1" />
-    <ArrowRight
-      onClick={() => {
-        event?.increaseMonth();
-        setSelectedDate(dayjs(selectedDate).add(1, "month"));
-        setOpenCalendar(false);
-        setTimeout(() => setOpenCalendar(true), 0);  // Close and reopen to refresh
-      }}
-      className="icon icon--arrow vz-date-right-arrow"
-    />
-  </CustomHeaderContainer>
-);
+  const initialFormData: SystemLoggingCustomRange = useMemo(
+    () => ({
+      startDate: endDateTime,
+      startTime: endDateTime.set("minutes", 0).set("seconds", 0).set("millisecond", 0),
+      endDate: endDateTime,
+      endTime: endDateTime.set("minutes", 0).set("seconds", 0).set("millisecond", 0),
+    }),
+    [endDateTime]
+  );
 
-export const VZDatePicker: React.FC<VZDatePickerProps> = ({ selectedDate, setSelectedDate }) => {
-  const [openCalendar, setOpenCalendar] = useState(false);
+  const { currentState, setValue } = useFormState(initialFormData);
 
-  const setDate = (date: Date | null) => {
-    setSelectedDate(date ? dayjs(date) : null);
+  const { logShaEvent } = useEventLogger();
+
+  const onSaveButtonClicked = () => {
+    logShaEvent(shaEvents.sysLogOptionsSaveClick.replace("{SYS_LOG_TYPE}", convertLogCategoryToString(selectedType)));
+    switch (selectedDateOption) {
+      case 0:
+        onChangeDateTimeRange(endDateTime.subtract(1, "days"), endDateTime);
+        break;
+      case 1:
+        onChangeDateTimeRange(endDateTime.subtract(1, "weeks"), endDateTime);
+        break;
+      case 2:
+      //here
+        break;
+    }
+  };
+
+  const onPastDaySelect = () => {
+    setSelectedDateOption(0);
+    logShaEvent(shaEvents.sysLogOptionsDaySelect.replace("{SYS_LOG_TYPE}", convertLogCategoryToString(selectedType)));
+  };
+
+  const onPastWeekSelect = () => {
+    setSelectedDateOption(1);
+    logShaEvent(shaEvents.sysLogOptionsWeekSelect.replace("{SYS_LOG_TYPE}", convertLogCategoryToString(selectedType)));
+  };
+
+  const onCustomRangeSelect = () => {
+    setSelectedDateOption(2);
+    logShaEvent(
+      shaEvents.sysLogOptionsCustomRangeSelect.replace("{SYS_LOG_TYPE}", convertLogCategoryToString(selectedType))
+    );
+  };
+
+  const onCancelClicked = () => {
+    onCancelClick();
+    logShaEvent(shaEvents.sysLogOptionsCancelClick.replace("{SYS_LOG_TYPE}", convertLogCategoryToString(selectedType)));
   };
 
   return (
-    <VZDatePickerContainer onMouseEnter={() => setOpenCalendar(true)} onMouseLeave={() => setOpenCalendar(false)}>
-      <DatePicker
-        selected={selectedDate?.toDate()}
-        onChange={(date) => setDate(date)}
-        dateFormat={"MM/dd/yy"}
-        calendarClassName="vz-calendar"
-        className="vz-date-picker h"
-        adjustDateOnChange
-        formatWeekDay={(nameOfDay) => nameOfDay.slice(0, 1)}
-        renderCustomHeader={(e) => (
-          <CustomHeader event={e} selectedDate={selectedDate} setSelectedDate={setSelectedDate} setOpenCalendar={setOpenCalendar} />
-        )}
-        open={openCalendar}
-      />
-    </VZDatePickerContainer>
+    <OptionViewContainer>
+      <OptionsViewHeader>Logging view options</OptionsViewHeader>
+      <OptionsViewRow>
+        <VZRadioButton selected={selectedDateOption === 0} onSelect={onPastDaySelect} id="sys-log-past-day" />
+        Past day
+      </OptionsViewRow>
+      <OptionsViewRow>
+        <VZRadioButton selected={selectedDateOption === 1} onSelect={onPastWeekSelect} id="sys-log-past-week" />
+        Past week
+      </OptionsViewRow>
+      <OptionsViewRow>
+        <VZRadioButton selected={selectedDateOption === 2} onSelect={onCustomRangeSelect} id="sys-log-custom-time" />
+        Custom range
+      </OptionsViewRow>
+      <OptionalComponent show={selectedDateOption === 2}>
+        <OptionsViewDateRow>
+          <Col className="d-flex gap-2 gap-xxl-5 ps-0">
+            <Col lg={4} sm={4} xl={3} xs={3} xxl={2}>
+              <Col>Start Date</Col>
+              <VZDatePicker
+                selectedDate={currentState.startDate}
+                setSelectedDate={(e) => {
+                  setValue("startDate", e!);
+                }}
+              />
+            </Col>
+            <Col lg={3} sm={4} xl={2} xs={3}>
+              <Col>Start Time</Col>
+              <VZDropdown
+                id="start-time"
+                options={timeOptions}
+                selectedItem={currentState.startTime}
+                onSelect={(item) => setValue("startTime", item)}
+                getOptionAsString={(e) => getHours12(e)}
+              />
+            </Col>
+          </Col>
+        </OptionsViewDateRow>
+        <OptionsViewDateRow>
+          <Col className="d-flex gap-2 gap-xxl-5 ps-0">
+            <Col lg={4} sm={4} xl={3} xs={3} xxl={2}>
+              <Col>End Date</Col>
+              <VZDatePicker
+                selectedDate={currentState.endDate}
+                setSelectedDate={(e) => {
+                  setValue("endDate", e!);
+                }}
+              />
+            </Col>
+            <Col lg={3} sm={4} xl={2} xs={3}>
+              <Col>End Time</Col>
+              <VZDropdown
+                id="end-time"
+                options={timeOptions}
+                selectedItem={currentState.endTime}
+                onSelect={(item) => setValue("endTime", item)}
+                getOptionAsString={(e) => getHours12(e)}
+              />
+            </Col>
+          </Col>
+        </OptionsViewDateRow>
+
+        
+      </OptionalComponent>
+      <OptionsButtonCol>
+        <VZButton small secondary onClick={onCancelClicked}>
+          Cancel
+        </VZButton>
+        <VZButton small onClick={onSaveButtonClicked}>
+          Save
+        </VZButton>
+      </OptionsButtonCol>
+    </OptionViewContainer>
   );
 };
+
+export default OptionsView;
+
+
+Hi I want to send the date and Time when the save button is clicked 
+I have marked the place where you need to add the code //here
+
+take the currentState and use it construct the startDateTime and EndDateTime 
+
+suppose for the startDateTime  user selected 20 Oct 2023 and time as 6 pm then it should construct a Dayjs such that time is the in 24 hour and date should be there
+please make sure there should not be any impact of the timezone the thing user selected should be gone as it is 
+
+onChangeDateTimeRange(startDateTime,endDateTime)
+
+could you please do this
