@@ -3,3 +3,25 @@
 Hi I want to verify the schema using ZOD for a string whose format will be "HH:mm" where HH can be 00 to 23 and mm can be 00 to 59 
 
 also for here   days: z.array(z.number().min(0).max(6)), I want to check the length of the array it should not be more than 7 and it should not be empty
+
+
+
+
+import { z } from "zod";
+
+const schema = z.object({
+  startTime: z.string().refine((val) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(val), {
+    message: "Invalid time format. Expected HH:mm where HH is 00-23 and mm is 00-59",
+  }),
+  days: z.array(z.number().min(0).max(6))
+    .min(1, { message: "Days array should not be empty" })
+    .max(7, { message: "Days array should not have more than 7 items" }),
+});
+
+// Example validation
+const result = schema.safeParse({
+  startTime: "12:30",
+  days: [0, 1, 2, 3, 4, 5, 6],
+});
+
+console.log(result);
