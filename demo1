@@ -1,12 +1,24 @@
-Developed 60+ dynamic pages for a Verizon project, enhancing real-time data updates by 50%, and reducing errors by 30% through efficient state management.
+type ParentalControlDeviceInfo = {
+  deviceName: string;
+  macAddress: string;
+  deviceType: DeviceType;
+};
 
-Migrated project from JavaScript/Redux Saga to TypeScript/React Query, boosting code maintainability by 40% and reducing bugs by 30%.
+deviceInfo is of type ParentalControlDeviceInfo[] and 
 
-Optimized app bundle size by 70-80%, significantly improving load times and user experience.
+parentalData is of type ParentalRule[]
 
-Created a ticketing system for BookMyShow, integrating secure payments, user-friendly interfaces, and dynamic seat booking.
+type ParentalRule = {
+  id: string;
+  name: string;
+  schedules: ScheduleInfo[];
+  enabled: boolean;
+  devices: ParentalControlDeviceInfo[];
+  websiteExceptions: string[];
+  keywordExceptions: string[];
+  internetAccessible: boolean;
+};
 
-Increased development efficiency by 20% through agile methodologies, comprehensive testing, and peer code reviews.
 
-Awarded "Ace of the Month" and "Spotlight of the Month" at Verizon for outstanding project contributions and high-quality code.
+we need to show only those devices which are not alloted any parental Rule
 
