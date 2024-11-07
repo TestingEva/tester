@@ -1,24 +1,123 @@
-type ParentalControlDeviceInfo = {
-  deviceName: string;
-  macAddress: string;
-  deviceType: DeviceType;
+import React, { useEffect, useState } from "react";
+import { Col, Container } from "react-bootstrap";
+import { ReactComponent as InformationIcon } from "../../../assets/images/Information.svg";
+import { useEventLogger } from "../../../domain/event-logger/hooks";
+import { HomePageDetails } from "../../../domain/home/models";
+import { RouteType } from "../../../domain/misc/models";
+import { HomePageDevicesCard } from "../../components/home-page-cards/HomePageDevices";
+import { HomePageParentalCard } from "../../components/home-page-cards/HomePageParentalCard";
+import { HomePageStatusCard } from "../../components/home-page-cards/HomePageStatusCard";
+import { HomePageWifiCard } from "../../components/home-page-cards/HomePageWifiCard";
+import { VZButton } from "../../components/vz-button/VZButton";
+import { shaEvents } from "../../shaEvents";
+import { numToWord } from "../../utils";
+import {
+  FailedAttemptsNotification,
+  HomeAppPromotionalBanner,
+  HomeAppPromotionalBannerDesc,
+  HomeAppPromotionalBannerHeader,
+  NotificationCloseButton,
+  NotificationText,
+  PromotionalButtonStyles,
+} from "./styles";
+
+type Props = {
+  data: HomePageDetails;
+  failedAttempts: number;
+  onFailedAttemptsNotificationClose: () => void;
+  onHeaderClick: (routeType: RouteType) => void;
+  canShowPromotionalBanner: boolean;
+  hidePromotionalBanner: () => void;
 };
 
-deviceInfo is of type ParentalControlDeviceInfo[] and 
+export const HomePageView: React.FC<Props> = (props) => {
+  const { logShaEvent } = useEventLogger();
+  const homePageDetails = props.data;
+  const [showNotification, setShowNotification] = useState(props.failedAttempts > 0);
 
-parentalData is of type ParentalRule[]
+  useEffect(() => {
+    if (props.canShowPromotionalBanner) {
+      const timer = setTimeout(props.hidePromotionalBanner, 20_000);
+    }
+  }, [props.canShowPromotionalBanner, props.hidePromotionalBanner]);
 
-type ParentalRule = {
-  id: string;
-  name: string;
-  schedules: ScheduleInfo[];
-  enabled: boolean;
-  devices: ParentalControlDeviceInfo[];
-  websiteExceptions: string[];
-  keywordExceptions: string[];
-  internetAccessible: boolean;
+  const onCloseClick = () => {
+    setShowNotification(false);
+    props.onFailedAttemptsNotificationClose();
+    logShaEvent(shaEvents.homePageWarningClose);
+  };
+
+  return (
+    <>
+      <HomeAppPromotionalBanner $show={!props.canShowPromotionalBanner}>
+        <Col className="col-12 d-flex pt-3">
+          <Col className="d-flex col-11">
+            <Col className="d-flex ps-3 gap-2">
+              <InformationIcon />
+              <HomeAppPromotionalBannerHeader className="hb ps-1">
+                Download the Verizon App
+              </HomeAppPromotionalBannerHeader>
+            </Col>
+          </Col>
+          <Col className="col-1  text-end pe-md-2">
+            <NotificationCloseButton onClick={props.hidePromotionalBanner} />
+          </Col>
+        </Col>
+        <Col className="col-12 d-flex pt-2">
+          <Col className="d-flex col-11">
+            <Col className="d-flex ps-5 gap-3">
+              <HomeAppPromotionalBannerDesc />
+            </Col>
+          </Col>
+        </Col>
+
+        <Col className="col-12 d-flex py-3">
+          <Col className="d-flex col-11">
+            <Col className="d-flex ps-5 gap-3">
+              <VZButton small onClick={() => {}} style={PromotionalButtonStyles}>
+                Download app
+              </VZButton>
+              <VZButton
+                small
+                secondary
+                onClick={() => {}}
+                style={{ ...PromotionalButtonStyles, background: "#e3f2fd" }}
+              >
+                Learn More
+              </VZButton>
+            </Col>
+          </Col>
+        </Col>
+      </HomeAppPromotionalBanner>
+      <FailedAttemptsNotification $show={showNotification}>
+        <NotificationText>{`Security Warning: ${numToWord(props.failedAttempts)} (${
+          props.failedAttempts
+        }) failed login attempt(s) since last successful login.`}</NotificationText>
+        <NotificationCloseButton onClick={onCloseClick} />
+      </FailedAttemptsNotification>
+      <Container fluid className="home--page--container flex-column">
+        <Container className="d-flex gap-4 p-0 flex-grow-1">
+          <Col className="home--page--col">
+            <HomePageStatusCard
+              status={homePageDetails.online}
+              imagePath={props.data.imageHomeDirectory}
+              onHeaderClick={props.onHeaderClick}
+            />
+            <HomePageDevicesCard deviceInfo={homePageDetails.devices} onHeaderClick={props.onHeaderClick} />
+          </Col>
+          <Col className="home--page--col">
+            <HomePageWifiCard wifiInfo={homePageDetails.wifiInfo} onHeaderClick={props.onHeaderClick} />
+            <HomePageParentalCard
+              parentalInfo={homePageDetails.parentalRules}
+              onHeaderClick={props.onHeaderClick}
+              userProfile={homePageDetails.userProfile}
+            />
+          </Col>
+        </Container>
+      </Container>
+    </>
+  );
 };
 
 
-we need to show only those devices which are not alloted any parental Rule
-
+Do this timer instance will be created multiple times if i route to another page and come back to this page
