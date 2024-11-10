@@ -1,24 +1,42 @@
-export const HomeAppQrModal: React.FC<HomeAppModalProps> = ({ onClose, show }) => (
-  <Modal
-    centered
-    aria-labelledby="contained-modal-title-vcenter"
-    show={show}
-    onHide={onClose}
-    className="modal-dialog-centered"
-  >
-    <ModalHeader closeButton className="border-0"></ModalHeader>
-    <HomeAppModalBody>
-      <HomeAppQrModalTitle>Scan the QR code to download the Verizon Home app.</HomeAppQrModalTitle>{" "}
-      <img alt="home-app" src={require(`../../../assets/images/VerizonHomeApp.png`)} style={HomeQrImgStyle} />
-    </HomeAppModalBody>
-  </Modal>
-);
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode rotateRight(ListNode head, int k) {
+        if(head==null||head.next==null||k==0){
+            return head;
+        }
+        int length = 1;
+        ListNode lastNode = head;   
+       while(lastNode.next!=null){
+        ++length;
+        lastNode=lastNode.next;
+       }
+       k = k%length;
+       lastNode.next = head;
+       lastNode = head;
+       while(k!=-1){
+        lastNode = lastNode.next;
+        k--;
+       }
+        head = lastNode.next;
+        lastNode.next = null;
+        return head;
+    }
+}
 
-const HomeAppModalBody = styled(VZModalBody)`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 0;
-`;
-I am using react-bootstrap
-I want to make the border-radius of this 8px and also want to change the font weight of the close button to be 300
+Why the code is not passing the test case for the 
+[1,2,3,4,5]
+2
+[0,1,2]
+4
+
+Problem statement - Given the head of a linked list, rotate the list to the right by k places.
+
