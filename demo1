@@ -1,42 +1,14 @@
-/**
- * Definition for singly-linked list.
- * public class ListNode {
- *     int val;
- *     ListNode next;
- *     ListNode() {}
- *     ListNode(int val) { this.val = val; }
- *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
- * }
- */
-class Solution {
-    public ListNode rotateRight(ListNode head, int k) {
-        if(head==null||head.next==null||k==0){
-            return head;
-        }
-        int length = 1;
-        ListNode lastNode = head;   
-       while(lastNode.next!=null){
-        ++length;
-        lastNode=lastNode.next;
-       }
-       k = k%length;
-       lastNode.next = head;
-       lastNode = head;
-       while(k!=-1){
-        lastNode = lastNode.next;
-        k--;
-       }
-        head = lastNode.next;
-        lastNode.next = null;
-        return head;
-    }
-}
+Subject: Request for Work from Home and Leave on 13th November
 
-Why the code is not passing the test case for the 
-[1,2,3,4,5]
-2
-[0,1,2]
-4
+Dear Srikamal,
 
-Problem statement - Given the head of a linked list, rotate the list to the right by k places.
+I am writing to request work-from-home arrangements for the next month due to a medical situation with my father. He has been diagnosed with anemia and requires regular visits to the doctor, as well as ongoing care at home. Given these circumstances, I would like to ensure he receives the necessary support during his treatment.
 
+Additionally, I request leave on the 13th of November to accompany him to an important consultation.
+
+I appreciate your understanding and consideration, and I am committed to maintaining productivity and timely communication while working remotely. Please let me know if further details are required.
+
+Thank you for your support.
+
+Best regards,
+Sushant
