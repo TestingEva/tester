@@ -1,14 +1,5 @@
-Subject: Request for Work from Home and Leave on 13th November
+export class EthernetBackhaulInfo {
+  constructor(readonly bitRateGbps: number) {}
+}
 
-Dear Srikamal,
-
-I am writing to request work-from-home arrangements for the next month due to a medical situation with my father. He has been diagnosed with anemia and requires regular visits to the doctor, as well as ongoing care at home. Given these circumstances, I would like to ensure he receives the necessary support during his treatment.
-
-Additionally, I request leave on the 13th of November to accompany him to an important consultation.
-
-I appreciate your understanding and consideration, and I am committed to maintaining productivity and timely communication while working remotely. Please let me know if further details are required.
-
-Thank you for your support.
-
-Best regards,
-Sushant
+this is my class suppose i pass 1.0 in the args then will it throw error
