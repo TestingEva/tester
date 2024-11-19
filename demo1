@@ -1,5 +1,35 @@
-export class EthernetBackhaulInfo {
-  constructor(readonly bitRateGbps: number) {}
+export function getOnlineDeviceCount(devicesList: BasicDeviceDetails[]):number{
+  
 }
 
-this is my class suppose i pass 1.0 in the args then will it throw error
+This is the function which you need to complete
+
+export type BasicDeviceDetails = {
+  name: string;
+  hostname: string;
+  deviceType: string;
+  make: string;
+  model: string;
+  operatingSystem: string;
+  connection: DeviceConnectionType;
+  connectedTo: string;
+  location?: string;
+  mobility?: DeviceMobility;
+  mac: string;
+  ipv4: string;
+  ipv6: string;
+  parentalRuleInitial?: string;
+  dataUsage: DataSize;
+  connectionType?: WifiMode;
+  enableInternetAccess: boolean;
+  isOnline: boolean;
+  filter: DeviceFilter;
+  showInternetAccessToggle: boolean;
+};
+
+given the types too
+
+
+now devicesList will be array and i need to get the count of all the online devices 
+
+a device is said to be online if isOnline value is true
