@@ -1,35 +1,43 @@
-export function getOnlineDeviceCount(devicesList: BasicDeviceDetails[]):number{
-  
-}
-
-This is the function which you need to complete
-
-export type BasicDeviceDetails = {
-  name: string;
-  hostname: string;
+export type DeviceData = {
+  connectionType: number;
+  deviceName: string;
   deviceType: string;
-  make: string;
-  model: string;
-  operatingSystem: string;
-  connection: DeviceConnectionType;
-  connectedTo: string;
-  location?: string;
-  mobility?: DeviceMobility;
-  mac: string;
-  ipv4: string;
-  ipv6: string;
-  parentalRuleInitial?: string;
-  dataUsage: DataSize;
-  connectionType?: WifiMode;
-  enableInternetAccess: boolean;
-  isOnline: boolean;
-  filter: DeviceFilter;
-  showInternetAccessToggle: boolean;
+  status: number;
 };
 
-given the types too
+
+ devices: response.deviceList.sort(),
+
+deviceList is of the type DEviceData[]
+
+I want to sort based on connectionType
 
 
-now devicesList will be array and i need to get the count of all the online devices 
+connectionType can be 0,1,255,2,and so on 
 
-a device is said to be online if isOnline value is true
+please refer to the below mapping 
+
+I want the Wifi ones to be first then Ethernet then Coax then Offline then the rest 
+
+  case 0:
+      return ConnectionType.Offline;
+    case 1:
+    case 255:
+      return ConnectionType.Ethernet;
+    case 2:
+      return ConnectionType.Coax;
+    case 3:
+    case 4:
+    case 7:
+    case 251:
+    case 253:
+    case 254:
+    case 5:
+    case 6:
+    case 9:
+    case 250:
+    case 252:
+    case 256:
+    case 8:
+    case 257:
+      return ConnectionType.Wifi;
