@@ -1,43 +1,24 @@
-export type DeviceData = {
-  connectionType: number;
-  deviceName: string;
-  deviceType: string;
-  status: number;
-};
+export function useSonStatus(): AsyncHookData<boolean> {
+  const query = useQuery({
+    queryKey: [KEY_SON_STATUS],
+    queryFn: getSonStatus,
+  });
+  return asyncHookData(query);
+}
+
+export function useUpdateSonStatus(): LazyAsyncHookData<boolean, void> {
+  const client = useQueryClient();
+  const mut = useMutation({
+    mutationKey: [KEY_UPDATE_SON_DETAIL],
+    mutationFn: updateSonStatus,
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: [KEY_SON_STATUS] });
+      await client.invalidateQueries({ queryKey: [KEY_RADIO_STATUS] });
+      await client.invalidateQueries({ queryKey: [KEY_WIFI_DETAILS] });
+    },
+  });
+  return lazyAsyncHookData(mut);
+}
 
 
- devices: response.deviceList.sort(),
-
-deviceList is of the type DEviceData[]
-
-I want to sort based on connectionType
-
-
-connectionType can be 0,1,255,2,and so on 
-
-please refer to the below mapping 
-
-I want the Wifi ones to be first then Ethernet then Coax then Offline then the rest 
-
-  case 0:
-      return ConnectionType.Offline;
-    case 1:
-    case 255:
-      return ConnectionType.Ethernet;
-    case 2:
-      return ConnectionType.Coax;
-    case 3:
-    case 4:
-    case 7:
-    case 251:
-    case 253:
-    case 254:
-    case 5:
-    case 6:
-    case 9:
-    case 250:
-    case 252:
-    case 256:
-    case 8:
-    case 257:
-      return ConnectionType.Wifi;
+the hook is getting invalidated but still it doesnot have the latest value
