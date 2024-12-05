@@ -1,1 +1,259 @@
-https://github.com/cjnhust/ebook_collection/blob/master/Kotlin%20in%20Action.pdf
+{
+    "Device.DHCPv4.Client.": {
+        "Order": 1,
+        "Param": "-w--"
+    },
+    "Device.DHCPv4.Client.*.ReqOption.": {
+        "Order": 2,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.SentOption.": {
+        "Order": 3,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.IPAddress": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.Status": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.DNSServers": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.PassthroughDHCPPool": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.Enable": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.LeaseTimeRemaining": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.ReqOptionNumberOfEntries": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.IPRouters": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.Interface": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.SubnetMask": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.SentOptionNumberOfEntries": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.DHCPStatus": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.Alias": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.DHCPv4.Client.*.PassthroughEnable": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Ethernet.Interface.*.Stats.": {
+        "Order": 2,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.X_PRPL-COM_LED.": {
+        "Order": 3,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.EEECapability": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.EEEEnable": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.Enable": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.LastChange": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.LowerLayers": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.MACAddress": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.X_PRPL-COM_Description": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.X_PRPL-COM_MTU": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Ethernet.Interface.*.Alias": {
+        "Order": 4,
+        "Param": "r---"
+    },
+    "Device.Ethernet.Interface.*.Name": {
+        "Order": 4,
+        "Param": "r---"
+    },
+    "Device.Ethernet.Interface.*.Status": {
+        "Order": 4,
+        "Param": "r---"
+    },
+    "Device.Ethernet.Interface.*.Upstream": {
+        "Order": 4,
+        "Param": "r---"
+    },
+    "Device.Ethernet.Interface.*.CurrentBitRate": {
+        "Order": 4,
+        "Param": "r---"
+    },
+    "Device.Ethernet.Interface.*.CurrentDuplexMode": {
+        "Order": 4,
+        "Param": "r---"
+    },
+    "Device.DeviceInfo.SoftwareVersion": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.DeviceInfo.HostName": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.DeviceInfo.FirmwareImage.1.Status": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.DeviceInfo.X_VZ-COM_LED.DimmingTimeout": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.DeviceInfo.X_VZ-COM_LED.DimmingPattern": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Hosts.Host.*.HostName": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.IP.Diagnostics.IPPing.DiagnosticsState": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.IP.Diagnostics.IPPing.NumberOfRepetitions": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.IP.Diagnostics.IPPing.Host": {
+        "Order": 1,
+        "Param": "-w--"
+    },
+    "Device.IP.Diagnostics.IPPing.ProtocolVersion": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.IP.Diagnostics.IPPing.FailureCount": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.IP.Diagnostics.IPPing.SuccessCount": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.Ethernet.Interface.*.X_PRPL-COM_MTUMode": {
+        "Order": 4,
+        "Param": "----"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.IGMP.EthernetEnable": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.IGMP.MoCAEnable": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi24GEnable": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi5GEnable": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.IGMP.WiFi6GEnable": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.DNS.X_PRPL-COM_Host.": {
+        "Order": 1,
+        "InstantiatedObj": "-w--"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.SON.Cloud.GuiKPI": {
+        "Order": 1,
+        "Param": "-w--"
+    },
+    "Device.IP.Interface.[Alias == 'lan'].X_PRPL-COM_Description": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.IP.Interface.[Alias == 'wan'].X_PRPL-COM_Description": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.IP.Interface.[Alias == 'lan'].IPv4Address.[Alias == 'lan'].IPAddress": {
+        "Order": 1,
+        "Param": "r---"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.SIPALGEnable": {
+        "Order": 1,
+        "Param": "rw--"
+    },
+    "Device.Services.X_VZ-COM_DeviceConfig.LogUpload.ImmediateUpload": {
+        "Order": 1,
+        "Param": "-w--"
+    },
+    "Device.DNS.X_PRPL-COM_RebindProtection.IPExceptions.": {
+        "Order": 1,
+        "InstantiatedObj": "-w--"
+    }
+}
+
+
+
+[
+  "Device.IP.Diagnostics.IPPing.NumberOfRepetitions",
+  "Device.IP.Diagnostics.IPPing.SuccessCount",
+  "Device.IP.Diagnostics.IPPing.FailureCount",
+  "Device.IP.Diagnostics.IPPing.MinimumResponseTime",
+  "Device.IP.Diagnostics.IPPing.MaximumResponseTime",
+  "Device.IP.Diagnostics.IPPing.AverageResponseTime",
+  "Device.IP.Diagnostics.IPPing.ProtocolVersion"
+]
+
+I have given a object and array i need you to constuct a formal and brief message 
+
+from the array find the params which are missing in the object and include them in the message saying make them readable param 
+
