@@ -1,25 +1,16 @@
-export function useMsg() {
-  const profileMode = useUserProfileModeInfo();
-  const platInfo = usePlatformInfo();
-  const query = useQuery({
-    queryKey: ["KEY_CONTENT"],
-    queryFn: (id) =>
-      getContent(
-        id,
-        UserProfileMode[profileMode.data!] as keyof typeof UserProfileMode,
-        PlatformModel[platInfo.data!.model] as keyof typeof PlatformModel
-      ),
-    enabled: platInfo.data?.modelName !== undefined && profileMode.data !== undefined,
-  });
-  return query;
-}
+  const { useTempFun } = useMsg();
+  return (
+    <Ipv4AddressDistributionDesc>{useTempFun("name")}</Ipv4AddressDistributionDesc>)
 
 
-Hi i want to design this such that this query returns a function and i can pass id to that function 
+I tried using it like this and passing the Id but it is throwing following error
 
-
-usage example  -
-
-const {tempFun} = useMsg()
-
-const name = tempFun("nameID")
+No overload matches this call.
+  Overload 1 of 2, '(props: PolymorphicComponentProps<"web", FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<ElementType<...>> & ColProps & { ...; }, never>, void, void, {}, {}>): Element', gave the following error.
+    Type 'UseQueryResult<any, Error>' is not assignable to type 'ReactNode'.
+      Type 'QueryObserverRefetchErrorResult<any, Error>' is not assignable to type 'ReactNode'.
+  Overload 2 of 2, '(props: FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps & { ...; }, never>): ReactNode', gave the following error.
+    Type 'UseQueryResult<any, Error>' is not assignable to type 'ReactNode'.
+      Type 'QueryObserverRefetchErrorResult<any, Error>' is not assignable to type 'ReactNode'.ts(2769)
+index.d.ts(2385, 9): The expected type comes from property 'children' which is declared here on type 'IntrinsicAttributes & FastOmit<Substitute<FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<...> & ColProps & { ...; }, never>, FastOmit<...>>, keyof ExecutionProps> & FastOmit<...> & { ...; }'
+index.d.ts(2385, 9): The expected type comes from property 'children' which is declared here on type 'IntrinsicAttributes & FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<...> & ColProps & { ...; }, never>'
