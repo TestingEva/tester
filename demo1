@@ -1,16 +1,40 @@
-  const { useTempFun } = useMsg();
+            <Col className="align-content-center" style={{ placeItems: "end" }}>
+              <MacEditAction>Edit</MacEditAction>
+            </Col>
+          </WifiMoreOptionRow>
+        )}
+      </OptionalComponent>
+      {Object.keys(bandState).map((bandInfo) => (
+        <BandRowDetail
+          bandInfo={bandState[convertStringToRadioType(bandInfo as "0" | "1" | "2" | "3")]}
+          isInteractionEnabled={isInteractionEnabled}
+          isAdvContent={isAdvContent}
+          key={bandInfo}
+          setBandValue={setBandValue}
+        />
+      ))}
+    </>
+  );
+};
+
+type BandRowDetailProps = {
+  bandInfo: WifiBandDetails;
+  isAdvContent: boolean;
+  isInteractionEnabled: boolean;
+  setBandValue: <K extends RadioType>(key: K, value: Record<RadioType, WifiBandDetails>[K]) => void;
+};
+
+const BandRowDetail: React.FC<BandRowDetailProps> = ({
+  bandInfo,
+  isInteractionEnabled,
+  isAdvContent,
+  setBandValue,
+}) => {
+  const { currentState, setValue, changedValues } = useFormState(bandInfo);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   return (
-    <Ipv4AddressDistributionDesc>{useTempFun("name")}</Ipv4AddressDistributionDesc>)
 
 
-I tried using it like this and passing the Id but it is throwing following error
 
-No overload matches this call.
-  Overload 1 of 2, '(props: PolymorphicComponentProps<"web", FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<ElementType<...>> & ColProps & { ...; }, never>, void, void, {}, {}>): Element', gave the following error.
-    Type 'UseQueryResult<any, Error>' is not assignable to type 'ReactNode'.
-      Type 'QueryObserverRefetchErrorResult<any, Error>' is not assignable to type 'ReactNode'.
-  Overload 2 of 2, '(props: FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps & { ...; }, never>): ReactNode', gave the following error.
-    Type 'UseQueryResult<any, Error>' is not assignable to type 'ReactNode'.
-      Type 'QueryObserverRefetchErrorResult<any, Error>' is not assignable to type 'ReactNode'.ts(2769)
-index.d.ts(2385, 9): The expected type comes from property 'children' which is declared here on type 'IntrinsicAttributes & FastOmit<Substitute<FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<...> & ColProps & { ...; }, never>, FastOmit<...>>, keyof ExecutionProps> & FastOmit<...> & { ...; }'
-index.d.ts(2385, 9): The expected type comes from property 'children' which is declared here on type 'IntrinsicAttributes & FastOmit<Omit<any, BsPrefixProps<ElementType<any, keyof IntrinsicElements>> & ColProps> & BsPrefixProps<...> & ColProps & { ...; }, never>'
+I want to have this changedValue in the above component live means suppose there is any change in the object then the changed thing will be present in the changedValues and i want to access the same without liftig the state up 
+could you help me out 
