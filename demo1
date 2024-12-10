@@ -1,8 +1,137 @@
+Attaching full code, please help me out 
+
+import { useEffect, useMemo, useState } from "react";
+import { Container } from "react-bootstrap";
+import { ContentMode, RouteType } from "../../../../domain/misc/models";
+import { useWifiPageInfo } from "../../../../domain/wifi/hooks";
+import { RadioType, WifiBandDetails, WifiCategory, WifiPageInfo } from "../../../../domain/wifi/models";
+import { ErrorIndicator } from "../../../components/error-indicator/ErrorIndicator";
+import { useFormState } from "../../../components/form";
+import { LoadingIndicator } from "../../../components/loading-indicator/LoadingIndicator";
+import { useLocator } from "../../../components/navigator/navigator";
+import { VZBody } from "../../../components/vz-body/VZBody";
+import { VZButton } from "../../../components/vz-button/VZButton";
+import { VZHeader } from "../../../components/vz-header/VZHeader";
+import { objectArrayToRecord } from "../../../utils";
+import SonDisabledView from "../wifi-new-components/SonDisabled";
+import { SonEnabledView } from "../wifi-new-components/SonEnabled";
+import { VZWifiSonContainer } from "../wifi-new-components/WifiComponents";
+
+export const PrimaryWifi = () => {
+  const { data: primaryWifiData, isPending, isError } = useWifiPageInfo(WifiCategory.Primary);
+  const locator = useLocator();
+
+  const isAdvContent = useMemo(() => locator.contentMode === ContentMode.Advanced, [locator.contentMode]);
+
+  const initialBandState = useMemo(() => {
+    if (primaryWifiData !== undefined) {
+      return objectArrayToRecord(primaryWifiData.bandDetails, "radioType");
+    }
+  }, [primaryWifiData]);
+
+  const onApplyClick = (currentState: WifiPageInfo, changedValues: Partial<WifiPageInfo>) => {
+    // console.log(currentState, changedValues);
+  };
+
+  if (isError) {
+    return <ErrorIndicator />;
+  }
+
+  if (primaryWifiData === undefined || isPending || initialBandState === undefined) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <PrimaryWifiView
+      primaryWifiData={primaryWifiData}
+      isAdvContent={isAdvContent}
+      onApplyClick={onApplyClick}
+      initialBandState={initialBandState}
+    />
+  );
+};
+
+type Props = {
+  primaryWifiData: WifiPageInfo;
+  isAdvContent: boolean;
+  initialBandState: Record<RadioType, WifiBandDetails>;
+  onApplyClick: (currentState: WifiPageInfo, changedValues: Partial<WifiPageInfo>) => void;
+};
+const PrimaryWifiView: React.FC<Props> = ({ primaryWifiData, isAdvContent, initialBandState, onApplyClick }) => {
+  const { currentState, setValue, isChanged, changedValues } = useFormState(primaryWifiData.sonBandDetails);
+  const {
+    currentState: bandState,
+    setValue: setBandValue,
+    changedValues: changedBandValues,
+  } = useFormState(initialBandState);
+
+  const [tempChangedValues, setTempChangedValues] = useState<Record<RadioType, Partial<WifiBandDetails>>>({
+    0: {},
+    1: {},
+    2: {},
+    3: {},
+  });
+
+  const handleChange = (radioType: RadioType, newValue: Partial<WifiBandDetails>) => {
+    const updatedBandState = { ...bandState[radioType], ...newValue };
+    setBandValue(radioType, updatedBandState);
+    setTempChangedValues((prev) => ({ ...prev, [radioType]: updatedBandState }));
+  };
+
+  useEffect(() => {
+    console.log(changedBandValues);
+  }, [bandState, changedBandValues]);
+
+  return (
+    <>
+      <VZHeader
+        title="Primary Network"
+        breadcrumbData={[{ label: "Wi-Fi" }, { label: "Primary Network", destType: RouteType.PRIMARY_NW }]}
+        rightBody={
+          <VZButton onClick={() => {}} disabled={!isChanged}>
+            Apply changes
+          </VZButton>
+        }
+      />
+      <VZBody noTopPadding>
+        {primaryWifiData.isSonEnabled ? (
+          <SonEnabledView
+            currentState={currentState}
+            setValue={setValue}
+            isInteractionEnabled={primaryWifiData.isInteractionEnabled}
+            isAdvContent={isAdvContent}
+            bandState={bandState}
+            handleChange={handleChange}
+            setBandValue={setBandValue}
+          />
+        ) : (
+          <Container className="p-0">
+            {primaryWifiData.bandDetails.map((band) => (
+              <SonDisabledView
+                bandInfo={band}
+                isInteractionEnabled={primaryWifiData.isInteractionEnabled}
+                isAdvContent={isAdvContent}
+                key={band.radioType}
+              />
+            ))}
+          </Container>
+        )}
+        <VZWifiSonContainer
+          interactionEnabled={primaryWifiData.isInteractionEnabled}
+          onSonChange={() => {}}
+          showSonToggle={isAdvContent && primaryWifiData.showSonToggle}
+          sonEnabled={primaryWifiData.isSonEnabled}
+        />
+      </VZBody>
+    </>
+  );
+};
+
+
 import { useState } from "react";
 import { Col, Row } from "react-bootstrap";
 import { RadioType, SonBandDetail, WifiBandDetails, WifiSecurityType } from "../../../../domain/wifi/models";
 import { OptionalComponent } from "../../../components/OptionalComponent";
-import { useFormState } from "../../../components/form";
 import { VZDropdown } from "../../../components/vz-dropdown/VZDropdown";
 import { VZInputTextField } from "../../../components/vz-input/VZInput";
 import { VZToggleButton } from "../../../components/vz-toggle-button/VZToggleButton";
@@ -17,19 +146,6 @@ import {
   WifiMoreOptionRow,
   WifiSubBandRow,
 } from "./styles";
-
-type WifiBandDetails = {
-  name: string;
-  key: string;
-  isEnabled: boolean;
-  securityType: WifiSecurityType;
-  isSsidBroadcastEnabled: boolean;
-  radioType: RadioType;
-  isRadioEnabled: boolean;
-  wmmConfig?: WmmConfigInfo;
-  macAddressControl?: MacAddressControlInfo;
-  groupKeyConfig?: GroupKeyInfo;
-};
 
 type Props = {
   currentState: SonBandDetail;
@@ -51,6 +167,7 @@ type Props = {
   isAdvContent: boolean;
   bandState: Record<RadioType, WifiBandDetails>;
   setBandValue: <K extends RadioType>(key: K, value: Record<RadioType, WifiBandDetails>[K]) => void;
+  handleChange: (radioType: RadioType, newValue: Partial<WifiBandDetails>) => void;
 };
 
 export const SonEnabledView: React.FC<Props> = ({
@@ -60,6 +177,7 @@ export const SonEnabledView: React.FC<Props> = ({
   isAdvContent,
   bandState,
   setBandValue,
+  handleChange,
 }) => {
   const [showMoreOptions, setShowMoreOptions] = useState(false);
 
@@ -147,6 +265,7 @@ type BandRowDetailProps = {
   isAdvContent: boolean;
   isInteractionEnabled: boolean;
   setBandValue: <K extends RadioType>(key: K, value: Record<RadioType, WifiBandDetails>[K]) => void;
+  handleChange: (radioType: RadioType, newValue: Partial<WifiBandDetails>) => void;
 };
 
 const BandRowDetail: React.FC<BandRowDetailProps> = ({
@@ -154,8 +273,8 @@ const BandRowDetail: React.FC<BandRowDetailProps> = ({
   isInteractionEnabled,
   isAdvContent,
   setBandValue,
+  handleChange,
 }) => {
-  const { currentState, setValue, changedValues } = useFormState(bandInfo);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
   return (
     <>
@@ -303,14 +422,10 @@ const BandRowDetail: React.FC<BandRowDetailProps> = ({
 };
 
 
-I am giving full component could you do the same for me
+useFormState is a custom hook which have a currentState changedValues of the thing which have changed and I am stuck at following 
 
-there will be changed values like 
+suppose i create a newFormState for each bandRowDetail 
 
-{
-0:changedValue of 0th
-1:changedValue of 1st 
-2:changedValue of 2nd 
-3:changedValue of 3rd 
+so each will have its own changedValues and currentState now I am unable to think how to get this both values in the Primary.tsx
 
-}
+I tried few things but i could not complete it could you help me out 
