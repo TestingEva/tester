@@ -232,3 +232,6 @@ const BandRowDetail: React.FC<BandRowDetailProps> = ({
     </>
   );
 };
+
+
+I want to execute the toggle band from the parent componennt how to so this 
