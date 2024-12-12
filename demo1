@@ -1,12 +1,35 @@
-const data = {
-    "0": {},
-    "1": {
-        "isEnabled": false
-    },
-    "2": {},
-    "3": {}
-}
+type WifiBandDetails = {
+  name: string;
+  key: string;
+  isEnabled: boolean;
+  securityType: WifiSecurityType;
+  isSsidBroadcastEnabled: boolean;
+  radioType: RadioType;
+  isRadioEnabled: boolean;
+  wmmConfig?: WmmConfigInfo;
+  macAddressControl?: MacAddressControlInfo;
+  groupKeyConfig?: GroupKeyInfo;
+};
 
-I have a object which have a param called isEnabled 
+export const validateWifiDetails = (
+  bandChangedValues: Record<RadioType, Partial<WifiBandDetails>>,
+  isSonEnabled: boolean
+): string[] => {
+  let errors: string[] = [];
 
-I want a function which takes data as input and returns true if it finds isEnabled=false
+  Object.keys(bandChangedValues).forEach((bandDetail) => {
+    // if (validateGroupKeyInterval(bandDetail.groupKeyConfig?.interval)) {
+    //   errors.push(
+    //     `${radioTypeToString(
+    //       bandDetail.radioType
+    //     )} Group Key Update Interval: Please enter a numeric value between 900 and 259200.`
+    //   );
+    // }
+
+    console.log("test", bandDetail,bandChangedValues.[bandDetail]);
+  });
+
+  return errors;
+};
+
+I am trying to access bandChangedValues based on key but it is not happening could you help me out
