@@ -1,1 +1,12 @@
- const bandRefs = useRef<(React.RefObject<{ toggleBand: (isEnabled: boolean) => void }>)[]>([]);
+const data = {
+    "0": {},
+    "1": {
+        "isEnabled": false
+    },
+    "2": {},
+    "3": {}
+}
+
+I have a object which have a param called isEnabled 
+
+I want a function which takes data as input and returns true if it finds isEnabled=false
