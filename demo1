@@ -1,154 +1,28 @@
-Attaching full code, please help me out 
-
-import { useEffect, useMemo, useState } from "react";
-import { Container } from "react-bootstrap";
-import { ContentMode, RouteType } from "../../../../domain/misc/models";
-import { useWifiPageInfo } from "../../../../domain/wifi/hooks";
-import { RadioType, WifiBandDetails, WifiCategory, WifiPageInfo } from "../../../../domain/wifi/models";
-import { ErrorIndicator } from "../../../components/error-indicator/ErrorIndicator";
-import { useFormState } from "../../../components/form";
-import { LoadingIndicator } from "../../../components/loading-indicator/LoadingIndicator";
-import { useLocator } from "../../../components/navigator/navigator";
-import { VZBody } from "../../../components/vz-body/VZBody";
-import { VZButton } from "../../../components/vz-button/VZButton";
-import { VZHeader } from "../../../components/vz-header/VZHeader";
-import { objectArrayToRecord } from "../../../utils";
-import SonDisabledView from "../wifi-new-components/SonDisabled";
-import { SonEnabledView } from "../wifi-new-components/SonEnabled";
-import { VZWifiSonContainer } from "../wifi-new-components/WifiComponents";
-
-export const PrimaryWifi = () => {
-  const { data: primaryWifiData, isPending, isError } = useWifiPageInfo(WifiCategory.Primary);
-  const locator = useLocator();
-
-  const isAdvContent = useMemo(() => locator.contentMode === ContentMode.Advanced, [locator.contentMode]);
-
-  const initialBandState = useMemo(() => {
-    if (primaryWifiData !== undefined) {
-      return objectArrayToRecord(primaryWifiData.bandDetails, "radioType");
-    }
-  }, [primaryWifiData]);
-
-  const onApplyClick = (currentState: WifiPageInfo, changedValues: Partial<WifiPageInfo>) => {
-    // console.log(currentState, changedValues);
-  };
-
-  if (isError) {
-    return <ErrorIndicator />;
-  }
-
-  if (primaryWifiData === undefined || isPending || initialBandState === undefined) {
-    return <LoadingIndicator />;
-  }
-
-  return (
-    <PrimaryWifiView
-      primaryWifiData={primaryWifiData}
-      isAdvContent={isAdvContent}
-      onApplyClick={onApplyClick}
-      initialBandState={initialBandState}
-    />
-  );
-};
-
-type Props = {
-  primaryWifiData: WifiPageInfo;
-  isAdvContent: boolean;
-  initialBandState: Record<RadioType, WifiBandDetails>;
-  onApplyClick: (currentState: WifiPageInfo, changedValues: Partial<WifiPageInfo>) => void;
-};
-const PrimaryWifiView: React.FC<Props> = ({ primaryWifiData, isAdvContent, initialBandState, onApplyClick }) => {
-  const { currentState, setValue, isChanged, changedValues } = useFormState(primaryWifiData.sonBandDetails);
-  const {
-    currentState: bandState,
-    setValue: setBandValue,
-    changedValues: changedBandValues,
-  } = useFormState(initialBandState);
-
-  const [tempChangedValues, setTempChangedValues] = useState<Record<RadioType, Partial<WifiBandDetails>>>({
-    0: {},
-    1: {},
-    2: {},
-    3: {},
-  });
-
-  const handleChange = (radioType: RadioType, newValue: Partial<WifiBandDetails>) => {
-    const updatedBandState = { ...bandState[radioType], ...newValue };
-    setBandValue(radioType, updatedBandState);
-    setTempChangedValues((prev) => ({ ...prev, [radioType]: updatedBandState }));
-  };
-
-  useEffect(() => {
-    console.log(changedBandValues);
-  }, [bandState, changedBandValues]);
-
-  return (
-    <>
-      <VZHeader
-        title="Primary Network"
-        breadcrumbData={[{ label: "Wi-Fi" }, { label: "Primary Network", destType: RouteType.PRIMARY_NW }]}
-        rightBody={
-          <VZButton onClick={() => {}} disabled={!isChanged}>
-            Apply changes
-          </VZButton>
-        }
-      />
-      <VZBody noTopPadding>
-        {primaryWifiData.isSonEnabled ? (
-          <SonEnabledView
-            currentState={currentState}
-            setValue={setValue}
-            isInteractionEnabled={primaryWifiData.isInteractionEnabled}
-            isAdvContent={isAdvContent}
-            bandState={bandState}
-            handleChange={handleChange}
-            setBandValue={setBandValue}
-          />
-        ) : (
-          <Container className="p-0">
-            {primaryWifiData.bandDetails.map((band) => (
-              <SonDisabledView
-                bandInfo={band}
-                isInteractionEnabled={primaryWifiData.isInteractionEnabled}
-                isAdvContent={isAdvContent}
-                key={band.radioType}
-              />
-            ))}
-          </Container>
-        )}
-        <VZWifiSonContainer
-          interactionEnabled={primaryWifiData.isInteractionEnabled}
-          onSonChange={() => {}}
-          showSonToggle={isAdvContent && primaryWifiData.showSonToggle}
-          sonEnabled={primaryWifiData.isSonEnabled}
-        />
-      </VZBody>
-    </>
-  );
-};
-
-
-import { useState } from "react";
-import { Col, Row } from "react-bootstrap";
-import { RadioType, SonBandDetail, WifiBandDetails, WifiSecurityType } from "../../../../domain/wifi/models";
+import React, { useEffect, useMemo, useState } from "react";
+import { Col } from "react-bootstrap";
+import { RouteType } from "../../../../domain/misc/models";
+import { RadioType, SonBandDetail, WifiBandDetails } from "../../../../domain/wifi/models";
 import { OptionalComponent } from "../../../components/OptionalComponent";
-import { VZDropdown } from "../../../components/vz-dropdown/VZDropdown";
-import { VZInputTextField } from "../../../components/vz-input/VZInput";
-import { VZToggleButton } from "../../../components/vz-toggle-button/VZToggleButton";
+import { useFormState } from "../../../components/form";
+import { VZConfirmationModal } from "../../../components/vz-modal/confirmation-modal/VZConfirmationModal";
 import { radioTypeToString } from "../status/utils";
-import { convertStringToRadioType, wifiSecurityTypeToString } from "../utils";
-import { MainWifiBandRow, WifiLabelAndDescription, WifiRightGear } from "./WifiComponents";
 import {
-  GroupKeyIntervalTextStyle,
-  MacEditAction,
-  MainWifiCol,
-  WifiBandToggleContainer,
-  WifiMoreOptionRow,
-  WifiSubBandRow,
-} from "./styles";
+  BandEnableToggler,
+  GroupKeyComponent,
+  MacAuthComponent,
+  MainWifiBandRow,
+  SsidBroadcastComponent,
+  WifiSecurityComponent,
+  WmmConfigComponent,
+} from "./WifiComponents";
+import { WifiSubBandRow } from "./styles";
 
 type Props = {
   currentState: SonBandDetail;
+  isInteractionEnabled: boolean;
+  isAdvContent: boolean;
+  handleChange: (radioType: RadioType, newValue: Partial<WifiBandDetails>) => void;
+  bandDetails: WifiBandDetails[];
   setValue: <
     K extends
       | "name"
@@ -163,33 +37,59 @@ type Props = {
     key: K,
     value: SonBandDetail[K]
   ) => void;
-  isInteractionEnabled: boolean;
-  isAdvContent: boolean;
-  bandState: Record<RadioType, WifiBandDetails>;
-  setBandValue: <K extends RadioType>(key: K, value: Record<RadioType, WifiBandDetails>[K]) => void;
-  handleChange: (radioType: RadioType, newValue: Partial<WifiBandDetails>) => void;
+  routeType: RouteType;
 };
 
 export const SonEnabledView: React.FC<Props> = ({
-  currentState,
-  setValue,
   isInteractionEnabled,
   isAdvContent,
-  bandState,
-  setBandValue,
   handleChange,
+  bandDetails,
+  currentState,
+  setValue,
+  routeType,
 }) => {
   const [showMoreOptions, setShowMoreOptions] = useState(false);
-
   const [isMainWifiBandEnabled, setIsMainWifiBandEnabled] = useState(false);
+  const [bandFormDetails, setBandFormDetails] = useState(bandDetails);
+  const [showWifiModal, setShowWifiModal] = useState(false);
+
+  const isAnyBandEnabled = useMemo(() => {
+    return bandFormDetails.some((bandInfo) => bandInfo.isEnabled);
+  }, [bandFormDetails]);
+
+  const isAllRadioDisabled = useMemo(() => {
+    return bandDetails.every((bandInfo) => bandInfo.isRadioEnabled === false);
+  }, [bandDetails]);
+
+  useEffect(() => {
+    setShowMoreOptions(false);
+    setShowWifiModal(false);
+  }, [routeType]);
+
+  useEffect(() => {
+    setIsMainWifiBandEnabled(isAnyBandEnabled);
+  }, [isAnyBandEnabled]);
 
   const onMainBandToggle = () => {
+    if (isAllRadioDisabled) {
+      setShowWifiModal(true);
+      return;
+    }
+    toggleBands();
     setIsMainWifiBandEnabled(!isMainWifiBandEnabled);
   };
 
   const onMainBandChange = <K extends keyof SonBandDetail>(key: K, value: SonBandDetail[K]) => {
     setValue(key, value);
   };
+
+  const handleBandDetails = (bandInfo: WifiBandDetails, index: number) =>
+    setBandFormDetails((prev) => {
+      const temp = [...prev];
+      temp[index] = bandInfo;
+      return temp;
+    });
 
   return (
     <>
@@ -206,56 +106,56 @@ export const SonEnabledView: React.FC<Props> = ({
         securityType={currentState.securityType}
       />
       <OptionalComponent show={showMoreOptions}>
-        <WifiMoreOptionRow>
-          <WifiLabelAndDescription label={"Security"} desc={"Set encryption type used to secure the Wi-Fi traffic."} />
-          <Col className="p-0 align-content-center py-sm-1" xxl={3} lg={5} sm={2} xs={3}>
-            <VZDropdown
-              id="WifiSecurityDropdown"
-              selectedItem={currentState.securityType}
-              options={[WifiSecurityType.WPA3, WifiSecurityType.WPA2, WifiSecurityType.NONE]}
-              disabled={!isInteractionEnabled}
-              getOptionAsString={wifiSecurityTypeToString}
-              onSelect={(e) => onMainBandChange("securityType", e)}
-              selectedTextStyle={{ fontSize: "12px", fontFamily: "vzReg" }}
-              style={{ fontSize: "12px", fontFamily: "vzReg", height: "2.8rem", minWidth: "4.5rem" }}
-            />
-          </Col>
-        </WifiMoreOptionRow>
-        <WifiMoreOptionRow>
-          <WifiLabelAndDescription
-            label={"Broadcast Wi-Fi network name (SSID)"}
-            desc={"Broadcast Wi-Fi name from router to Wi-Fi clients."}
-          />
-          <Col className="p-0 align-items-center justify-content-end py-sm-1 d-flex gap-3" xxl={3} lg={5} sm={2} xs={3}>
-            {currentState.isSsidBroadcastEnabled ? "Enabled" : "Disabled"}
-            <VZToggleButton
-              checked={currentState.isSsidBroadcastEnabled}
-              onChange={() => onMainBandChange("isSsidBroadcastEnabled", !currentState.isSsidBroadcastEnabled)}
-              disabled={!isInteractionEnabled}
-            />
-          </Col>
-        </WifiMoreOptionRow>
+        <WifiSecurityComponent
+          securityType={currentState.securityType}
+          radioType={currentState.radioType}
+          isInteractionEnabled={isInteractionEnabled}
+          onChange={(e) => onMainBandChange("securityType", e)}
+        />
+        <SsidBroadcastComponent
+          isInteractionEnabled={isInteractionEnabled}
+          onMainBandChange={onMainBandChange}
+          isSsidBroadcastEnabled={currentState.isSsidBroadcastEnabled}
+        />
         {currentState.macAddressControl !== undefined && (
-          <WifiMoreOptionRow>
-            <WifiLabelAndDescription
-              label="MAC Authentication"
-              desc="Limits the Wi-Fi clients that can connect to router."
-            />
-            <Col className="align-content-center" style={{ placeItems: "end" }}>
-              <MacEditAction>Edit</MacEditAction>
-            </Col>
-          </WifiMoreOptionRow>
+          <MacAuthComponent
+            macAccessControlinfo={currentState.macAddressControl}
+            isInteractionEnabled={isInteractionEnabled}
+            onApplyClick={(e) => {
+              onMainBandChange("macAddressControl", e);
+            }}
+          />
         )}
       </OptionalComponent>
-      {Object.keys(bandState).map((bandInfo) => (
+      {bandDetails.map((bandInfo, index) => (
         <BandRowDetail
-          bandInfo={bandState[convertStringToRadioType(bandInfo as "0" | "1" | "2" | "3")]}
+          bandInfo={bandInfo}
           isInteractionEnabled={isInteractionEnabled}
           isAdvContent={isAdvContent}
-          key={bandInfo}
-          setBandValue={setBandValue}
+          key={bandInfo.radioType}
+          handleChange={handleChange}
+          routeType={routeType}
+          handleBandDetails={(e) => handleBandDetails(e, index)}
         />
       ))}
+      <VZConfirmationModal
+        title="Warning"
+        show={showWifiModal}
+        content={
+          <>
+            Wi-Fi cannot be enabled because the radio is disabled.
+            <br />
+            <br />
+            Before enabling Wi-Fi, please first enable the radio which can be found on the following page: "Advanced{" "}
+            {">"} Wi-Fi {">"} Radio Management"
+          </>
+        }
+        warnTitle
+        onSubmit={() => setShowWifiModal(false)}
+        onClose={() => setShowWifiModal(false)}
+        showSecondaryButton={false}
+        positiveBtnText="Close"
+      />
     </>
   );
 };
@@ -264,168 +164,71 @@ type BandRowDetailProps = {
   bandInfo: WifiBandDetails;
   isAdvContent: boolean;
   isInteractionEnabled: boolean;
-  setBandValue: <K extends RadioType>(key: K, value: Record<RadioType, WifiBandDetails>[K]) => void;
   handleChange: (radioType: RadioType, newValue: Partial<WifiBandDetails>) => void;
+  routeType: RouteType;
+  handleBandDetails: (bandInfo: WifiBandDetails) => void;
 };
 
 const BandRowDetail: React.FC<BandRowDetailProps> = ({
   bandInfo,
   isInteractionEnabled,
   isAdvContent,
-  setBandValue,
   handleChange,
+  routeType,
+  handleBandDetails,
 }) => {
+  const { currentState, changedValues, setValue } = useFormState(bandInfo);
   const [showMoreOptions, setShowMoreOptions] = useState(false);
+
+  const toggleBand = () => {
+    setValue("isEnabled", false);
+  };
+
+  useEffect(() => {
+    setShowMoreOptions(false);
+  }, [routeType]);
+
+  useEffect(() => {
+    handleChange(currentState.radioType, changedValues);
+    handleBandDetails(currentState);
+    //eslint-disable-next-line
+  }, [currentState, changedValues]);
+
   return (
     <>
       <WifiSubBandRow>
-        <Col className="ps-0 align-content-center b">{radioTypeToString(bandInfo.radioType)}</Col>
-        <MainWifiCol className="flex-1">
-          <Row className="gap-2 gap-xxl-3">
-            <Col className="col-2"></Col>
-            <WifiBandToggleContainer>
-              <div className="vz--text--grey">{`Wi-Fi ${bandInfo.isEnabled ? "Enabled" : "Disabled"}`}</div>
-              <VZToggleButton
-                checked={bandInfo.isEnabled}
-                onChange={() => setBandValue(bandInfo.radioType, { ...bandInfo, isEnabled: !bandInfo.isEnabled })}
-                disabled={!isInteractionEnabled}
-              />
-            </WifiBandToggleContainer>
+        <Col className="ps-0 align-content-center b">{radioTypeToString(currentState.radioType)}</Col>
 
-            <WifiRightGear
-              openMoreOptions={showMoreOptions}
-              toggleMoreOptions={() => isAdvContent && setShowMoreOptions((prev) => !prev)}
-              showSettings={isAdvContent}
-            />
-          </Row>
-        </MainWifiCol>
+        <BandEnableToggler
+          isEnabled={currentState.isEnabled}
+          setValue={setValue}
+          isInteractionEnabled={isInteractionEnabled}
+          setShowMoreOptions={setShowMoreOptions}
+          showMoreOptions={showMoreOptions}
+          isRadioEnabled={currentState.isRadioEnabled}
+          isAdvContent={isAdvContent}
+          radioType={currentState.radioType}
+        />
       </WifiSubBandRow>
       <OptionalComponent
         show={showMoreOptions && (bandInfo.groupKeyConfig !== undefined || bandInfo.wmmConfig !== undefined)}
       >
         {bandInfo.groupKeyConfig !== undefined && (
-          <WifiMoreOptionRow>
-            <WifiLabelAndDescription
-              label="Group Key"
-              desc="Update Group Key based on time interval used to update the WPA shared key."
-            />
-            <Col className="align-self-center" lg={2} sm={5} xs={4}>
-              <VZInputTextField
-                value={bandInfo.groupKeyConfig.interval}
-                onChange={(e: string) =>
-                  setBandValue(bandInfo.radioType, {
-                    ...bandInfo,
-                    groupKeyConfig: {
-                      ...bandInfo.groupKeyConfig!,
-                      interval: Number(e.replace(/\D/g, "").slice(0, 6)),
-                    },
-                  })
-                }
-                style={GroupKeyIntervalTextStyle}
-                disabled={!isInteractionEnabled}
-              />
-            </Col>
-            <Col
-              className="p-0 align-items-center  py-sm-1 d-flex gap-3 justify-content-end"
-              xxl={3}
-              lg={5}
-              sm={2}
-              xs={4}
-            >
-              {bandInfo.groupKeyConfig.isEnabled ? "Enabled" : "Disabled"}
-              <VZToggleButton
-                checked={bandInfo.groupKeyConfig.isEnabled}
-                onChange={() =>
-                  setBandValue(bandInfo.radioType, {
-                    ...bandInfo,
-                    groupKeyConfig: {
-                      ...bandInfo.groupKeyConfig!,
-                      isEnabled: !bandInfo.groupKeyConfig!.isEnabled,
-                    },
-                  })
-                }
-                disabled={!isInteractionEnabled}
-              />
-            </Col>
-          </WifiMoreOptionRow>
+          <GroupKeyComponent
+            groupKeyConfig={currentState.groupKeyConfig!}
+            isInteractionEnabled={isInteractionEnabled}
+            setValue={setValue}
+          />
         )}
-        {bandInfo.wmmConfig !== undefined && (
-          <>
-            <WifiMoreOptionRow>
-              <WifiLabelAndDescription
-                label={"Wi-Fi QoS (WMM)"}
-                desc={
-                  "Improves the quality of service (QoS) for voice, video, and audio streaming over Wi-Fi by prioritizing these data streams."
-                }
-              />
-              <Col lg={2} sm={4} xs={1}></Col>
-              <Col
-                className="p-0 align-items-center justify-content-end py-sm-1 d-flex gap-3"
-                xxl={3}
-                lg={5}
-                sm={2}
-                xs={3}
-              >
-                {bandInfo.wmmConfig.isEnabled ? "Enabled" : "Disabled"}
-                <VZToggleButton
-                  checked={bandInfo.wmmConfig.isEnabled}
-                  onChange={() =>
-                    setBandValue(bandInfo.radioType, {
-                      ...bandInfo,
-                      wmmConfig: {
-                        ...bandInfo.wmmConfig!,
-                        isEnabled: !bandInfo.wmmConfig!.isEnabled,
-                      },
-                    })
-                  }
-                  disabled={bandInfo.wmmConfig.isReadOnly || !isInteractionEnabled}
-                />
-              </Col>
-            </WifiMoreOptionRow>
-            <WifiMoreOptionRow>
-              <WifiLabelAndDescription
-                label={"WMM Power Save"}
-                desc={
-                  "Improve battery life on mobile Wi-Fi devices such as smart phones and tablets by fine-tuning power consumption."
-                }
-              />
-              <Col lg={2} sm={4} xs={1}></Col>
 
-              <Col
-                className="p-0 align-items-center justify-content-end py-sm-1 d-flex gap-3"
-                xxl={3}
-                lg={5}
-                sm={2}
-                xs={3}
-              >
-                {bandInfo.wmmConfig.isPowerSaveEnabled ? "Enabled" : "Disabled"}
-                <VZToggleButton
-                  checked={bandInfo.wmmConfig.isPowerSaveEnabled}
-                  onChange={() =>
-                    setBandValue(bandInfo.radioType, {
-                      ...bandInfo,
-                      wmmConfig: {
-                        ...bandInfo.wmmConfig!,
-                        isPowerSaveEnabled: !bandInfo.wmmConfig!.isPowerSaveEnabled,
-                      },
-                    })
-                  }
-                  disabled={bandInfo.wmmConfig.isReadOnly || !isInteractionEnabled}
-                />
-              </Col>
-            </WifiMoreOptionRow>
-          </>
+        {bandInfo.wmmConfig !== undefined && (
+          <WmmConfigComponent
+            setValue={setValue}
+            isInteractionEnabled={isInteractionEnabled}
+            wmmConfig={currentState.wmmConfig!}
+          />
         )}
       </OptionalComponent>
     </>
   );
 };
-
-
-useFormState is a custom hook which have a currentState changedValues of the thing which have changed and I am stuck at following 
-
-suppose i create a newFormState for each bandRowDetail 
-
-so each will have its own changedValues and currentState now I am unable to think how to get this both values in the Primary.tsx
-
-I tried few things but i could not complete it could you help me out 
