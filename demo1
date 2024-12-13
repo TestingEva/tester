@@ -11,25 +11,130 @@ type WifiBandDetails = {
   groupKeyConfig?: GroupKeyInfo;
 };
 
-export const validateWifiDetails = (
-  bandChangedValues: Record<RadioType, Partial<WifiBandDetails>>,
-  isSonEnabled: boolean
-): string[] => {
-  let errors: string[] = [];
+I have a propery  bandChangedValues: Record<RadioType, Partial<Omit<WifiBandDetails,"radioType">>>
 
-  Object.keys(bandChangedValues).forEach((bandDetail) => {
-    // if (validateGroupKeyInterval(bandDetail.groupKeyConfig?.interval)) {
-    //   errors.push(
-    //     `${radioTypeToString(
-    //       bandDetail.radioType
-    //     )} Group Key Update Interval: Please enter a numeric value between 900 and 259200.`
-    //   );
-    // }
+now i want it convert it into Partial<WifiBandDetails>[]
 
-    console.log("test", bandDetail,bandChangedValues.[bandDetail]);
-  });
+please write a mapping function for the same 
 
-  return errors;
-};
+please note that radioType key should also be included
 
-I am trying to access bandChangedValues based on key but it is not happening could you help me out
+for example - 
+
+let data = {
+    "0": {
+        "groupKeyConfig": {
+            "isEnabled": false,
+            "interval": 122222
+        },
+        "wmmConfig": {
+            "isEnabled": false,
+            "isPowerSaveEnabled": false,
+            "isReadOnly": false
+        },
+        "key": "string121231233423",
+        "name": "string2342342"
+    },
+    "1": {},
+    "2": {},
+    "3": {}
+}
+
+then it should return a array of Partial<WifiBandDetails>
+
+if the obj is empty we should not add it to the array 
+
+and if the object is having something it should also add the radioType based on the Key in this case 
+
+
+it should return 
+
+[{
+"groupKeyConfig": {
+            "isEnabled": false,
+            "interval": 122222
+        },
+        "wmmConfig": {
+            "isEnabled": false,
+            "isPowerSaveEnabled": false,
+            "isReadOnly": false
+        },
+        "key": "string121231233423",
+        "name": "string2342342",
+radioType:"0"
+}]
+
+only 
+
+
+
+example 2 - 
+
+let data = {
+    "0": {
+        "groupKeyConfig": {
+            "isEnabled": true,
+            "interval": 9021
+        },
+        "wmmConfig": {
+            "isEnabled": true,
+            "isPowerSaveEnabled": false,
+            "isReadOnly": false
+        }
+    },
+    "1": {
+        "groupKeyConfig": {
+            "isEnabled": false,
+            "interval": 12222
+        }
+    },
+    "2": {},
+    "3": {
+        "groupKeyConfig": {
+            "isEnabled": true,
+            "interval": 3333
+        },
+        "wmmConfig": {
+            "isEnabled": false,
+            "isPowerSaveEnabled": false,
+            "isReadOnly": false
+        }
+    }
+}
+
+output should  be 
+
+[
+{
+"groupKeyConfig": {
+            "isEnabled": true,
+            "interval": 9021
+        },
+        "wmmConfig": {
+            "isEnabled": true,
+            "isPowerSaveEnabled": false,
+            "isReadOnly": false
+        }
+radioType:"0"
+
+},
+{
+
+"groupKeyConfig": {
+            "isEnabled": false,
+            "interval": 12222
+        },
+radioType:"1",}
+,{
+"groupKeyConfig": {
+            "isEnabled": true,
+            "interval": 3333
+        },
+        "wmmConfig": {
+            "isEnabled": false,
+            "isPowerSaveEnabled": false,
+            "isReadOnly": false
+        },
+radioType:"3"
+}
+]
