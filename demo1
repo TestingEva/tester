@@ -1,5 +1,58 @@
-@media ((width>768px)&& (width<1200px)) {
-    margin-right: 1rem;
-  }
+Hi I am new to andriod app development 
 
-how to do this 
+package com.example.simplecalculator
+
+import android.os.Bundle
+import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setContentView(R.layout.activity_main)
+
+        val bttnHot = findViewById<Button>(R.id.btnHot);
+        val bttnCool = findViewById<Button>(R.id.btnCool);
+        val linLayout = findViewById<LinearLayout>(R.id.linearLayout)
+
+        bttnHot.setOnClickListener {
+            linLayout.setBackgroundColor(R.color.black)
+        }
+
+        bttnCool.setOnClickListener {
+            linLayout.setBackgroundColor(R.color.purple_500)
+        }
+
+    }
+}
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/linearLayout">
+
+    <Button
+        android:id="@+id/btnCool"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="400dp"
+        android:text="Cool" />
+
+    <Button
+        android:id="@+id/btnHot"
+        android:layout_width="200dp"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content"
+        android:text="Hot" />
+</LinearLayout>
+
+
+I am creating two buttons 
+
+on click i want to change the color but it is throwing compilation error saying unresolved reference    
+
