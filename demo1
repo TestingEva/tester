@@ -1,27 +1,14 @@
-HI ,
-   buildNavRouteInfo("basic/wifi/primary", ContentMode.Basic, RouteType.PRIMARY_NW, {
-      label: `${provider(MSG_YES)}`,
-      groupLabel: "Wi-Fi",
-    }),
-I have the above function 
-
-export function buildNavRouteInfo(
-  path: string,
-  filter: ContentMode,
-  type: RouteType,
-  navInfo: { label: string; groupLabel?: string },
-  isProtected = true,
-  isEmbedded = true
-) {
-  return new NavRouteInfo(type, path, isProtected, filter, navInfo.label, isEmbedded, navInfo.groupLabel);
+export function usePlatformInfo(): AsyncHookData<PlatformInfo> {
+  const userProfileMode = useUserProfileModeInfo();
+  const provider = useMessageProvider();
+  const query = useQuery({
+    queryKey: [KEY_PLATFORM_INFO],
+    queryFn: async () => await getPlatformInfo(userProfileMode.data!, provider),
+    enabled: userProfileMode.data !== undefined,
+    staleTime: Infinity,
+  });
+  return asyncHookData(query, userProfileMode);
 }
-
-this is its desc
-
-
-now provider is used which is causing error 
-
-I have imported properly and passed provider 
 
 export function useMessageProvider(): MessageProvider {
   const client = useQueryClient();
@@ -42,4 +29,4 @@ export function useMessageProvider(): MessageProvider {
   return provider.current;
 }
 
-its some type script error cannot read the property of undefined 
+you where right both are in kind of loop how to fix them 
