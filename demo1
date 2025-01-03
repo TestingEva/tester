@@ -1,58 +1,45 @@
-Hi I am new to andriod app development 
+HI ,
+   buildNavRouteInfo("basic/wifi/primary", ContentMode.Basic, RouteType.PRIMARY_NW, {
+      label: `${provider(MSG_YES)}`,
+      groupLabel: "Wi-Fi",
+    }),
+I have the above function 
 
-package com.example.simplecalculator
-
-import android.os.Bundle
-import android.widget.LinearLayout
-import androidx.activity.ComponentActivity
-
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        setContentView(R.layout.activity_main)
-
-        val bttnHot = findViewById<Button>(R.id.btnHot);
-        val bttnCool = findViewById<Button>(R.id.btnCool);
-        val linLayout = findViewById<LinearLayout>(R.id.linearLayout)
-
-        bttnHot.setOnClickListener {
-            linLayout.setBackgroundColor(R.color.black)
-        }
-
-        bttnCool.setOnClickListener {
-            linLayout.setBackgroundColor(R.color.purple_500)
-        }
-
-    }
+export function buildNavRouteInfo(
+  path: string,
+  filter: ContentMode,
+  type: RouteType,
+  navInfo: { label: string; groupLabel?: string },
+  isProtected = true,
+  isEmbedded = true
+) {
+  return new NavRouteInfo(type, path, isProtected, filter, navInfo.label, isEmbedded, navInfo.groupLabel);
 }
 
-
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/linearLayout">
-
-    <Button
-        android:id="@+id/btnCool"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="400dp"
-        android:text="Cool" />
-
-    <Button
-        android:id="@+id/btnHot"
-        android:layout_width="200dp"
-        android:layout_gravity="center"
-        android:layout_height="wrap_content"
-        android:text="Hot" />
-</LinearLayout>
+this is its desc
 
 
-I am creating two buttons 
+now provider is used which is causing error 
 
-on click i want to change the color but it is throwing compilation error saying unresolved reference    
+I have imported properly and passed provider 
 
+export function useMessageProvider(): MessageProvider {
+  const client = useQueryClient();
+
+  const provider = useRef((id: string, templateParams?: Record<string, string>) => {
+    const profileMode = client.getQueryData([KEY_USER_PROFILE_MODE]) as UserProfileMode;
+    const platInfo = client.getQueryData([KEY_PLATFORM_INFO]) as PlatformInfo;
+    let initialValue = getContent(id, profileMode, platInfo);
+
+    if (templateParams !== undefined) {
+      for (const key in templateParams) {
+        initialValue = initialValue.replaceAll(`{${key}}`, templateParams[key]);
+      }
+    }
+    return initialValue;
+  });
+
+  return provider.current;
+}
+
+its some type script error cannot read the property of undefined 
