@@ -1,129 +1,135 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Col } from "react-bootstrap";
-import { useEventLogger } from "../../../domain/event-logger/hooks";
-import {
-  MSG_APPLY_CHANGES,
-  MSG_DISABLED,
-  MSG_ENABLED,
-  MSG_HOW_IT_WORKS,
-  MSG_SECURITY_AND_FIREWALL,
-  MSG_SIP_ALG,
-  MSG_SIP_DESC,
-} from "../../../domain/messages/message_keys";
-import { useMessageProvider } from "../../../domain/misc/hooks";
-import { RouteType } from "../../../domain/misc/models";
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { SipAlg } from "./SipAlg";
 import { useSipAlgStatus, useUpdateSipAlgStatus } from "../../../domain/sip-alg/hooks";
-import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
-import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
-import { VZBody } from "../../components/vz-body/VZBody";
-import { VZButton } from "../../components/vz-button/VZButton";
-import { VZHeader } from "../../components/vz-header/VZHeader";
-import { VZApplySettingsModal } from "../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
-import { VZToggleButton } from "../../components/vz-toggle-button/VZToggleButton";
-import { shaEvents } from "../../shaEvents";
-import { DescCol, DescHeaderCol, SipStatusLabel, SipStatusRow, ToggleBtnDiv } from "./styles";
+import { useEventLogger } from "../../../domain/event-logger/hooks";
 
-export const SipAlg: React.FC = () => {
-  const { isPending, isError, data: isInitialEnabled } = useSipAlgStatus();
-  const { invoke: updateSipAlgStatus, isPending: isUpdatePending } = useUpdateSipAlgStatus();
+// Mock hooks
+jest.mock("../../../domain/sip-alg/hooks");
+jest.mock("../../../domain/event-logger/hooks");
 
-  const [isEnable, setIsEnable] = useState(false);
-  const isApplyBtnEnable = useMemo(() => isEnable !== isInitialEnabled, [isEnable, isInitialEnabled]);
+// Mock components (if necessary)
+jest.mock("../../components/loading-indicator/LoadingIndicator", () => ({
+  LoadingIndicator: () => <div data-testid="loading-indicator">Loading...</div>,
+}));
 
-  const showApplyModal = useMemo(() => isUpdatePending, [isUpdatePending]);
+jest.mock("../../components/error-indicator/ErrorIndicator", () => ({
+  ErrorIndicator: () => <div data-testid="error-indicator">Error!</div>,
+}));
 
-  const { logShaEvent } = useEventLogger();
+jest.mock("../../components/vz-modal/apply-settings-modal/VZApplySettingsModal", () => ({
+  VZApplySettingsModal: ({ show }: { show: boolean }) =>
+    show ? <div data-testid="apply-settings-modal">Apply Settings Modal</div> : null,
+}));
 
-  useEffect(() => {
-    if (!isPending) {
-      logShaEvent(shaEvents.sipAlgPage);
-    }
-    //eslint-disable-next-line
-  }, [isPending]);
+describe("SipAlg Component", () => {
+  const mockLogShaEvent = jest.fn();
 
-  useEffect(() => {
-    if (isInitialEnabled !== undefined) {
-      setIsEnable(isInitialEnabled);
-    }
-  }, [isInitialEnabled]);
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-  const toggleEnable = () => {
-    setIsEnable((prev) => !prev);
-    logShaEvent(shaEvents.sipAlgToggle);
-  };
+    (useEventLogger as jest.Mock).mockReturnValue({
+      logShaEvent: mockLogShaEvent,
+    });
+  });
 
-  const onApplyChanges = async () => {
-    await updateSipAlgStatus(isEnable);
-    logShaEvent(shaEvents.sipAlgApply);
-  };
+  test("renders loading state", () => {
+    (useSipAlgStatus as jest.Mock).mockReturnValue({
+      isPending: true,
+      isError: false,
+      data: undefined,
+    });
 
-  if (isError) {
-    return <ErrorIndicator />;
-  }
+    render(<SipAlg />);
 
-  if (isPending || isInitialEnabled === undefined) {
-    return <LoadingIndicator />;
-  }
+    expect(screen.getByTestId("loading-indicator")).toBeInTheDocument();
+  });
 
-  return (
-    <SipAlgView
-      isEnable={isEnable}
-      toggleEnable={toggleEnable}
-      isApplyBtnEnable={isApplyBtnEnable}
-      onApplyChanges={onApplyChanges}
-      showApplyModal={showApplyModal}
-    />
-  );
-};
+  test("renders error state", () => {
+    (useSipAlgStatus as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: true,
+      data: undefined,
+    });
 
-type Props = {
-  isEnable: boolean;
-  toggleEnable: () => void;
-  isApplyBtnEnable: boolean;
-  onApplyChanges: () => void;
-  showApplyModal: boolean;
-};
+    render(<SipAlg />);
 
-const SipAlgView: React.FC<Props> = ({ isEnable, toggleEnable, isApplyBtnEnable, onApplyChanges, showApplyModal }) => {
-  const provider = useMessageProvider();
+    expect(screen.getByTestId("error-indicator")).toBeInTheDocument();
+  });
 
-  return (
-    <>
-      <VZHeader
-        title={provider(MSG_SIP_ALG)}
-        breadcrumbData={[
-          { label: `${provider(MSG_SECURITY_AND_FIREWALL)}` },
-          { label: `${provider(MSG_SIP_ALG)}`, destType: RouteType.SIP_ALG },
-        ]}
-        rightBody={
-          <VZButton disabled={!isApplyBtnEnable} onClick={onApplyChanges}>
-            {provider(MSG_APPLY_CHANGES)}
-          </VZButton>
-        }
-      />
-      <VZBody>
-        <DescHeaderCol id="sip-alg-head-label" className="hb">
-          {provider(MSG_HOW_IT_WORKS)}
-        </DescHeaderCol>
-        <DescCol id="sip-alg-head-desc">{provider(MSG_SIP_DESC)}</DescCol>
+  test("renders initial data and toggles state", async () => {
+    const mockUpdateSipAlgStatus = jest.fn();
 
-        <SipStatusRow>
-          <Col id="sip-alg-label" md={4} className="b pe-3 ps-0">
-            {" "}
-            {provider(MSG_SIP_ALG)}{" "}
-          </Col>
-          <ToggleBtnDiv md={8}>
-            <VZToggleButton checked={isEnable} onChange={toggleEnable} />
-            <SipStatusLabel id="sip-alg-status">
-              {isEnable ? provider(MSG_ENABLED) : provider(MSG_DISABLED)}
-            </SipStatusLabel>
-          </ToggleBtnDiv>
-        </SipStatusRow>
-      </VZBody>
-      <VZApplySettingsModal show={showApplyModal} />
-    </>
-  );
-};
+    (useSipAlgStatus as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: false, // Initially disabled
+    });
 
+    (useUpdateSipAlgStatus as jest.Mock).mockReturnValue({
+      invoke: mockUpdateSipAlgStatus,
+      isPending: false,
+    });
 
-I want to write tests for this component use @testing-library/react for writing the tests 
+    render(<SipAlg />);
+
+    // Verify initial render
+    expect(screen.getByText(/SIP ALG/i)).toBeInTheDocument();
+    expect(screen.getByText(/Disabled/i)).toBeInTheDocument();
+
+    // Toggle the state
+    fireEvent.click(screen.getByRole("checkbox"));
+    expect(screen.getByText(/Enabled/i)).toBeInTheDocument();
+
+    // Verify logShaEvent is called
+    expect(mockLogShaEvent).toHaveBeenCalledWith("sipAlgToggle");
+  });
+
+  test("enables apply changes button and calls update function", async () => {
+    const mockUpdateSipAlgStatus = jest.fn();
+
+    (useSipAlgStatus as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: false, // Initially disabled
+    });
+
+    (useUpdateSipAlgStatus as jest.Mock).mockReturnValue({
+      invoke: mockUpdateSipAlgStatus,
+      isPending: false,
+    });
+
+    render(<SipAlg />);
+
+    // Toggle the state
+    fireEvent.click(screen.getByRole("checkbox"));
+
+    // Verify Apply Changes button is enabled
+    const applyButton = screen.getByRole("button", { name: /apply changes/i });
+    expect(applyButton).not.toBeDisabled();
+
+    // Click Apply Changes
+    fireEvent.click(applyButton);
+
+    // Wait for async invocation
+    await waitFor(() => expect(mockUpdateSipAlgStatus).toHaveBeenCalledWith(true));
+    expect(mockLogShaEvent).toHaveBeenCalledWith("sipAlgApply");
+  });
+
+  test("shows modal when showApplyModal is true", () => {
+    (useSipAlgStatus as jest.Mock).mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: true, // Initially enabled
+    });
+
+    (useUpdateSipAlgStatus as jest.Mock).mockReturnValue({
+      invoke: jest.fn(),
+      isPending: true, // Modal should be shown
+    });
+
+    render(<SipAlg />);
+
+    expect(screen.getByTestId("apply-settings-modal")).toBeInTheDocument();
+  });
+});
