@@ -1,107 +1,50 @@
- console.error
-      Error: Uncaught [TypeError: Cannot read properties of undefined (reading 'model')]
-          at reportException (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:66:24)
-          at innerInvokeEventListeners (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:341:9)
-          at invokeEventListeners (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:274:3)
-          at HTMLUnknownElementImpl._dispatch (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:221:9)
-          at HTMLUnknownElementImpl.dispatchEvent (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:94:17)
-          at HTMLUnknownElement.dispatchEvent (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:231:34)
-          at Object.invokeGuardedCallbackDev (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
-          at invokeGuardedCallback (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
-          at beginWork$1 (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
-          at performUnitOfWork (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
-          at workLoopSync (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
-          at renderRootSync (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
-          at performConcurrentWorkOnRoot (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:25777:74)
-          at flushActQueue (/Users/MISSU3L/crsp-webui/node_modules/react/cjs/react.development.js:2667:24)
-          at act (/Users/MISSU3L/crsp-webui/node_modules/react/cjs/react.development.js:2582:11)
-          at actWithWarning (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
-          at /Users/MISSU3L/crsp-webui/node_modules/@testing-library/react/dist/act-compat.js:63:25
-          at renderRoot (/Users/MISSU3L/crsp-webui/node_modules/@testing-library/react/dist/pure.js:159:26)
-          at render (/Users/MISSU3L/crsp-webui/node_modules/@testing-library/react/dist/pure.js:246:10)
-          at Object.<anonymous> (/Users/MISSU3L/crsp-webui/src/ui/pages/sip-alg/sip.test.tsx:116:11)
-          at Promise.then.completed (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/utils.js:391:28)
-          at new Promise (<anonymous>)
-          at callAsyncCircusFn (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/utils.js:316:10)
-          at _callCircusTest (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:218:40)
-          at processTicksAndRejections (node:internal/process/task_queues:95:5)
-          at _runTest (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:155:3)
-          at _runTestsForDescribeBlock (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:66:9)
-          at _runTestsForDescribeBlock (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:60:9)
-          at run (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:25:3)
-          at runAndTransformResultsToJestFormat (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:170:21)
-          at jestAdapter (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:82:19)
-          at runTestInternal (/Users/MISSU3L/crsp-webui/node_modules/jest-runner/build/runTest.js:389:16)
-          at runTest (/Users/MISSU3L/crsp-webui/node_modules/jest-runner/build/runTest.js:475:34)
-          at Object.worker (/Users/MISSU3L/crsp-webui/node_modules/jest-runner/build/testWorker.js:133:12) TypeError: Cannot read properties of undefined (reading 'model')
-          at getContent (/Users/MISSU3L/crsp-webui/src/data/misc/misc.ts:228:68)
-          at provider (/Users/MISSU3L/crsp-webui/src/domain/misc/hooks.ts:213:34)
-          at SipAlgView (/Users/MISSU3L/crsp-webui/src/ui/pages/sip-alg/SipAlg.tsx:93:16)
-          at renderWithHooks (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:15486:18)
-          at mountIndeterminateComponent (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:20103:13)
-          at beginWork (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:21626:16)
-          at HTMLUnknownElement.callCallback (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
-          at HTMLUnknownElement.callTheUserObjectsOperation (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
-          at innerInvokeEventListeners (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:338:25)
-          at invokeEventListeners (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:274:3)
-          at HTMLUnknownElementImpl._dispatch (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:221:9)
-          at HTMLUnknownElementImpl.dispatchEvent (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:94:17)
-          at HTMLUnknownElement.dispatchEvent (/Users/MISSU3L/crsp-webui/node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:231:34)
-          at Object.invokeGuardedCallbackDev (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:4213:16)
-          at invokeGuardedCallback (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:4277:31)
-          at beginWork$1 (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:27490:7)
-          at performUnitOfWork (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:26599:12)
-          at workLoopSync (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:26505:5)
-          at renderRootSync (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:26473:7)
-          at performConcurrentWorkOnRoot (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom.development.js:25777:74)
-          at flushActQueue (/Users/MISSU3L/crsp-webui/node_modules/react/cjs/react.development.js:2667:24)
-          at act (/Users/MISSU3L/crsp-webui/node_modules/react/cjs/react.development.js:2582:11)
-          at actWithWarning (/Users/MISSU3L/crsp-webui/node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
-          at /Users/MISSU3L/crsp-webui/node_modules/@testing-library/react/dist/act-compat.js:63:25
-          at renderRoot (/Users/MISSU3L/crsp-webui/node_modules/@testing-library/react/dist/pure.js:159:26)
-          at render (/Users/MISSU3L/crsp-webui/node_modules/@testing-library/react/dist/pure.js:246:10)
-          at Object.<anonymous> (/Users/MISSU3L/crsp-webui/src/ui/pages/sip-alg/sip.test.tsx:116:11)
-          at Promise.then.completed (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/utils.js:391:28)
-          at new Promise (<anonymous>)
-          at callAsyncCircusFn (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/utils.js:316:10)
-          at _callCircusTest (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:218:40)
-          at processTicksAndRejections (node:internal/process/task_queues:95:5)
-          at _runTest (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:155:3)
-          at _runTestsForDescribeBlock (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:66:9)
-          at _runTestsForDescribeBlock (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:60:9)
-          at run (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/run.js:25:3)
-          at runAndTransformResultsToJestFormat (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapterInit.js:170:21)
-          at jestAdapter (/Users/MISSU3L/crsp-webui/node_modules/jest-circus/build/legacy-code-todo-rewrite/jestAdapter.js:82:19)
-          at runTestInternal (/Users/MISSU3L/crsp-webui/node_modules/jest-runner/build/runTest.js:389:16)
-          at runTest (/Users/MISSU3L/crsp-webui/node_modules/jest-runner/build/runTest.js:475:34)
-          at Object.worker (/Users/MISSU3L/crsp-webui/node_modules/jest-runner/build/testWorker.js:133:12)
+const helpItems = [
+    {
+      label: tryCall(() => provider(MSG_HELP_CNTRL_FIOS_APP_LABEL)),
+      url: tryCall(() => provider(MSG_HELP_CNTRL_FIOS_APP_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_CNTRL_VZ_APP)),
+      url: tryCall(() => provider(MSG_HELP_CNTRL_VZ_APP_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_VZ_ACC_LABEL)),
+      url: tryCall(() => provider(MSG_HELP_VZ_ACC_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_BUSINESS_ACC)),
+      url: tryCall(() => provider(MSG_HELP_BUSINESS_ACC_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_WATCH_TV_LABEL)),
+      url: tryCall(() => provider(MSG_HELP_WATCH_TV_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_MANAGE_VOICE_LABEL)),
+      url: tryCall(() => provider(MSG_HELP_MANAGE_VOICE_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_FIOS_TV_SUPPORT)),
+      url: tryCall(() => provider(MSG_HELP_FIOS_TV_SUPPORT_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_ROUTER_SUPPORT_LABEL)),
+      url: tryCall(() => provider(MSG_HELP_ITEM_SUPPORT_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_VZ_HELP)),
+      url: tryCall(() => provider(MSG_HELP_VZ_HELP_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_GATEWAY_SUPPORT)),
+      url: tryCall(() => provider(MSG_HELP_GATEWAY_SUPPORT_LINK)),
+    },
+    {
+      label: tryCall(() => provider(MSG_HELP_USER_GUIDE)),
+      url: tryCall(() => provider(MSG_HELP_USER_GUIDE_LINK)),
+    },
+  ]
 
-      114 |     });
-      115 |
-    > 116 |     render(
-          |           ^
-      117 |       <QueryClientProvider client={queryClient}>
-      118 |         <SipAlg />
-      119 |       </QueryClientProvider>
+Hi i want to reduce this help item using the reduce method 
 
-      at VirtualConsole.<anonymous> (node_modules/jsdom/lib/jsdom/virtual-console.js:29:45)
-      at reportException (node_modules/jsdom/lib/jsdom/living/helpers/runtime-script-errors.js:70:28)
-      at innerInvokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:341:9)
-      at invokeEventListeners (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:274:3)
-      at HTMLUnknownElementImpl._dispatch (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:221:9)
-      at HTMLUnknownElementImpl.dispatchEvent (node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:94:17)
-      at HTMLUnknownElement.dispatchEvent (node_modules/jsdom/lib/jsdom/living/generated/EventTarget.js:231:34)
-      at Object.invokeGuardedCallbackDev (node_modules/react-dom/cjs/react-dom.development.js:4213:16)
-      at invokeGuardedCallback (node_modules/react-dom/cjs/react-dom.development.js:4277:31)
-      at beginWork$1 (node_modules/react-dom/cjs/react-dom.development.js:27490:7)
-      at performUnitOfWork (node_modules/react-dom/cjs/react-dom.development.js:26599:12)
-      at workLoopSync (node_modules/react-dom/cjs/react-dom.development.js:26505:5)
-      at renderRootSync (node_modules/react-dom/cjs/react-dom.development.js:26473:7)
-      at performConcurrentWorkOnRoot (node_modules/react-dom/cjs/react-dom.development.js:25777:74)
-      at flushActQueue (node_modules/react/cjs/react.development.js:2667:24)
-      at act (node_modules/react/cjs/react.development.js:2582:11)
-      at actWithWarning (node_modules/react-dom/cjs/react-dom-test-utils.development.js:1740:10)
-      at node_modules/@testing-library/react/dist/act-compat.js:63:25
-      at renderRoot (node_modules/@testing-library/react/dist/pure.js:159:26)
-      at render (node_modules/@testing-library/react/dist/pure.js:246:10)
-      at Object.<anonymous> (src/ui/pages/sip-alg/sip.test.tsx:116:11)
+it should only have the objects which have a label and url not equal to undefined
