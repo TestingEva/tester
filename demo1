@@ -1,32 +1,129 @@
-export function usePlatformInfo(): AsyncHookData<PlatformInfo> {
-  const userProfileMode = useUserProfileModeInfo();
-  const provider = useMessageProvider();
-  const query = useQuery({
-    queryKey: [KEY_PLATFORM_INFO],
-    queryFn: async () => await getPlatformInfo(userProfileMode.data!, provider),
-    enabled: userProfileMode.data !== undefined,
-    staleTime: Infinity,
-  });
-  return asyncHookData(query, userProfileMode);
-}
+import React, { useEffect, useMemo, useState } from "react";
+import { Col } from "react-bootstrap";
+import { useEventLogger } from "../../../domain/event-logger/hooks";
+import {
+  MSG_APPLY_CHANGES,
+  MSG_DISABLED,
+  MSG_ENABLED,
+  MSG_HOW_IT_WORKS,
+  MSG_SECURITY_AND_FIREWALL,
+  MSG_SIP_ALG,
+  MSG_SIP_DESC,
+} from "../../../domain/messages/message_keys";
+import { useMessageProvider } from "../../../domain/misc/hooks";
+import { RouteType } from "../../../domain/misc/models";
+import { useSipAlgStatus, useUpdateSipAlgStatus } from "../../../domain/sip-alg/hooks";
+import { ErrorIndicator } from "../../components/error-indicator/ErrorIndicator";
+import { LoadingIndicator } from "../../components/loading-indicator/LoadingIndicator";
+import { VZBody } from "../../components/vz-body/VZBody";
+import { VZButton } from "../../components/vz-button/VZButton";
+import { VZHeader } from "../../components/vz-header/VZHeader";
+import { VZApplySettingsModal } from "../../components/vz-modal/apply-settings-modal/VZApplySettingsModal";
+import { VZToggleButton } from "../../components/vz-toggle-button/VZToggleButton";
+import { shaEvents } from "../../shaEvents";
+import { DescCol, DescHeaderCol, SipStatusLabel, SipStatusRow, ToggleBtnDiv } from "./styles";
 
-export function useMessageProvider(): MessageProvider {
-  const client = useQueryClient();
+export const SipAlg: React.FC = () => {
+  const { isPending, isError, data: isInitialEnabled } = useSipAlgStatus();
+  const { invoke: updateSipAlgStatus, isPending: isUpdatePending } = useUpdateSipAlgStatus();
 
-  const provider = useRef((id: string, templateParams?: Record<string, string>) => {
-    const profileMode = client.getQueryData([KEY_USER_PROFILE_MODE]) as UserProfileMode;
-    const platInfo = client.getQueryData([KEY_PLATFORM_INFO]) as PlatformInfo;
-    let initialValue = getContent(id, profileMode, platInfo);
+  const [isEnable, setIsEnable] = useState(false);
+  const isApplyBtnEnable = useMemo(() => isEnable !== isInitialEnabled, [isEnable, isInitialEnabled]);
 
-    if (templateParams !== undefined) {
-      for (const key in templateParams) {
-        initialValue = initialValue.replaceAll(`{${key}}`, templateParams[key]);
-      }
+  const showApplyModal = useMemo(() => isUpdatePending, [isUpdatePending]);
+
+  const { logShaEvent } = useEventLogger();
+
+  useEffect(() => {
+    if (!isPending) {
+      logShaEvent(shaEvents.sipAlgPage);
     }
-    return initialValue;
-  });
+    //eslint-disable-next-line
+  }, [isPending]);
 
-  return provider.current;
-}
+  useEffect(() => {
+    if (isInitialEnabled !== undefined) {
+      setIsEnable(isInitialEnabled);
+    }
+  }, [isInitialEnabled]);
 
-you where right both are in kind of loop how to fix them 
+  const toggleEnable = () => {
+    setIsEnable((prev) => !prev);
+    logShaEvent(shaEvents.sipAlgToggle);
+  };
+
+  const onApplyChanges = async () => {
+    await updateSipAlgStatus(isEnable);
+    logShaEvent(shaEvents.sipAlgApply);
+  };
+
+  if (isError) {
+    return <ErrorIndicator />;
+  }
+
+  if (isPending || isInitialEnabled === undefined) {
+    return <LoadingIndicator />;
+  }
+
+  return (
+    <SipAlgView
+      isEnable={isEnable}
+      toggleEnable={toggleEnable}
+      isApplyBtnEnable={isApplyBtnEnable}
+      onApplyChanges={onApplyChanges}
+      showApplyModal={showApplyModal}
+    />
+  );
+};
+
+type Props = {
+  isEnable: boolean;
+  toggleEnable: () => void;
+  isApplyBtnEnable: boolean;
+  onApplyChanges: () => void;
+  showApplyModal: boolean;
+};
+
+const SipAlgView: React.FC<Props> = ({ isEnable, toggleEnable, isApplyBtnEnable, onApplyChanges, showApplyModal }) => {
+  const provider = useMessageProvider();
+
+  return (
+    <>
+      <VZHeader
+        title={provider(MSG_SIP_ALG)}
+        breadcrumbData={[
+          { label: `${provider(MSG_SECURITY_AND_FIREWALL)}` },
+          { label: `${provider(MSG_SIP_ALG)}`, destType: RouteType.SIP_ALG },
+        ]}
+        rightBody={
+          <VZButton disabled={!isApplyBtnEnable} onClick={onApplyChanges}>
+            {provider(MSG_APPLY_CHANGES)}
+          </VZButton>
+        }
+      />
+      <VZBody>
+        <DescHeaderCol id="sip-alg-head-label" className="hb">
+          {provider(MSG_HOW_IT_WORKS)}
+        </DescHeaderCol>
+        <DescCol id="sip-alg-head-desc">{provider(MSG_SIP_DESC)}</DescCol>
+
+        <SipStatusRow>
+          <Col id="sip-alg-label" md={4} className="b pe-3 ps-0">
+            {" "}
+            {provider(MSG_SIP_ALG)}{" "}
+          </Col>
+          <ToggleBtnDiv md={8}>
+            <VZToggleButton checked={isEnable} onChange={toggleEnable} />
+            <SipStatusLabel id="sip-alg-status">
+              {isEnable ? provider(MSG_ENABLED) : provider(MSG_DISABLED)}
+            </SipStatusLabel>
+          </ToggleBtnDiv>
+        </SipStatusRow>
+      </VZBody>
+      <VZApplySettingsModal show={showApplyModal} />
+    </>
+  );
+};
+
+
+I want to write tests for this component use @testing-library/react for writing the tests 
