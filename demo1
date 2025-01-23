@@ -1,48 +1,30 @@
-MISSU3L@GCJX93HK0V crsp-webui % npm i react-dom@19.0.0
-npm WARN ERESOLVE overriding peer dependency
-npm WARN While resolving: crsp-webui-router@0.1.0
-npm WARN Found: react-dom@18.3.1
-npm WARN node_modules/react-dom
-npm WARN   peer react-dom@">=16.8.0" from @floating-ui/react@0.26.28
-npm WARN   node_modules/@floating-ui/react
-npm WARN     @floating-ui/react@"^0.26.23" from react-datepicker@7.5.0
-npm WARN     node_modules/react-datepicker
-npm WARN   9 more (@floating-ui/react-dom, @restart/ui, ...)
-npm WARN 
-npm WARN Could not resolve dependency:
-npm WARN peer react-dom@"^16.9.0 || ^17 || ^18" from react-datepicker@7.5.0
-npm WARN node_modules/react-datepicker
-npm WARN   react-datepicker@"^7.5.0" from the root project
+MISSU3L@GCJX93HK0V crsp-webui % npm i
 npm ERR! code ERESOLVE
 npm ERR! ERESOLVE could not resolve
 npm ERR! 
-npm ERR! While resolving: react-chartjs-2@5.2.0
-npm ERR! Found: react@19.0.0
-npm ERR! node_modules/react
-npm ERR!   peer react@">=16.8.0" from @floating-ui/react@0.26.28
-npm ERR!   node_modules/@floating-ui/react
-npm ERR!     @floating-ui/react@"^0.26.23" from react-datepicker@7.5.0
-npm ERR!     node_modules/react-datepicker
-npm ERR!       react-datepicker@"^7.5.0" from the root project
-npm ERR!   peer react@">=16.8.0" from @floating-ui/react-dom@2.1.2
-npm ERR!   node_modules/@floating-ui/react-dom
-npm ERR!     @floating-ui/react-dom@"^2.1.2" from @floating-ui/react@0.26.28
-npm ERR!     node_modules/@floating-ui/react
-npm ERR!       @floating-ui/react@"^0.26.23" from react-datepicker@7.5.0
-npm ERR!       node_modules/react-datepicker
-npm ERR!         react-datepicker@"^7.5.0" from the root project
-npm ERR!   22 more (@react-aria/ssr, @restart/hooks, @restart/ui, ...)
+npm ERR! While resolving: react-scripts@5.0.1
+npm ERR! Found: typescript@5.7.3
+npm ERR! node_modules/typescript
+npm ERR!   typescript@"^5.7.3" from the root project
+npm ERR!   peer typescript@">= 2.7" from fork-ts-checker-webpack-plugin@6.5.3
+npm ERR!   node_modules/fork-ts-checker-webpack-plugin
+npm ERR!     fork-ts-checker-webpack-plugin@"^6.5.0" from react-dev-utils@12.0.1
+npm ERR!     node_modules/react-dev-utils
+npm ERR!       react-dev-utils@"^12.0.1" from react-scripts@5.0.1
+npm ERR!       node_modules/react-scripts
+npm ERR!         react-scripts@"5.0.1" from the root project
+npm ERR!   1 more (tsutils)
 npm ERR! 
 npm ERR! Could not resolve dependency:
-npm ERR! peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from react-chartjs-2@5.2.0
-npm ERR! node_modules/react-chartjs-2
-npm ERR!   react-chartjs-2@"5.2.0" from the root project
+npm ERR! peerOptional typescript@"^3.2.1 || ^4" from react-scripts@5.0.1
+npm ERR! node_modules/react-scripts
+npm ERR!   react-scripts@"5.0.1" from the root project
 npm ERR! 
-npm ERR! Conflicting peer dependency: react@18.3.1
-npm ERR! node_modules/react
-npm ERR!   peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from react-chartjs-2@5.2.0
-npm ERR!   node_modules/react-chartjs-2
-npm ERR!     react-chartjs-2@"5.2.0" from the root project
+npm ERR! Conflicting peer dependency: typescript@4.9.5
+npm ERR! node_modules/typescript
+npm ERR!   peerOptional typescript@"^3.2.1 || ^4" from react-scripts@5.0.1
+npm ERR!   node_modules/react-scripts
+npm ERR!     react-scripts@"5.0.1" from the root project
 npm ERR! 
 npm ERR! Fix the upstream dependency conflict, or retry
 npm ERR! this command with --force or --legacy-peer-deps
@@ -50,6 +32,6 @@ npm ERR! to accept an incorrect (and potentially broken) dependency resolution.
 npm ERR! 
 npm ERR! 
 npm ERR! For a full report see:
-npm ERR! /Users/MISSU3L/.npm/_logs/2025-01-23T10_13_46_947Z-eresolve-report.txt
+npm ERR! /Users/MISSU3L/.npm/_logs/2025-01-23T10_31_04_070Z-eresolve-report.txt
 
-npm ERR! A complete log of this run can be found in: /Users/MISSU3L/.npm/_logs/2025-01-23T10_13_46_947Z-debug-0.log
+npm ERR! A complete log of this run can be found in: /Users/MISSU3L/.npm/_logs/2025-01-23T10_31_04_070Z-debug-0.log
