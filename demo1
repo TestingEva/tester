@@ -1,19 +1,55 @@
-export function useUpdateCheckStatus(): AsyncHookData<{ status?: boolean }> {
-  const query = useQuery({
-    queryKey: [KEY_UPDATE_CHECK_STATUS],
-    queryFn: async () => {
-      const status = await getCheckStatus();
-      if (status === undefined) {
-        return {};
-      }
-      return {
-        status: status,
-      };
-    },
-  });
-  return asyncHookData(query);
-}
+MISSU3L@GCJX93HK0V crsp-webui % npm i react-dom@19.0.0
+npm WARN ERESOLVE overriding peer dependency
+npm WARN While resolving: crsp-webui-router@0.1.0
+npm WARN Found: react-dom@18.3.1
+npm WARN node_modules/react-dom
+npm WARN   peer react-dom@">=16.8.0" from @floating-ui/react@0.26.28
+npm WARN   node_modules/@floating-ui/react
+npm WARN     @floating-ui/react@"^0.26.23" from react-datepicker@7.5.0
+npm WARN     node_modules/react-datepicker
+npm WARN   9 more (@floating-ui/react-dom, @restart/ui, ...)
+npm WARN 
+npm WARN Could not resolve dependency:
+npm WARN peer react-dom@"^16.9.0 || ^17 || ^18" from react-datepicker@7.5.0
+npm WARN node_modules/react-datepicker
+npm WARN   react-datepicker@"^7.5.0" from the root project
+npm ERR! code ERESOLVE
+npm ERR! ERESOLVE could not resolve
+npm ERR! 
+npm ERR! While resolving: react-chartjs-2@5.2.0
+npm ERR! Found: react@19.0.0
+npm ERR! node_modules/react
+npm ERR!   peer react@">=16.8.0" from @floating-ui/react@0.26.28
+npm ERR!   node_modules/@floating-ui/react
+npm ERR!     @floating-ui/react@"^0.26.23" from react-datepicker@7.5.0
+npm ERR!     node_modules/react-datepicker
+npm ERR!       react-datepicker@"^7.5.0" from the root project
+npm ERR!   peer react@">=16.8.0" from @floating-ui/react-dom@2.1.2
+npm ERR!   node_modules/@floating-ui/react-dom
+npm ERR!     @floating-ui/react-dom@"^2.1.2" from @floating-ui/react@0.26.28
+npm ERR!     node_modules/@floating-ui/react
+npm ERR!       @floating-ui/react@"^0.26.23" from react-datepicker@7.5.0
+npm ERR!       node_modules/react-datepicker
+npm ERR!         react-datepicker@"^7.5.0" from the root project
+npm ERR!   22 more (@react-aria/ssr, @restart/hooks, @restart/ui, ...)
+npm ERR! 
+npm ERR! Could not resolve dependency:
+npm ERR! peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from react-chartjs-2@5.2.0
+npm ERR! node_modules/react-chartjs-2
+npm ERR!   react-chartjs-2@"5.2.0" from the root project
+npm ERR! 
+npm ERR! Conflicting peer dependency: react@18.3.1
+npm ERR! node_modules/react
+npm ERR!   peer react@"^16.8.0 || ^17.0.0 || ^18.0.0" from react-chartjs-2@5.2.0
+npm ERR!   node_modules/react-chartjs-2
+npm ERR!     react-chartjs-2@"5.2.0" from the root project
+npm ERR! 
+npm ERR! Fix the upstream dependency conflict, or retry
+npm ERR! this command with --force or --legacy-peer-deps
+npm ERR! to accept an incorrect (and potentially broken) dependency resolution.
+npm ERR! 
+npm ERR! 
+npm ERR! For a full report see:
+npm ERR! /Users/MISSU3L/.npm/_logs/2025-01-23T10_13_46_947Z-eresolve-report.txt
 
-This is a Hook and the response from the API could be boolean or undefined
-
-if it is undefined I want to disable this hook so that it could not be called again is it possible
+npm ERR! A complete log of this run can be found in: /Users/MISSU3L/.npm/_logs/2025-01-23T10_13_46_947Z-debug-0.log
