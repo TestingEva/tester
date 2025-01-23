@@ -13,13 +13,17 @@
                       height: "1.5rem",
                       borderRadius: "50%",
                       top: "1px",
+                      opacity: "1",
                     },
                     rail: { background: "black", height: "0.125rem", top: "0.5rem" },
                   }}
                 />
 
+.rc-slider-handle:focus {
+  box-shadow: 0 0 0px black !important;
+}
 
-everthing working as expected just one thing is left when i am clicking the handle to drag I am getting a box Shadow 
 
+I have added the css and it is working fine one last requirement is that when the handle is focused  it should have one more circle surrounding it 
 
-I want to change the color of box shadow to black it is currently somewhat blue
+can it be done
