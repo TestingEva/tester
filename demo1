@@ -1,1 +1,19 @@
-https://tiny-sopapillas-045e81.netlify.app/
+export function useUpdateCheckStatus(): AsyncHookData<{ status?: boolean }> {
+  const query = useQuery({
+    queryKey: [KEY_UPDATE_CHECK_STATUS],
+    queryFn: async () => {
+      const status = await getCheckStatus();
+      if (status === undefined) {
+        return {};
+      }
+      return {
+        status: status,
+      };
+    },
+  });
+  return asyncHookData(query);
+}
+
+This is a Hook and the response from the API could be boolean or undefined
+
+if it is undefined I want to disable this hook so that it could not be called again is it possible
