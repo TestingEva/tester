@@ -1,66 +1,76 @@
-This was my component
+import React from "react";
+import Slider from "rc-slider";
+import "rc-slider/assets/index.css"; // Base CSS for rc-slider
 
-<ReactSlider
-                  className="customSlider"
-                  trackClassName="customSlider-track"
-                  thumbClassName="customSlider-thumb"
-                  markClassName="customSlider-mark"
-                  min={0}
-                  max={100}
-                  step={50}
-                  value={data.brightnessPercentage}
-                  onChange={onBrightnessChange}
-                />
+const CustomSlider = ({ value, onChange }) => {
+  return (
+    <div className="customSlider-container">
+      <Slider
+        min={0}
+        max={100}
+        step={50}
+        value={value}
+        onChange={onChange}
+        trackStyle={{ background: "black", height: "0.125rem", top: "0.5rem" }}
+        handleStyle={{
+          backgroundColor: "white",
+          border: "1px solid black",
+          width: "1.25rem",
+          height: "1.25rem",
+          borderRadius: "50%",
+        }}
+        railStyle={{ background: "black", height: "0.125rem", top: "0.5rem" }}
+        markStyle={{
+          backgroundColor: "black",
+          width: "0.01rem",
+          height: "0.5rem",
+          top: "0.375rem",
+        }}
+      />
+    </div>
+  );
+};
 
-Imported from from "react-slider": "^2.0.6",
-
-but it is not supported in React 19
- 
- so I am planning to move to 
-
- rc-slider
-
-another npm package
-
-
-I have led the foundation of the same <Slider min={0} max={100} step={50} />
-
-I am able to see the slider with the steps 
-
-now i want you to style the new slider to look as the old one 
-
-it should exactly look as the old one 
-
-giving you the css for the old Slider below
+export default CustomSlider;
 
 
-.customSlider {
+.customSlider-container {
   max-width: 12.5rem;
   margin-left: 0%;
 }
 
-.customSlider-track {
-  top: 0.5rem;
-  height: 0.125rem;
+.rc-slider-track {
   background: black;
+  height: 0.125rem;
+  top: 0.5rem !important;
 }
 
-.customSlider-thumb {
+.rc-slider-handle {
   background: white;
+  border: 1px solid black;
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 100%;
-  outline: black solid 1px;
+  border-radius: 50%;
+  margin-top: -0.625rem; /* Half of the thumb height to center it */
 }
 
-.customSlider-mark {
-  top: 0.375rem;
+.rc-slider-rail {
+  background: black;
+  height: 0.125rem;
+}
+
+.rc-slider-mark {
+  top: 0.375rem !important;
+}
+
+.rc-slider-mark-text {
+  display: none; /* Hides default text if any */
+}
+
+.rc-slider-dot {
+  background: black;
   width: 0.01rem;
   height: 0.5rem;
-  background-color: black;
+  border-radius: 0;
+  top: 0.375rem;
 }
-
-
-Please make sure you do  PROPER JOB
-
-
