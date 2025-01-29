@@ -1,29 +1,35 @@
-<Slider
-                  min={0}
-                  max={100}
-                  step={50}
-                  value={data.brightnessPercentage}
-                  onChange={(e) => onBrightnessChange(e as 0 | 50 | 100)}
-                  styles={{
-                    track: { background: "black", height: "0.125rem", top: "0.5rem" },
-                    handle: {
-                      backgroundColor: "white",
-                      border: "1px solid black",
-                      width: "1.5rem",
-                      height: "1.5rem",
-                      borderRadius: "50%",
-                      top: "1px",
-                      opacity: "1",
-                    },
-                    rail: { background: "black", height: "0.125rem", top: "0.5rem" },
-                  }}
-                />
+export type UpdateWifiDetailApiRequest = {
+  networkType: 0 | 1 | 2;
+  sonEnabled?: boolean;
+  wifiInfoList?: Update<WifiBandData, "radioAlias">[];
+};
 
-.rc-slider-handle:focus {
-  box-shadow: 0 0 0px black !important;
-}
+export type WifiBandData = {
+  ssid: string;
+  key: string;
+  enabled: boolean;
+  securityType: number;
+  ssidBroadcastEnabled?: boolean;
+  radioAlias: string;
+  radioEnabled: boolean;
+  wmmConfig?: {
+    enabled: boolean;
+    powersaveEnabled: boolean;
+    isReadOnly: boolean;
+  };
+  macAddressControl?: {
+    enabled: boolean;
+    isWhitelist: boolean;
+    addresses: string[];
+  };
+  groupKeyConfig?: {
+    enabled: boolean;
+    interval: number;
+  };
+};
+
+Create a function which will take UpdateWifiDetailApiRequest as payload and need to check whether update request have
+sonEnabled not as undefined or have radioAlias 6Ghz present in it
+response of the function should be boolean
 
 
-I have added the css and it is working fine one last requirement is that when the handle is focused  it should have one more circle surrounding it 
-
-can it be done
