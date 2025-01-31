@@ -1,35 +1,122 @@
-export type UpdateWifiDetailApiRequest = {
-  networkType: 0 | 1 | 2;
-  sonEnabled?: boolean;
-  wifiInfoList?: Update<WifiBandData, "radioAlias">[];
+data = [
+    {
+        "channel": 1,
+        "score": 0,
+        "alias": "WLAN_24G"
+    },
+    {
+        "channel": 6,
+        "score": 1,
+        "alias": "WLAN_24G"
+    },
+    {
+        "channel": 11,
+        "score": 0,
+        "alias": "WLAN_24G"
+    },
+    {
+        "channel": 36,
+        "score": 7,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 52,
+        "score": 8,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 52,
+        "score": 8,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 100,
+        "score": 7,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 120,
+        "score": 10,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 132,
+        "score": 8,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 149,
+        "score": 7,
+        "alias": "WLAN_5G"
+    },
+    {
+        "channel": 37,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 69,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 101,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 133,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 181,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 197,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 197,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+    {
+        "channel": 197,
+        "score": 10,
+        "alias": "WLAN_6G"
+    }
+]
+
+the above data is of type 
+type ScoreData = {
+  channel: number;
+  score: number;
+  alias: string;
 };
 
-export type WifiBandData = {
-  ssid: string;
-  key: string;
-  enabled: boolean;
-  securityType: number;
-  ssidBroadcastEnabled?: boolean;
-  radioAlias: string;
-  radioEnabled: boolean;
-  wmmConfig?: {
-    enabled: boolean;
-    powersaveEnabled: boolean;
-    isReadOnly: boolean;
-  };
-  macAddressControl?: {
-    enabled: boolean;
-    isWhitelist: boolean;
-    addresses: string[];
-  };
-  groupKeyConfig?: {
-    enabled: boolean;
-    interval: number;
-  };
-};
 
-Create a function which will take UpdateWifiDetailApiRequest as payload and need to check whether update request have
-sonEnabled not as undefined or have radioAlias 6Ghz present in it
-response of the function should be boolean
+now i want you to write a function which takes the above data as input and removes the duplicates also if the score of any data is less than 0 filter that out 
 
+for example in this case it should remove 
 
+{
+        "channel": 197,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+{
+        "channel": 197,
+        "score": 10,
+        "alias": "WLAN_6G"
+    },
+ {
+        "channel": 52,
+        "score": 8,
+        "alias": "WLAN_5G"
+    },
+
+and return the array 
