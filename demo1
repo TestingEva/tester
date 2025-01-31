@@ -1,3 +1,21 @@
+
+function removeDuplicatesAndFilter(data: ScoreData[]): ScoreData[] {
+  return data.reduce((acc, item) => {
+    if (item.score < 0) return acc;
+
+    const key = `${item.channel}-${item.score}-${item.alias}`;
+    if (!acc.some(entry => `${entry.channel}-${entry.score}-${entry.alias}` === key)) {
+      acc.push(item);
+    }
+    
+    return acc;
+  }, [] as ScoreData[]);
+}
+
+const filteredData = removeDuplicatesAndFilter(data);
+console.log(filteredData);
+
+
 data = [
     {
         "channel": 1,
