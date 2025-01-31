@@ -1,3 +1,27 @@
+type ScoreData = {
+  channel: number;
+  score: number;
+  alias: string;
+};
+
+function removeDuplicatesAndFilter(data: ScoreData[]): ScoreData[] {
+  const seen = new Set<string>();
+
+  return data.filter(({ channel, score, alias }) => {
+    if (score < 0) return false;
+    
+    const key = `${channel}-${score}-${alias}`;
+    if (seen.has(key)) return false;
+
+    seen.add(key);
+    return true;
+  });
+}
+
+const filteredData = removeDuplicatesAndFilter(data);
+console.log(filteredData);
+
+
 
 function removeDuplicatesAndFilter(data: ScoreData[]): ScoreData[] {
   return data.reduce((acc, item) => {
