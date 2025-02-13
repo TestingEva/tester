@@ -1,142 +1,45 @@
-export const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
-  const { logShaEvent } = useEventLogger();
-  const provider = useMessageProvider();
-  const { data: qswData, isError } = useQswDetails();
-  const {
-    invoke: updateQsw,
-    isPending: isApplying,
-    isSuccess: isUpdateSuccess,
-    isError: isUpdatedFailed,
-  } = useUpdateQswDetails();
-  const { data: showWarnPrompt, isError: isShowWarnPromptError } = useWarnPromptsEnabled();
-  const { invoke: logout } = useClearSession();
-  const navigate = useNavigator();
-  const locator = useLocator();
+import { Col, Container } from "react-bootstrap";
+import styled from "styled-components";
+import { ReactComponent as InformationIcon } from "../../../../assets/images/Information.svg";
+import { NotificationCloseButton } from "../../home/styles";
+type Props = {
+  canShowBanner: boolean;
+  hideBanner: () => void;
+};
 
-  const [showModal, setShowModal] = useState(false);
-  const modalTimerRef = useRef<NodeJS.Timeout | null>(null);
+const QswAutoDetectBanner = styled(Container)<{ $show: boolean }>`
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+  ${(props) =>
+    props.$show
+      ? { maxHeight: "5rem !important", transition: "0.1s ease-in" }
+      : { height: "0", transition: "0.1s ease-in " }};
+`;
 
-  useEffect(() => {
-    if (locator.state?.isRoleAutoDetected) {
-      setShowModal(true);
-      modalTimerRef.current = setTimeout(() => {
-        setShowModal(false);
-      }, 5000);
-    }
+const QswDesc = styled(Col)`
+  min-height: 3rem;
+  align-content: center;
+  font-size: 1.15rem;
+`;
 
-    return () => {
-      if (modalTimerRef.current) {
-        clearTimeout(modalTimerRef.current);
-      }
-    };
-  }, [locator.state?.isRoleAutoDetected]);
-
-  const qswFormDetails = useMemo(() => {
-    if (qswData !== undefined) {
-      return convertQswDetailsToModel(qswData, fromLoginPage ?? false);
-    }
-  }, [qswData, fromLoginPage]);
-
-  const update = (changedValues: Partial<QswModel>) => {
-    if (qswData !== undefined) {
-      const payload: UpdateQswDetails = {
-        qswSessionId: qswData.qswSessionId,
-      };
-
-      if (changedValues.primaryPass !== undefined || changedValues.primarySsid !== undefined) {
-        payload.primaryWifi = {
-          ssid: changedValues.primarySsid,
-          password: changedValues.primaryPass,
-          radioType: qswData.primaryWifi.radioType,
-        };
-      }
-
-      if (
-        qswData.guestWifi !== undefined &&
-        (changedValues.guestSsid !== undefined ||
-          changedValues.guestEnable !== undefined ||
-          changedValues.guestPass !== undefined)
-      ) {
-        payload.guestWifi = {
-          ssid: changedValues.guestSsid,
-          password: changedValues.guestPass,
-          enabled: changedValues.guestEnable,
-          radioType: qswData.guestWifi.radioType,
-        };
-      }
-
-      if (qswData.sixGhzWifi !== undefined && changedValues.sixGhzEnable !== undefined) {
-        payload.sixGhz = {
-          enabled: changedValues.sixGhzEnable,
-          radioType: qswData.sixGhzWifi.radioType,
-        };
-      }
-      updateQsw(payload);
-    }
-  };
-
-  const navigateToHome = () => navigate(RouteType.HOME, { mode: ContentMode.Basic });
-
-  useEffect(() => {
-    if (!isApplying) logShaEvent(shaEvents.qswPage);
-    //eslint-disable-next-line
-  }, []);
-
-  if (isError || isShowWarnPromptError) {
-    return fromLoginPage ? (
-      <Container fluid className="vh-100 overflow-auto loginPage--full--page--container d-flex justify-content-center">
-        <ErrorIndicator />
-      </Container>
-    ) : (
-      <ErrorIndicator />
-    );
-  }
-
-  if (qswFormDetails === undefined || qswData === undefined || showWarnPrompt === undefined) {
-    return fromLoginPage ? (
-      <Container fluid className="vh-100 overflow-auto loginPage--full--page--container">
-        <LoadingIndicator />
-      </Container>
-    ) : (
-      <LoadingIndicator />
-    );
-  }
-
+export const QswAutoDetectionBanner: React.FC<Props> = ({ canShowBanner, hideBanner }) => {
   return (
-    <>
-      <ModalInfo show={showModal} />
-      {fromLoginPage ? (
-        <Container fluid className="vh-100 overflow-auto loginPage--full--page--container">
-          <Topbar useContentFilter={false} showProfile={false} />
-          <Container className="loginpage--main--container d-flex">
-            <QswPageView
-              qswDetails={qswFormDetails}
-              updateValues={update}
-              showWarnModal={showWarnPrompt}
-              isApplying={isApplying}
-              fromLoginPage={fromLoginPage}
-              navigateToHome={navigateToHome}
-              isUpdateSuccess={isUpdateSuccess}
-              isUpdatedFailed={isUpdatedFailed}
-              navigateToLogin={logout}
-              provider={provider}
-            />
-          </Container>
-        </Container>
-      ) : (
-        <QswPageView
-          qswDetails={qswFormDetails}
-          updateValues={update}
-          showWarnModal={showWarnPrompt}
-          isApplying={isApplying}
-          fromLoginPage={fromLoginPage}
-          navigateToHome={navigateToHome}
-          isUpdateSuccess={isUpdateSuccess}
-          isUpdatedFailed={isUpdatedFailed}
-          navigateToLogin={logout}
-          provider={provider}
-        />
-      )}
-    </>
+    <QswAutoDetectBanner $show={canShowBanner}>
+      <Container className="d-flex" style={{ background: "#e3f2fd" }}>
+        <QswDesc className="col-11 h d-flex gap-2 align-items-center">
+          <InformationIcon />
+          We were able to auto-detect the Wi-Fi Access Point’s function.
+        </QswDesc>
+        <QswDesc className="col-1 text-end">
+          <NotificationCloseButton onClick={hideBanner} />
+        </QswDesc>
+      </Container>
+    </QswAutoDetectBanner>
   );
 };
+
+
+I want to add animations when the modal is visible and hidden 
+i tried adding it but it is not working 
