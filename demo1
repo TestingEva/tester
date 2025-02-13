@@ -1,57 +1,133 @@
-export const DeviceRolePage: React.FC = () => {
-  const { pageType, isRoleAutoDetected, setRole } = useDeviceRoleManager();
-  const invalidatePlatformInfo = useInvalidatePlatformInfo();
-  const navigator = useNavigator();
-  const { invoke: clearSession } = useClearSession();
-  
-  const [showLoading, setShowLoading] = useState(false);
-  const loadingTimerRef = useRef<NodeJS.Timeout | null>(null);
+const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
+  const { logShaEvent } = useEventLogger();
+  const provider = useMessageProvider();
+  const { data: qswData, isError } = useQswDetails();
+  const {
+    invoke: updateQsw,
+    isPending: isApplying,
+    isSuccess: isUpdateSuccess,
+    isError: isUpdatedFailed,
+  } = useUpdateQswDetails();
+  const { data: showWarnPrompt, isError: isShowWarnPromptError } = useWarnPromptsEnabled();
+  const { invoke: logout } = useClearSession();
+  const navigate = useNavigator();
+  const locator = useLocator();
+  console.log("first",locator.state)
 
-  const onLoginClick = async () => {
-    await clearSession();
-    invalidatePlatformInfo();
+  const qswFormDetails = useMemo(() => {
+    if (qswData !== undefined) {
+      return convertQswDetailsToModel(qswData, fromLoginPage ?? false);
+    }
+  }, [qswData, fromLoginPage]);
+
+  const update = (changedValues: Partial<QswModel>) => {
+    //Guest and Six Ghz network is not present in extender, in that case this will be undefined
+    if (qswData !== undefined) {
+      const payload: UpdateQswDetails = {
+        qswSessionId: qswData.qswSessionId,
+      };
+
+      if (changedValues.primaryPass !== undefined || changedValues.primarySsid !== undefined) {
+        payload.primaryWifi = {
+          ssid: changedValues.primarySsid,
+          password: changedValues.primaryPass,
+          radioType: qswData.primaryWifi.radioType,
+        };
+      }
+
+      if (
+        qswData.guestWifi !== undefined &&
+        (changedValues.guestSsid !== undefined ||
+          changedValues.guestEnable !== undefined ||
+          changedValues.guestPass !== undefined)
+      ) {
+        payload.guestWifi = {
+          ssid: changedValues.guestSsid,
+          password: changedValues.guestPass,
+          enabled: changedValues.guestEnable,
+          radioType: qswData.guestWifi.radioType,
+        };
+      }
+
+      if (qswData.sixGhzWifi !== undefined && changedValues.sixGhzEnable !== undefined) {
+        payload.sixGhz = {
+          enabled: changedValues.sixGhzEnable,
+          radioType: qswData.sixGhzWifi.radioType,
+        };
+      }
+      updateQsw(payload);
+    }
   };
 
-  useEffect(() => {
-    if (pageType === DeviceRoleFlow.Qsw) {
-      navigator(RouteType.QSW, {});
-      invalidatePlatformInfo();
-    }
-    //eslint-disable-next-line
-  }, [pageType]);
+  const navigateToHome = () => navigate(RouteType.HOME, { mode: ContentMode.Basic });
 
   useEffect(() => {
-    if (pageType === DeviceRoleFlow.Reboot) {
-      setShowLoading(true);
-      loadingTimerRef.current = setTimeout(() => {
-        setShowLoading(false);
-      }, 5000);
-    }
-    
-    return () => {
-      if (loadingTimerRef.current) {
-        clearTimeout(loadingTimerRef.current);
-      }
-    };
-  }, [pageType]);
+    if (!isApplying) logShaEvent(shaEvents.qswPage);
+    //eslint-disable-next-line
+  }, []);
+
+  if (isError || isShowWarnPromptError) {
+    return fromLoginPage ? (
+      <Container fluid className="vh-100 overflow-auto loginPage--full--page--container d-flex justify-content-center">
+        <ErrorIndicator />
+      </Container>
+    ) : (
+      <ErrorIndicator />
+    );
+  }
+
+  if (qswFormDetails === undefined || qswData === undefined || showWarnPrompt === undefined) {
+    return fromLoginPage ? (
+      <Container fluid className="vh-100 overflow-auto loginPage--full--page--container">
+        <LoadingIndicator />
+      </Container>
+    ) : (
+      <LoadingIndicator />
+    );
+  }
 
   return (
-    <Container fluid className="vh-100 overflow-auto loginPage--full--page--container justify-content-center">
-      <Topbar showProfile={false} useContentFilter={false} />
-      <DeviceRoleContainer>
-        {showLoading ? (
-          <LoadingIndicator />
-        ) : (
-          <>
-            <OptionalComponent show={pageType === DeviceRoleFlow.Selection}>
-              <DeviceRoleSelectionPageView role={PlatformRole.Unknown} onNextClick={setRole} />
-            </OptionalComponent>
-            <OptionalComponent show={pageType === DeviceRoleFlow.Reboot}>
-              <DeviceRoleRebootPageView isAutoDetected={isRoleAutoDetected} onLoginClick={onLoginClick} />
-            </OptionalComponent>
-          </>
-        )}
-      </DeviceRoleContainer>
-    </Container>
+    <>
+      {fromLoginPage ? (
+        <Container fluid className="vh-100 overflow-auto loginPage--full--page--container">
+          <Topbar useContentFilter={false} showProfile={false} />
+          <Container className="loginpage--main--container d-flex">
+            <QswPageView
+              qswDetails={qswFormDetails}
+              updateValues={update}
+              showWarnModal={showWarnPrompt}
+              isApplying={isApplying}
+              fromLoginPage={fromLoginPage}
+              navigateToHome={navigateToHome}
+              isUpdateSuccess={isUpdateSuccess}
+              isUpdatedFailed={isUpdatedFailed}
+              navigateToLogin={logout}
+              provider={provider}
+            />
+          </Container>
+        </Container>
+      ) : (
+        <QswPageView
+          qswDetails={qswFormDetails}
+          updateValues={update}
+          showWarnModal={showWarnPrompt}
+          isApplying={isApplying}
+          fromLoginPage={fromLoginPage}
+          navigateToHome={navigateToHome}
+          isUpdateSuccess={isUpdateSuccess}
+          isUpdatedFailed={isUpdatedFailed}
+          navigateToLogin={logout}
+          provider={provider}
+        />
+      )}
+    </>
   );
 };
+
+So I want to show a Modal Called as <ModalInfo/> when locator.state.isRoleAutoDetected is true 
+
+This modal should be visible for 5 sec and also after 5 sec it should move out 
+
+ModalInfo have a props known as show which is used to show and hide the modal 
+
+I want you to work on this make sure you use the best Approach possible 
