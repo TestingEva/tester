@@ -1,164 +1,38 @@
-type ScoreData = {
-  channel: number;
-  score: number;
-  alias: string;
-};
+\export const DeviceRolePage: React.FC = () => {
+  const { pageType, isRoleAutoDetected, setRole } = useDeviceRoleManager();
+  const invalidatePlatformInfo = useInvalidatePlatformInfo();
+  const navigator = useNavigator();
+  const { invoke: clearSession } = useClearSession();
 
-function removeDuplicatesAndFilter(data: ScoreData[]): ScoreData[] {
-  const seen = new Set<string>();
+  const onLoginClick = async () => {
+    await clearSession();
+    invalidatePlatformInfo();
+  };
 
-  return data.filter(({ channel, score, alias }) => {
-    if (score < 0) return false;
-    
-    const key = `${channel}-${score}-${alias}`;
-    if (seen.has(key)) return false;
-
-    seen.add(key);
-    return true;
-  });
-}
-
-const filteredData = removeDuplicatesAndFilter(data);
-console.log(filteredData);
-
-
-
-function removeDuplicatesAndFilter(data: ScoreData[]): ScoreData[] {
-  return data.reduce((acc, item) => {
-    if (item.score < 0) return acc;
-
-    const key = `${item.channel}-${item.score}-${item.alias}`;
-    if (!acc.some(entry => `${entry.channel}-${entry.score}-${entry.alias}` === key)) {
-      acc.push(item);
+  useEffect(() => {
+    if (pageType === DeviceRoleFlow.Qsw) {
+      navigator(RouteType.QSW, {});
+      invalidatePlatformInfo();
     }
-    
-    return acc;
-  }, [] as ScoreData[]);
-}
+    //eslint-disable-next-line
+  }, [pageType]);
 
-const filteredData = removeDuplicatesAndFilter(data);
-console.log(filteredData);
+  // pagetype - reboot , start 5 sec timer (showing Loading Indicator) - navigate to reboot
 
-
-data = [
-    {
-        "channel": 1,
-        "score": 0,
-        "alias": "WLAN_24G"
-    },
-    {
-        "channel": 6,
-        "score": 1,
-        "alias": "WLAN_24G"
-    },
-    {
-        "channel": 11,
-        "score": 0,
-        "alias": "WLAN_24G"
-    },
-    {
-        "channel": 36,
-        "score": 7,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 52,
-        "score": 8,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 52,
-        "score": 8,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 100,
-        "score": 7,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 120,
-        "score": 10,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 132,
-        "score": 8,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 149,
-        "score": 7,
-        "alias": "WLAN_5G"
-    },
-    {
-        "channel": 37,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 69,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 101,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 133,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 181,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 197,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 197,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-    {
-        "channel": 197,
-        "score": 10,
-        "alias": "WLAN_6G"
-    }
-]
-
-the above data is of type 
-type ScoreData = {
-  channel: number;
-  score: number;
-  alias: string;
+  return (
+    <Container fluid className="vh-100 overflow-auto loginPage--full--page--container justify-content-center">
+      <Topbar showProfile={false} useContentFilter={false} />
+      <DeviceRoleContainer>
+        <OptionalComponent show={pageType === DeviceRoleFlow.Selection}>
+          <DeviceRoleSelectionPageView role={PlatformRole.Unknown} onNextClick={setRole} />
+        </OptionalComponent>
+        <OptionalComponent show={pageType === DeviceRoleFlow.Reboot}>
+          <DeviceRoleRebootPageView isAutoDetected={isRoleAutoDetected} onLoginClick={onLoginClick} />
+        </OptionalComponent>
+      </DeviceRoleContainer>
+    </Container>
+  );
 };
 
 
-now i want you to write a function which takes the above data as input and removes the duplicates also if the score of any data is less than 0 filter that out 
-
-for example in this case it should remove 
-
-{
-        "channel": 197,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
-{
-        "channel": 197,
-        "score": 10,
-        "alias": "WLAN_6G"
-    },
- {
-        "channel": 52,
-        "score": 8,
-        "alias": "WLAN_5G"
-    },
-
-and return the array 
+I want to show the <LoadingIndicator/> when the pageType is Reboot and I also want to show this Loading container only for 5 sec (useRef must be used )
