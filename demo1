@@ -1,21 +1,47 @@
 import { Col, Container } from "react-bootstrap";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { ReactComponent as InformationIcon } from "../../../../assets/images/Information.svg";
 import { NotificationCloseButton } from "../../home/styles";
+
 type Props = {
   canShowBanner: boolean;
   hideBanner: () => void;
 };
 
+// Keyframes for smooth fade-in and slide-down animation
+const fadeInSlideDown = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+`;
+
+const fadeOutSlideUp = keyframes`
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+`;
+
+// Styled Container with animation
 const QswAutoDetectBanner = styled(Container)<{ $show: boolean }>`
   display: flex;
   flex-direction: column;
   flex: 1;
-  overflow: auto;
-  ${(props) =>
-    props.$show
-      ? { maxHeight: "5rem !important", transition: "0.1s ease-in" }
-      : { height: "0", transition: "0.1s ease-in " }};
+  overflow: hidden;
+  max-height: ${(props) => (props.$show ? "5rem" : "0")};
+  opacity: ${(props) => (props.$show ? 1 : 0)};
+  transform: ${(props) => (props.$show ? "translateY(0)" : "translateY(-20px)")};
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+  animation: ${(props) => (props.$show ? fadeInSlideDown : fadeOutSlideUp)} 0.3s ease-in-out;
 `;
 
 const QswDesc = styled(Col)`
@@ -39,7 +65,3 @@ export const QswAutoDetectionBanner: React.FC<Props> = ({ canShowBanner, hideBan
     </QswAutoDetectBanner>
   );
 };
-
-
-I want to add animations when the modal is visible and hidden 
-i tried adding it but it is not working 
