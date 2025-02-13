@@ -1,8 +1,11 @@
-\export const DeviceRolePage: React.FC = () => {
+export const DeviceRolePage: React.FC = () => {
   const { pageType, isRoleAutoDetected, setRole } = useDeviceRoleManager();
   const invalidatePlatformInfo = useInvalidatePlatformInfo();
   const navigator = useNavigator();
   const { invoke: clearSession } = useClearSession();
+  
+  const [showLoading, setShowLoading] = useState(false);
+  const loadingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const onLoginClick = async () => {
     await clearSession();
@@ -17,22 +20,38 @@
     //eslint-disable-next-line
   }, [pageType]);
 
-  // pagetype - reboot , start 5 sec timer (showing Loading Indicator) - navigate to reboot
+  useEffect(() => {
+    if (pageType === DeviceRoleFlow.Reboot) {
+      setShowLoading(true);
+      loadingTimerRef.current = setTimeout(() => {
+        setShowLoading(false);
+      }, 5000);
+    }
+    
+    return () => {
+      if (loadingTimerRef.current) {
+        clearTimeout(loadingTimerRef.current);
+      }
+    };
+  }, [pageType]);
 
   return (
     <Container fluid className="vh-100 overflow-auto loginPage--full--page--container justify-content-center">
       <Topbar showProfile={false} useContentFilter={false} />
       <DeviceRoleContainer>
-        <OptionalComponent show={pageType === DeviceRoleFlow.Selection}>
-          <DeviceRoleSelectionPageView role={PlatformRole.Unknown} onNextClick={setRole} />
-        </OptionalComponent>
-        <OptionalComponent show={pageType === DeviceRoleFlow.Reboot}>
-          <DeviceRoleRebootPageView isAutoDetected={isRoleAutoDetected} onLoginClick={onLoginClick} />
-        </OptionalComponent>
+        {showLoading ? (
+          <LoadingIndicator />
+        ) : (
+          <>
+            <OptionalComponent show={pageType === DeviceRoleFlow.Selection}>
+              <DeviceRoleSelectionPageView role={PlatformRole.Unknown} onNextClick={setRole} />
+            </OptionalComponent>
+            <OptionalComponent show={pageType === DeviceRoleFlow.Reboot}>
+              <DeviceRoleRebootPageView isAutoDetected={isRoleAutoDetected} onLoginClick={onLoginClick} />
+            </OptionalComponent>
+          </>
+        )}
       </DeviceRoleContainer>
     </Container>
   );
 };
-
-
-I want to show the <LoadingIndicator/> when the pageType is Reboot and I also want to show this Loading container only for 5 sec (useRef must be used )
