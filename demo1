@@ -1,4 +1,4 @@
-const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
+export const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
   const { logShaEvent } = useEventLogger();
   const provider = useMessageProvider();
   const { data: qswData, isError } = useQswDetails();
@@ -12,7 +12,24 @@ const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
   const { invoke: logout } = useClearSession();
   const navigate = useNavigator();
   const locator = useLocator();
-  console.log("first",locator.state)
+
+  const [showModal, setShowModal] = useState(false);
+  const modalTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (locator.state?.isRoleAutoDetected) {
+      setShowModal(true);
+      modalTimerRef.current = setTimeout(() => {
+        setShowModal(false);
+      }, 5000);
+    }
+
+    return () => {
+      if (modalTimerRef.current) {
+        clearTimeout(modalTimerRef.current);
+      }
+    };
+  }, [locator.state?.isRoleAutoDetected]);
 
   const qswFormDetails = useMemo(() => {
     if (qswData !== undefined) {
@@ -21,7 +38,6 @@ const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
   }, [qswData, fromLoginPage]);
 
   const update = (changedValues: Partial<QswModel>) => {
-    //Guest and Six Ghz network is not present in extender, in that case this will be undefined
     if (qswData !== undefined) {
       const payload: UpdateQswDetails = {
         qswSessionId: qswData.qswSessionId,
@@ -88,6 +104,7 @@ const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
 
   return (
     <>
+      <ModalInfo show={showModal} />
       {fromLoginPage ? (
         <Container fluid className="vh-100 overflow-auto loginPage--full--page--container">
           <Topbar useContentFilter={false} showProfile={false} />
@@ -123,11 +140,3 @@ const QswPage: React.FC<{ fromLoginPage?: boolean }> = ({ fromLoginPage }) => {
     </>
   );
 };
-
-So I want to show a Modal Called as <ModalInfo/> when locator.state.isRoleAutoDetected is true 
-
-This modal should be visible for 5 sec and also after 5 sec it should move out 
-
-ModalInfo have a props known as show which is used to show and hide the modal 
-
-I want you to work on this make sure you use the best Approach possible 
