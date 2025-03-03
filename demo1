@@ -1,67 +1,1573 @@
-import { Col, Container } from "react-bootstrap";
-import styled, { keyframes } from "styled-components";
-import { ReactComponent as InformationIcon } from "../../../../assets/images/Information.svg";
-import { NotificationCloseButton } from "../../home/styles";
+import { useEffect, useMemo, useState } from "react";
+import { Col } from "react-bootstrap";
+import { MSG_SIDEBAR_NETWORK_DEVICES } from "../../../domain/messages/message_keys";
+import { useMessageProvider } from "../../../domain/misc/hooks";
+import { ContentMode, NavDest, NavDestWithData, NavGroup, NavMenuItem, RouteType } from "../../../domain/misc/models";
+import { Path } from "../../../domain/path";
+import { OptionalComponent } from "../OptionalComponent";
+import { VZDropdown } from "../vz-dropdown/VZDropdown";
+import { CountNumber, MenuItem } from "./Styles";
 
-type Props = {
-  canShowBanner: boolean;
-  hideBanner: () => void;
+type NavGroupItemProps = {
+  model: NavGroup;
+  subItemFilter: (item: NavMenuItem) => boolean;
+  selectedRoute: Path;
+  onMenuClick: (routeType: RouteType, contentMode: ContentMode) => void;
+  contentMode: ContentMode;
 };
 
-// Keyframes for smooth fade-in and slide-down animation
-const fadeInSlideDown = keyframes`
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
+const NavGroupMenuItem: React.FC<NavGroupItemProps> = (props) => {
+  const [expanded, setExpanded] = useState(false);
+  const selectedSubItemModel = useMemo(
+    () => props.model.items.find((e) => props.selectedRoute.startsWith(e.pathObj)),
+    // eslint-disable-next-line
+    [props.selectedRoute]
+  );
 
-const fadeOutSlideUp = keyframes`
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-`;
+  const subItems = useMemo(
+    () => props.model.items.filter(props.subItemFilter),
+    [props.model.items, props.subItemFilter]
+  );
 
-// Styled Container with animation
-const QswAutoDetectBanner = styled(Container)<{ $show: boolean }>`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-  max-height: ${(props) => (props.$show ? "5rem" : "0")};
-  opacity: ${(props) => (props.$show ? 1 : 0)};
-  transform: ${(props) => (props.$show ? "translateY(0)" : "translateY(-20px)")};
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
-  animation: ${(props) => (props.$show ? fadeInSlideDown : fadeOutSlideUp)} 0.3s ease-in-out;
-`;
+  useEffect(() => {
+    if (selectedSubItemModel !== undefined) {
+      setExpanded(true);
+    }
+  }, [selectedSubItemModel]);
 
-const QswDesc = styled(Col)`
-  min-height: 3rem;
-  align-content: center;
-  font-size: 1.15rem;
-`;
-
-export const QswAutoDetectionBanner: React.FC<Props> = ({ canShowBanner, hideBanner }) => {
   return (
-    <QswAutoDetectBanner $show={canShowBanner}>
-      <Container className="d-flex" style={{ background: "#e3f2fd" }}>
-        <QswDesc className="col-11 h d-flex gap-2 align-items-center">
-          <InformationIcon />
-          We were able to auto-detect the Wi-Fi Access Point’s function.
-        </QswDesc>
-        <QswDesc className="col-1 text-end">
-          <NotificationCloseButton onClick={hideBanner} />
-        </QswDesc>
-      </Container>
-    </QswAutoDetectBanner>
+    <>
+      <MenuItem
+        $selected={false}
+        $header={true}
+        onClick={(_) => setExpanded((curr) => !curr)}
+        data-testid={`sidebar-groupItem-click-${props.model.label}`}
+        id={`sidebar-groupItem-click-${props.model.label}`}
+      >
+        <>{props.model.label}</>
+        <i
+          className={`icon icon--arrow side--bar--menu __${expanded ? "opened" : "closed"}`}
+          data-testid={`showMoreIcon-${props.model.label}`}
+          id={`showMoreIcon-${props.model.label}`}
+        />
+      </MenuItem>
+      <OptionalComponent show={expanded}>
+        {subItems.map((model, index) => (
+          <NavDestItem
+            index={index}
+            key={`${model.label}-${props.contentMode}`}
+            item={model}
+            selected={model.equals(selectedSubItemModel)}
+            onClick={props.onMenuClick}
+          />
+        ))}
+      </OptionalComponent>
+    </>
   );
 };
+
+type NavDestItemProps = {
+  index: number;
+  selected: boolean;
+  item: NavDest;
+  onClick: (routeType: RouteType, contentMode: ContentMode) => void;
+};
+
+const NavDestItem: React.FC<NavDestItemProps> = (props) => {
+  if (props.item instanceof NavDestWithData) {
+    return (
+      <MenuItem
+        $selected={props.selected}
+        $header={false}
+        onClick={() => props.onClick(props.item.type, props.item.contentMode)}
+        data-testid={`sidebar-page-label-${props.item.label}`}
+        id={`sidebar-page-label-${props.item.label}`}
+      >
+        <>{props.item.label}</>
+        <CountNumber>{props.item.data}</CountNumber>
+      </MenuItem>
+    );
+  } else {
+    return (
+      <MenuItem
+        $selected={props.selected}
+        $header={false}
+        onClick={() => props.onClick(props.item.type, props.item.contentMode)}
+        data-testid={`sidebar-page-label-${props.item.label}`}
+        id={`sidebar-page-label-${props.item.label}`}
+      >
+        <>{props.item.label}</>
+      </MenuItem>
+    );
+  }
+};
+
+type SidebarViewProps = {
+  navItems: NavMenuItem[];
+  contentMode: ContentMode;
+  onNavItemClick: (routeType: RouteType, contentMode: ContentMode) => void;
+  path: Path;
+  currentDeviceIndex: number;
+  deviceOptions: string[];
+  onDeviceSelect: (idx: number) => void;
+};
+
+export const SideBarView: React.FC<SidebarViewProps> = (props) => {
+  const provider = useMessageProvider();
+
+  return (
+    <Col className="h-100 side--bar--container">
+      <div className="side--bar--network--devices--section">
+        <div className="d-flex flex-column flex-grow-1">
+          <div className="side--bar--title pb-2">{provider(MSG_SIDEBAR_NETWORK_DEVICES)}</div>
+          <VZDropdown
+            data-testid="sidebar-dropdown"
+            selectedItem={props.deviceOptions[props.currentDeviceIndex]}
+            options={props.deviceOptions}
+            onSelect={(_, index) => props.onDeviceSelect(index)}
+            getOptionAsString={(s) => s}
+            useDeepEqual
+            selectedTextStyle={{ paddingLeft: "0.75rem" }}
+          />
+        </div>
+      </div>
+      <Col className="side--bar--menu--section">
+        {filterItemsForContentType(props.navItems, props.contentMode)
+          .filter((e) => e instanceof NavGroup || e instanceof NavDest)
+          .map((model, index) => {
+            if (model instanceof NavGroup) {
+              return (
+                <NavGroupMenuItem
+                  key={`${model.label}-${props.contentMode}`}
+                  model={model}
+                  selectedRoute={props.path}
+                  subItemFilter={(e) => {
+                    if (props.contentMode === ContentMode.None) {
+                      return e.contentMode === props.contentMode || e.contentMode === ContentMode.Basic;
+                    }
+                    return e.contentMode === props.contentMode;
+                  }}
+                  onMenuClick={props.onNavItemClick}
+                  contentMode={props.contentMode}
+                  data-testid={`sidebar-labelClick-${index}`}
+                />
+              );
+            } else if (model instanceof NavDest) {
+              return (
+                <MenuItem
+                  key={`${model.path}-${props.contentMode}`}
+                  $selected={props.path.startsWith(model.pathObj)}
+                  $header={true}
+                  onClick={() => props.onNavItemClick(model.type, model.contentMode)}
+                  children={<>{model.label}</>}
+                  data-testid={`sidebar-labelClick-${index}`}
+                />
+              );
+            }
+            return <></>;
+          })}
+      </Col>
+    </Col>
+  );
+};
+
+function filterItemsForContentType(items: NavMenuItem[], mode: ContentMode): NavMenuItem[] {
+  if (mode === ContentMode.Basic || mode === ContentMode.None) {
+    return items.filter((e) => e.contentMode === mode || e.contentMode === ContentMode.Basic);
+  } else {
+    // Advanced items should include basic items
+    return (
+      items
+        .filter((e) => e.contentMode !== ContentMode.None)
+        //filter out 'basic' NavDest items
+        .filter((e) => e instanceof NavGroup || (e instanceof NavDest && e.contentMode === ContentMode.Advanced))
+    );
+  }
+}
+
+
+Hi I have the above sidebar in which i need to implement Asseccblity features 
+
+props object recived is 
+
+{
+    "navItems": [
+        {
+            "label": "Home",
+            "contentMode": 0,
+            "type": 2,
+            "path": "/basic/home",
+            "pathObj": {
+                "components": [
+                    {
+                        "type": "Path",
+                        "value": "basic"
+                    },
+                    {
+                        "type": "Path",
+                        "value": "home"
+                    }
+                ],
+                "queries": {},
+                "isRelative": true
+            }
+        },
+        {
+            "label": "Home",
+            "contentMode": 1,
+            "type": 2,
+            "path": "/adv/home",
+            "pathObj": {
+                "components": [
+                    {
+                        "type": "Path",
+                        "value": "adv"
+                    },
+                    {
+                        "type": "Path",
+                        "value": "home"
+                    }
+                ],
+                "queries": {},
+                "isRelative": true
+            }
+        },
+        {
+            "label": "Wi-Fi",
+            "contentMode": 0,
+            "items": [
+                {
+                    "label": "Primary network",
+                    "contentMode": 0,
+                    "type": 8,
+                    "path": "/basic/wifi/primary",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "primary"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Primary network",
+                    "contentMode": 1,
+                    "type": 8,
+                    "path": "/adv/wifi/primary",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "primary"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Guest network",
+                    "contentMode": 0,
+                    "type": 9,
+                    "path": "/basic/wifi/guest",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "guest"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Guest network",
+                    "contentMode": 1,
+                    "type": 9,
+                    "path": "/adv/wifi/guest",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "guest"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "IoT network",
+                    "contentMode": 0,
+                    "type": 10,
+                    "path": "/basic/wifi/iot",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "iot"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "IoT network",
+                    "contentMode": 1,
+                    "type": 10,
+                    "path": "/adv/wifi/iot",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "iot"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Wi-Fi Protected Setup",
+                    "contentMode": 0,
+                    "type": 11,
+                    "path": "/basic/wifi/wps",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wps"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Wi-Fi Protected Setup",
+                    "contentMode": 1,
+                    "type": 11,
+                    "path": "/adv/wifi/wps",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wps"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Radio management",
+                    "contentMode": 1,
+                    "type": 12,
+                    "path": "/adv/wifi/channel/settings",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "wifi"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "channel"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "settings"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Devices",
+            "contentMode": 0,
+            "items": [
+                {
+                    "label": "Devices",
+                    "contentMode": 0,
+                    "type": 14,
+                    "path": "/basic/devices/list",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "devices"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "list"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    },
+                    "data": 2
+                },
+                {
+                    "label": "Parental controls",
+                    "contentMode": 0,
+                    "type": 16,
+                    "path": "/basic/devices/parental",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "devices"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "parental"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    },
+                    "data": 1
+                },
+                {
+                    "label": "Devices",
+                    "contentMode": 1,
+                    "type": 14,
+                    "path": "/adv/devices/list",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "devices"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "list"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    },
+                    "data": 2
+                },
+                {
+                    "label": "Parental controls",
+                    "contentMode": 1,
+                    "type": 16,
+                    "path": "/adv/devices/parental",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "devices"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "parental"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    },
+                    "data": 1
+                },
+                {
+                    "label": "Universal plug & play",
+                    "contentMode": 1,
+                    "type": 19,
+                    "path": "/adv/devices/upnp",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "devices"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "upnp"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Security & firewall",
+            "contentMode": 1,
+            "items": [
+                {
+                    "label": "General",
+                    "contentMode": 1,
+                    "type": 21,
+                    "path": "/adv/firewall/general",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "general"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Access control",
+                    "contentMode": 1,
+                    "type": 22,
+                    "path": "/adv/firewall/acl",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "acl"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "DMZ host",
+                    "contentMode": 1,
+                    "type": 23,
+                    "path": "/adv/firewall/dmzhost",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "dmzhost"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "IPv6 pinholes",
+                    "contentMode": 1,
+                    "type": 24,
+                    "path": "/adv/firewall/pinholes",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "pinholes"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Port forwarding",
+                    "contentMode": 1,
+                    "type": 25,
+                    "path": "/adv/firewall/portforward",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "portforward"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Port forwarding rules",
+                    "contentMode": 1,
+                    "type": 26,
+                    "path": "/adv/firewall/portrules",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "portrules"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Port triggering",
+                    "contentMode": 1,
+                    "type": 29,
+                    "path": "/adv/firewall/porttrigger",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "porttrigger"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Scheduler rules",
+                    "contentMode": 1,
+                    "type": 30,
+                    "path": "/adv/firewall/schedules",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "schedules"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "SIP ALG",
+                    "contentMode": 1,
+                    "type": 33,
+                    "path": "/adv/firewall/sipalg",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "firewall"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "sipalg"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Network settings",
+            "contentMode": 1,
+            "items": [
+                {
+                    "label": "ARP table",
+                    "contentMode": 1,
+                    "type": 34,
+                    "path": "/adv/network/arp",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "arp"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "DNS server",
+                    "contentMode": 1,
+                    "type": 35,
+                    "path": "/adv/network/dnsserver",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "dnsserver"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Dynamic DNS",
+                    "contentMode": 1,
+                    "type": 39,
+                    "path": "/adv/network/ddns",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "ddns"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "IPv4 address distribution",
+                    "contentMode": 1,
+                    "type": 40,
+                    "path": "/adv/network/ipv4distribution",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "ipv4distribution"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "IPv6",
+                    "contentMode": 1,
+                    "type": 44,
+                    "path": "/adv/network/ipv6",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "ipv6"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "IPv6 address distribution",
+                    "contentMode": 1,
+                    "type": 45,
+                    "path": "/adv/network/ipv6distribution",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "ipv6distribution"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "NDP table",
+                    "contentMode": 1,
+                    "type": 48,
+                    "path": "/adv/network/ndp",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "ndp"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Network connections",
+                    "contentMode": 1,
+                    "type": 49,
+                    "path": "/adv/network/networkconnections",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "networkconnections"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Network objects",
+                    "contentMode": 1,
+                    "type": 58,
+                    "path": "/adv/network/networkobjects",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "networkobjects"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Routing",
+                    "contentMode": 1,
+                    "type": 60,
+                    "path": "/adv/network/routing",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "routing"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Port configuration",
+                    "contentMode": 1,
+                    "type": 59,
+                    "path": "/adv/network/portconf",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "portconf"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Static NAT",
+                    "contentMode": 1,
+                    "type": 61,
+                    "path": "/adv/network/staticnat",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "network"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "staticnat"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Diagnostics & monitoring",
+            "contentMode": 1,
+            "items": [
+                {
+                    "label": "Bandwidth monitoring",
+                    "contentMode": 1,
+                    "type": 62,
+                    "path": "/adv/monitoring/bandwidth",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "monitoring"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "bandwidth"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Diagnostics",
+                    "contentMode": 1,
+                    "type": 63,
+                    "path": "/adv/monitoring/diagnostics",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "monitoring"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "diagnostics"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "System logging",
+                    "contentMode": 1,
+                    "type": 64,
+                    "path": "/adv/monitoring/log/:id",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "monitoring"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "log"
+                            },
+                            {
+                                "type": "Variable",
+                                "key": "id"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "System-wide connections",
+                    "contentMode": 1,
+                    "type": 65,
+                    "path": "/adv/monitoring/fullstatus",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "monitoring"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "fullstatus"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Backhaul logging",
+                    "contentMode": 1,
+                    "type": 66,
+                    "path": "/adv/monitoring/bhlog",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "monitoring"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "bhlog"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                }
+            ]
+        },
+        {
+            "label": "System",
+            "contentMode": 0,
+            "items": [
+                {
+                    "label": "System status",
+                    "contentMode": 0,
+                    "type": 67,
+                    "path": "/basic/system/status",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "status"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Open source software",
+                    "contentMode": 0,
+                    "type": 69,
+                    "path": "/basic/system/opensource",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "basic"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "opensource"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "System status",
+                    "contentMode": 1,
+                    "type": 67,
+                    "path": "/adv/system/status",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "status"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Date & time",
+                    "contentMode": 1,
+                    "type": 70,
+                    "path": "/adv/system/datetime",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "datetime"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Factory reset",
+                    "contentMode": 1,
+                    "type": 71,
+                    "path": "/adv/system/saverestore",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "saverestore"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "LED brightness",
+                    "contentMode": 1,
+                    "type": 73,
+                    "path": "/adv/system/brightness",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "brightness"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Open source software",
+                    "contentMode": 1,
+                    "type": 69,
+                    "path": "/adv/system/opensource",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "opensource"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Quick setup wizard",
+                    "contentMode": 1,
+                    "type": 4,
+                    "path": "/adv/system/setup",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "setup"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Reboot device",
+                    "contentMode": 1,
+                    "type": 74,
+                    "path": "/adv/system/reboot",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "reboot"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "Remote administration",
+                    "contentMode": 1,
+                    "type": 75,
+                    "path": "/adv/system/remoteadmin",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "remoteadmin"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                },
+                {
+                    "label": "System settings",
+                    "contentMode": 1,
+                    "type": 76,
+                    "path": "/adv/system/system",
+                    "pathObj": {
+                        "components": [
+                            {
+                                "type": "Path",
+                                "value": "adv"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            },
+                            {
+                                "type": "Path",
+                                "value": "system"
+                            }
+                        ],
+                        "queries": {},
+                        "isRelative": true
+                    }
+                }
+            ]
+        }
+    ],
+    "contentMode": 0,
+    "path": {
+        "components": [
+            {
+                "type": "Path",
+                "value": "basic"
+            },
+            {
+                "type": "Path",
+                "value": "home"
+            }
+        ],
+        "queries": {},
+        "isRelative": true
+    },
+    "currentDeviceIndex": 0,
+    "deviceOptions": [
+        "CHR30A-R",
+        "CHR30A-E"
+    ]
+}
+
+Could you please help me achieve this 
+
+below are the styled components for the same 
+
+import styled from "styled-components";
+
+const selectedMenuStyle = {
+  "border-left": "4px solid #d52b1e",
+  "padding-left": "26px",
+};
+
+const selectedHeader = {
+  "padding-left": "16px",
+};
+
+const headerMenuStyle = {
+  "font-family": '"vzHBold", sans-serif;',
+  "padding-left": "20px",
+};
+
+export const MenuItem = styled.div<{ $selected: boolean; $header: boolean }>`
+  height: 32px;
+  padding: 0 20px;
+  margin: 10px 0px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: "vzHReg", sans-serif;
+  padding-left: 30px;
+  ${(props) => props.$selected && selectedMenuStyle};
+  ${(props) => props.$header && headerMenuStyle};
+  ${(props) => props.$header && props.$selected && selectedHeader};
+`;
+
+export const CountNumber = styled.div`
+  font-size: 16px;
+  font-family: "vzHBold", sans-serif;
+`;
+
+
+
+
