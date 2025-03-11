@@ -1,57 +1,47 @@
-const fs = require("fs");
 const path = require("path");
-const esbuild = require("esbuild");
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const glob = require("glob");
 
-const buildDir = path.join(__dirname, "build");
-if (!fs.existsSync(buildDir)) {
-    console.log("Building the React app...");
-    require("child_process").execSync("npm run build", { stdio: "inherit" });
-}
+module.exports = {
+  entry: {
+    "bundle.js": glob.sync("build/static/?(js|css)/main.*.?(js|css)").map((f) => path.resolve(__dirname, f)),
+  },
+  output: {
+    filename: "build/static/js/bundle.js",
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.scss$/,
+        use: ["style-loader", "sass-loader"],
+      },
+    ],
+  },
+  plugins: [new UglifyJsPlugin(), new HtmlWebpackPlugin()],
+};
 
-// Detect and bundle the correct JavaScript file
-const jsDir = path.join(buildDir, "static/js");
-const jsFiles = fs.readdirSync(jsDir).filter(file => file.endsWith(".js"));
-if (jsFiles.length === 0) {
-    console.error("❌ No JavaScript files found. Exiting.");
-    process.exit(1);
-}
-const mainJsFile = path.join(jsDir, jsFiles[0]);
 
-console.log("Bundling JavaScript...");
-esbuild.buildSync({
-    entryPoints: [mainJsFile],
-    bundle: true,
-    minify: true,
-    outfile: path.join(__dirname, "dist", "app.min.js"),
-});
+See I used this to convert all the files 
 
-const jsContent = fs.readFileSync(path.join(__dirname, "dist", "app.min.js"), "utf-8");
+then i created a index.html file 
 
-// Inline CSS
-console.log("Inlining CSS...");
-const cssDir = path.join(buildDir, "static/css");
-const cssFiles = fs.readdirSync(cssDir).filter(file => file.endsWith(".css"));
-let cssContent = "";
-cssFiles.forEach(file => {
-    cssContent += fs.readFileSync(path.join(cssDir, file), "utf-8");
-});
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width= , initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/main.aaba6ead.css" />
+    <script defer="defer" src="./js/main.f0c83256.js"></script>
+  </head>
+  <body id="root"></body>
+</html>
 
-// Modify HTML for standalone mode
-console.log("Creating single-file.html...");
-let htmlContent = fs.readFileSync(path.join(buildDir, "index.html"), "utf-8");
 
-// Fix base paths for standalone mode
-htmlContent = htmlContent
-    .replace(/<link[^>]+href="\/static\/css\/[^"]+"[^>]*>/, `<style>${cssContent}</style>`)
-    .replace(/<script[^>]+src="\/static\/js\/[^"]+"[^>]*><\/script>/, `<script>${jsContent}</script>`)
-    .replace(/<base href="\/" \/>/, "") // Remove base href if present
-    .replace(/<script>window\.__REACT_DEVTOOLS_GLOBAL_HOOK__.*?<\/script>/gs, ""); // Remove DevTools injection
-
-// Save final HTML file
-const outputDir = path.join(__dirname, "dist");
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
-
-fs.writeFileSync(path.join(outputDir, "single-file.html"), htmlContent);
-
-console.log("✅ Single HTML file created: dist/single-file.html");
-console.log("🔥 Open in browser: file://" + path.join(outputDir, "single-file.html"));
+but now the main thing is I want to load my assests too 
+after building my assests are stored in media folder
