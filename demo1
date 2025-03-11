@@ -1,4 +1,4 @@
-MISSU3L@GCJX93HK0V crsp-webui % npm i html-inline-assets-webpack-plugin --save-dev
+MISSU3L@GCJX93HK0V crsp-webui % npm i copy-webpack-plugin
 npm ERR! code ERESOLVE
 npm ERR! ERESOLVE could not resolve
 npm ERR! 
@@ -16,7 +16,7 @@ npm ERR!     @webpack-cli/configtest@"^3.0.1" from webpack-cli@6.0.1
 npm ERR!     node_modules/webpack-cli
 npm ERR!       peer webpack-cli@"6.x.x" from @webpack-cli/configtest@3.0.1
 npm ERR!       3 more (@webpack-cli/info, @webpack-cli/serve, the root project)
-npm ERR!   24 more (@webpack-cli/info, @webpack-cli/serve, babel-loader, ...)
+npm ERR!   25 more (@webpack-cli/info, @webpack-cli/serve, babel-loader, ...)
 npm ERR! 
 npm ERR! Could not resolve dependency:
 npm ERR! peer webpack@"^4.0.0" from uglifyjs-webpack-plugin@2.2.0
@@ -35,12 +35,10 @@ npm ERR! to accept an incorrect (and potentially broken) dependency resolution.
 npm ERR! 
 npm ERR! 
 npm ERR! For a full report see:
-npm ERR! /Users/MISSU3L/.npm/_logs/2025-03-11T10_16_04_840Z-eresolve-report.txt
+npm ERR! /Users/MISSU3L/.npm/_logs/2025-03-11T10_18_03_748Z-eresolve-report.txt
 
-npm ERR! A complete log of this run can be found in: /Users/MISSU3L/.npm/_logs/2025-03-11T10_16_04_840Z-debug-0.log
+npm ERR! A complete log of this run can be found in: /Users/MISSU3L/.npm/_logs/2025-03-11T10_18_03_748Z-debug-0.log
 MISSU3L@GCJX93HK0V crsp-webui % 
-
-see my assests files are not large maximus 100KB but they are in good quantity 
 
 
 
