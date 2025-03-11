@@ -1,45 +1,34 @@
-const fs = require("fs");
-const path = require("path");
-const esbuild = require("esbuild");
+Bundling JavaScript...
+✘ [ERROR] Could not resolve "/Users/MISSU3L/Desktop/crsp-webui/build/static/js/main.js"
 
-// Step 1: Build the React App
-const buildDir = path.join(__dirname, "build");
-if (!fs.existsSync(buildDir)) {
-    console.log("Building the React app...");
-    require("child_process").execSync("npm run build", { stdio: "inherit" });
+/Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:2150
+      throw reject;
+      ^
+
+Error: Build failed with 1 error:
+error: Could not resolve "/Users/MISSU3L/Desktop/crsp-webui/build/static/js/main.js"
+    at failureErrorWithLog (/Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:1477:15)
+    at /Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:946:25
+    at /Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:898:52
+    at buildResponseToResult (/Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:944:7)
+    at /Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:971:16
+    at responseCallbacks.<computed> (/Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:623:9)
+    at handleIncomingPacket (/Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:678:12)
+    at Socket.readFromStdout (/Users/MISSU3L/Desktop/crsp-webui/node_modules/esbuild/lib/main.js:601:7)
+    at Socket.emit (node:events:518:28)
+    at addChunk (node:internal/streams/readable:559:12) {
+  errors: [
+    {
+      detail: undefined,
+      id: '',
+      location: null,
+      notes: [],
+      pluginName: '',
+      text: 'Could not resolve "/Users/MISSU3L/Desktop/crsp-webui/build/static/js/main.js"'
+    }
+  ],
+  warnings: []
 }
 
-// Step 2: Minify and Bundle JavaScript
-console.log("Bundling JavaScript...");
-esbuild.buildSync({
-    entryPoints: [path.join(buildDir, "static/js/main.js")],
-    bundle: true,
-    minify: true,
-    outfile: path.join(__dirname, "dist", "app.min.js"),
-});
-
-const jsContent = fs.readFileSync(path.join(__dirname, "dist", "app.min.js"), "utf-8");
-
-// Step 3: Inline CSS
-console.log("Inlining CSS...");
-const cssFiles = fs.readdirSync(path.join(buildDir, "static/css"));
-let cssContent = "";
-cssFiles.forEach((file) => {
-    if (file.endsWith(".css")) {
-        cssContent += fs.readFileSync(path.join(buildDir, "static/css", file), "utf-8");
-    }
-});
-
-// Step 4: Generate Single HTML File
-console.log("Creating single-file.html...");
-const htmlTemplate = fs.readFileSync(path.join(buildDir, "index.html"), "utf-8");
-const inlinedHTML = htmlTemplate
-    .replace(/<link[^>]+href="\/static\/css\/[^"]+"[^>]*>/, `<style>${cssContent}</style>`)
-    .replace(/<script[^>]+src="\/static\/js\/[^"]+"[^>]*><\/script>/, `<script>${jsContent}</script>`);
-
-const outputDir = path.join(__dirname, "dist");
-if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
-
-fs.writeFileSync(path.join(outputDir, "single-file.html"), inlinedHTML);
-
-console.log("✅ Single HTML file created: dist/single-file.html");
+Node.js v20.11.0
+MISSU3L@GCJX93HK0V crsp-webui % 
