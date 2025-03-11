@@ -8,18 +8,15 @@ if (!fs.existsSync(buildDir)) {
     require("child_process").execSync("npm run build", { stdio: "inherit" });
 }
 
-// Find the actual JS file with the hash
+// Detect and bundle the correct JavaScript file
 const jsDir = path.join(buildDir, "static/js");
 const jsFiles = fs.readdirSync(jsDir).filter(file => file.endsWith(".js"));
 if (jsFiles.length === 0) {
-    console.error("❌ No JavaScript files found in build/static/js/. Exiting.");
+    console.error("❌ No JavaScript files found. Exiting.");
     process.exit(1);
 }
-
 const mainJsFile = path.join(jsDir, jsFiles[0]);
-console.log(`Using JavaScript file: ${mainJsFile}`);
 
-// Bundle JavaScript
 console.log("Bundling JavaScript...");
 esbuild.buildSync({
     entryPoints: [mainJsFile],
@@ -39,16 +36,22 @@ cssFiles.forEach(file => {
     cssContent += fs.readFileSync(path.join(cssDir, file), "utf-8");
 });
 
-// Generate Single HTML File
+// Modify HTML for standalone mode
 console.log("Creating single-file.html...");
-const htmlTemplate = fs.readFileSync(path.join(buildDir, "index.html"), "utf-8");
-const inlinedHTML = htmlTemplate
-    .replace(/<link[^>]+href="\/static\/css\/[^"]+"[^>]*>/, `<style>${cssContent}</style>`)
-    .replace(/<script[^>]+src="\/static\/js\/[^"]+"[^>]*><\/script>/, `<script>${jsContent}</script>`);
+let htmlContent = fs.readFileSync(path.join(buildDir, "index.html"), "utf-8");
 
+// Fix base paths for standalone mode
+htmlContent = htmlContent
+    .replace(/<link[^>]+href="\/static\/css\/[^"]+"[^>]*>/, `<style>${cssContent}</style>`)
+    .replace(/<script[^>]+src="\/static\/js\/[^"]+"[^>]*><\/script>/, `<script>${jsContent}</script>`)
+    .replace(/<base href="\/" \/>/, "") // Remove base href if present
+    .replace(/<script>window\.__REACT_DEVTOOLS_GLOBAL_HOOK__.*?<\/script>/gs, ""); // Remove DevTools injection
+
+// Save final HTML file
 const outputDir = path.join(__dirname, "dist");
 if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
 
-fs.writeFileSync(path.join(outputDir, "single-file.html"), inlinedHTML);
+fs.writeFileSync(path.join(outputDir, "single-file.html"), htmlContent);
 
 console.log("✅ Single HTML file created: dist/single-file.html");
+console.log("🔥 Open in browser: file://" + path.join(outputDir, "single-file.html"));
