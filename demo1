@@ -1,61 +1,89 @@
-export const SideBarView: React.FC<SidebarViewProps> = (props) => {
-  const provider = useMessageProvider();
+{
+  "name": "crsp-webui-router",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@tanstack/react-query": "^5.64.2",
+    "@tanstack/react-query-devtools": "^5.64.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.9",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "assert": "^2.1.0",
+    "bootstrap": "^5.3.3",
+    "chart.js": "^4.4.7",
+    "dayjs": "^1.11.13",
+    "dom-to-image": "^2.6.0",
+    "ipaddr.js": "^2.2.0",
+    "jotai": "^2.11.1",
+    "microdiff": "^1.5.0",
+    "rc-slider": "^11.1.8",
+    "react": "^19.0.0",
+    "react-bootstrap": "^2.10.8",
+    "react-chartjs-2": "5.3.0",
+    "react-datepicker": "^7.6.0",
+    "react-dom": "^19.0.0",
+    "react-error-boundary": "^5.0.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "react-qr-code": "^2.0.15",
+    "react-router-dom": "^7.1.3",
+    "react-scripts": "^5.0.1",
+    "source-map-explorer": "^2.5.3",
+    "styled-components": "^6.1.14",
+    "to-words": "^4.2.0",
+    "typescript": "^4.9.5",
+    "universal-cookie": "^7.2.2",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1",
+    "zod-validation-error": "^3.4.0"
+  },
+  "scripts": {
+    "analyze": "source-map-explorer 'build/static/js/*.js'",
+    "start": "react-scripts start",
+    "build": "GENERATE_SOURCEMAP=false react-scripts build",
+    "test:watch": "REACT_APP_ENV=\"Test\" react-scripts test --verbose",
+    "test": "REACT_APP_ENV=\"Test\" react-scripts test --watchAll=false",
+    "test:coverage": "REACT_APP_ENV=\"Test\" react-scripts test --coverage --watchAll=false",
+    "eject": "react-scripts eject",
+    "dev-build": "react-scripts build",
+    "fortify": "$SOURCEANALYZER -b V1 ./src/ -exclude \"**/constants/*\" && $SOURCEANALYZER -b V1 -export-build-session prpl-crsp-webui#V1#vzt.mbs",
+    "fortify-local": "$SOURCEANALYZER -b V1 ./src/ -exclude \"**/constants/*\" && $SOURCEANALYZER -b V1 -scan -f V1.fpr && $SOURCEANALYZER -b V1 -export-build-session prpl-crsp-webui#V1#vzt.mbs",
+    "fortify-generate-pdf": "$REPORTGENERATOR -format pdf -f V1.pdf -source V1.fpr"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@types/chartjs": "^0.0.31",
+    "@types/dom-to-image": "^2.6.7",
+    "@types/uuid": "^10.0.0",
+    "fetch-mock": "^11.1.5",
+    "node-fetch": "^2.7.0",
+    "web-vitals": "^4.2.4"
+  }
+}
 
-  return (
-    <Col className="h-100 side--bar--container">
-      <div className="side--bar--network--devices--section">
-        <div className="d-flex flex-column flex-grow-1">
-          <div className="side--bar--title pb-2">{provider(MSG_SIDEBAR_NETWORK_DEVICES)}</div>
-          <VZDropdown
-            data-testid="sidebar-dropdown"
-            selectedItem={props.deviceOptions[props.currentDeviceIndex]}
-            options={props.deviceOptions}
-            onSelect={(_, index) => props.onDeviceSelect(index)}
-            getOptionAsString={(s) => s}
-            useDeepEqual
-            selectedTextStyle={{ paddingLeft: "0.75rem" }}
-          />
-        </div>
-      </div>
-      <Col className="side--bar--menu--section">
-        {filterItemsForContentType(props.navItems, props.contentMode)
-          .filter((e) => e instanceof NavGroup || e instanceof NavDest)
-          .map((model, index) => {
-            if (model instanceof NavGroup) {
-              return (
-                <NavGroupMenuItem
-                  key={`${model.label}-${props.contentMode}`}
-                  model={model}
-                  selectedRoute={props.path}
-                  subItemFilter={(e) => {
-                    if (props.contentMode === ContentMode.None) {
-                      return e.contentMode === props.contentMode || e.contentMode === ContentMode.Basic;
-                    }
-                    return e.contentMode === props.contentMode;
-                  }}
-                  onMenuClick={props.onNavItemClick}
-                  contentMode={props.contentMode}
-                  data-testid={`sidebar-labelClick-${index}`}
-                />
-              );
-            } else if (model instanceof NavDest) {
-              return (
-                <MenuItem
-                  key={`${model.path}-${props.contentMode}`}
-                  $selected={props.path.startsWith(model.pathObj)}
-                  $header={true}
-                  onClick={() => props.onNavItemClick(model.type, model.contentMode)}
-                  children={<>{model.label}</>}
-                  data-testid={`sidebar-labelClick-${index}`}
-                />
-              );
-            }
-            return <></>;
-          })}
-      </Col>
-    </Col>
-  );
-};
 
+Hi I want to migrate this project to Vite Please help me out 
 
-the major problem happening here when i am pressing the tab (while being at side--bar--network--devices--section) I dont know why its not moving to the sidebar below
+list out the steps for the same please make sure there are no crashes
+
