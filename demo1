@@ -1,1 +1,99 @@
+import { FormControl } from "react-bootstrap";
+import styled from "styled-components";
 
+export const SearchContainer = styled.div`
+  position: relative;
+  width: 300px;
+`;
+
+export const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+export const StyledInput = styled(FormControl)`
+  font-size: 16px;
+  padding: 8px;
+  width: 100%;
+  background: transparent;
+  position: absolute;
+  z-index: 2;
+  caret-color: black; /* Ensure cursor is visible */
+`;
+
+export const AutocompleteText = styled.span`
+  font-size: 16px;
+  padding: 8px;
+  color: gray;
+  position: absolute;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+`;
+
+
+
+import { useMemo, useState } from "react";
+import { Dropdown } from "react-bootstrap";
+import { useQuerySuggestions } from "../../../domain/search/hooks";
+import { AutocompleteText, InputWrapper, SearchContainer, StyledInput } from "./styles";
+
+const SearchInput: React.FC = () => {
+  const { suggestQueries, suggestions, currentSuggestion, nextSuggestion, prevSuggestion } = useQuerySuggestions();
+  const [query, setQuery] = useState("");
+  const canShowDropDown = useMemo(() => suggestions.length > 1, [suggestions]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    suggestQueries(value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      nextSuggestion();
+    } else if (e.key === "ArrowUp") {
+      prevSuggestion();
+    } else if (e.key === "Tab" && currentSuggestion) {
+      e.preventDefault();
+      setQuery(query + currentSuggestion);
+    }
+  };
+
+  return (
+    <SearchContainer>
+      <InputWrapper>
+        {/* This shows the query + suggestion inline in gray */}
+        <AutocompleteText>
+          {query}
+          <span style={{ opacity: 0.5 }}>{currentSuggestion ?? ""}</span>
+        </AutocompleteText>
+        
+        {/* User input is typed over it */}
+        <StyledInput
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Search..."
+        />
+      </InputWrapper>
+
+      {canShowDropDown && (
+        <Dropdown.Menu show style={{ width: "100%" }}>
+          {suggestions.map((sugg) => (
+            <Dropdown.Item key={sugg} active={sugg === currentSuggestion}>
+              {sugg}
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      )}
+    </SearchContainer>
+  );
+};
+
+export default SearchInput;
