@@ -1,47 +1,17 @@
-import styled from "styled-components";
-import { FormControl, Dropdown, Modal, Button } from "react-bootstrap";
-import { useState } from "react";
-import { useQuerySuggestions } from "./useQuerySuggestions";
-
-const SearchContainer = styled.div`
-  position: relative;
-  width: 300px;
-`;
-
-const InputWrapper = styled.div`
-  position: relative;
-  display: flex;
-`;
-
-const StyledInput = styled(FormControl)`
-  font-size: 16px;
-  padding: 8px;
-  position: absolute;
-  background: transparent;
-  z-index: 2;
-`;
-
-const AutocompleteText = styled.span`
-  font-size: 16px;
-  padding: 8px;
-  color: gray;
-  pointer-events: none;
-  white-space: nowrap;
-  overflow: hidden;
-`;
-
+import { useMemo, useState } from "react";
+import { Dropdown } from "react-bootstrap";
+import { useQuerySuggestions } from "../../../domain/search/hooks";
+import { AutocompleteText, InputWrapper, SearchContainer, StyledInput } from "./styles";
 
 const SearchInput: React.FC = () => {
   const { suggestQueries, suggestions, currentSuggestion, nextSuggestion, prevSuggestion } = useQuerySuggestions();
   const [query, setQuery] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showModal, setShowModal] = useState(false);
+  const canShowDropDown = useMemo(() => suggestions.length > 1, [suggestions]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setQuery(value);
     suggestQueries(value);
-    setShowDropdown(value.length > 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -56,51 +26,67 @@ const SearchInput: React.FC = () => {
   };
 
   return (
-    <>
-      <SearchContainer>
-        <InputWrapper>
-          <AutocompleteText>{query}{currentSuggestion ? currentSuggestion : ""}</AutocompleteText>
-          <StyledInput
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Search..."
-          />
-        </InputWrapper>
+    <SearchContainer>
+      <InputWrapper>
+        <AutocompleteText>
+          {query}
+          {currentSuggestion ?? ""}
+        </AutocompleteText>
+        <StyledInput
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Search..."
+        />
+      </InputWrapper>
 
-        {showDropdown && (
-          <Dropdown.Menu show style={{ width: "100%" }}>
-            {suggestions.map((sugg) => (
-              <Dropdown.Item key={sugg} active={sugg === currentSuggestion}>
-                {sugg}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        )}
-      </SearchContainer>
-
-      <Button variant="primary" onClick={() => setShowModal(true)}>Open Search</Button>
-
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Search</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <InputWrapper>
-            <AutocompleteText>{query}{currentSuggestion ? currentSuggestion : ""}</AutocompleteText>
-            <StyledInput
-              type="text"
-              value={query}
-              onChange={handleInputChange}
-              onKeyDown={handleKeyDown}
-              placeholder="Search..."
-            />
-          </InputWrapper>
-        </Modal.Body>
-      </Modal>
-    </>
+      {canShowDropDown && (
+        <Dropdown.Menu show style={{ width: "100%" }}>
+          {suggestions.map((sugg) => (
+            <Dropdown.Item key={sugg} active={sugg === currentSuggestion}>
+              {sugg}
+            </Dropdown.Item>
+          ))}
+        </Dropdown.Menu>
+      )}
+    </SearchContainer>
   );
 };
 
 export default SearchInput;
+import { FormControl } from "react-bootstrap";
+import styled from "styled-components";
+
+export const SearchContainer = styled.div`
+  position: relative;
+  width: 300px;
+`;
+
+export const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+`;
+
+export const StyledInput = styled(FormControl)`
+  font-size: 16px;
+  padding: 8px;
+  position: absolute;
+  background: transparent;
+  z-index: 2;
+`;
+
+export const AutocompleteText = styled.span`
+  font-size: 16px;
+  padding: 8px;
+  color: gray;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+`;
+
+
+Please work on the Current Suggestion 
+
+its not shown with the query if i console I could find the same but the same is not added in the text in greyed color
+
