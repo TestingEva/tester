@@ -1,64 +1,70 @@
-[vite] Internal server error: Transform failed with 3 errors:
-/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:835: ERROR: The symbol "inWebWorker" has already been declared
-/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:931: ERROR: The symbol "prevRefreshReg" has already been declared
-/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:950: ERROR: The symbol "prevRefreshSig" has already been declared
-  Plugin: vite:esbuild
-  File: /Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:45
-  
-  The symbol "inWebWorker" has already been declared
-  1  |  import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s2 = $RefreshSig$();import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {if (!window.__vite_plugin_react_preamble_installed__) {throw new Error("@vitejs/plugin-react can't detect preamble. Something is wrong. " + "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201");}prevRefreshReg = window.$RefreshReg$;prevRefreshSig = window.$RefreshSig$;window.$RefreshReg$ = (type, id) => {RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id);};window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s = $RefreshSig$();import "bootstrap/dist/css/bootstrap.min.css";
-     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
-  2  |  import { Navigate, Route, Routes } from "react-router-dom";
-  3  |  import "./App.css";
-  
-  The symbol "prevRefreshReg" has already been declared
-  1  |  import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s2 = $RefreshSig$();import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {if (!window.__vite_plugin_react_preamble_installed__) {throw new Error("@vitejs/plugin-react can't detect preamble. Something is wrong. " + "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201");}prevRefreshReg = window.$RefreshReg$;prevRefreshSig = window.$RefreshSig$;window.$RefreshReg$ = (type, id) => {RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id);};window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s = $RefreshSig$();import "bootstrap/dist/css/bootstrap.min.css";
-     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
-  2  |  import { Navigate, Route, Routes } from "react-router-dom";
-  3  |  import "./App.css";
-  
-  The symbol "prevRefreshSig" has already been declared
-  1  |  import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s2 = $RefreshSig$();import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {if (!window.__vite_plugin_react_preamble_installed__) {throw new Error("@vitejs/plugin-react can't detect preamble. Something is wrong. " + "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201");}prevRefreshReg = window.$RefreshReg$;prevRefreshSig = window.$RefreshSig$;window.$RefreshReg$ = (type, id) => {RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id);};window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s = $RefreshSig$();import "bootstrap/dist/css/bootstrap.min.css";
-     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^
-  2  |  import { Navigate, Route, Routes } from "react-router-dom";
-  3  |  import "./App.css";
-  
-      at failureErrorWithLog (/Users/MISSU3L/Desktop/vite-crsp-webui/node_modules/esbuild/lib/main.js:1477:15)
-      at /Users/MISSU3L/Desktop/vite-crsp-webui/node_modules/esbuild/lib/main.js:756:50
-      at responseCallbacks.<computed> (/Users/MISSU3L/Desktop/vite-crsp-webui/node_modules/esbuild/lib/main.js:623:9)
-      at handleIncomingPacket (/Users/MISSU3L/Desktop/vite-crsp-webui/node_modules/esbuild/lib/main.js:678:12)
-      at Socket.readFromStdout (/Users/MISSU3L/Desktop/vite-crsp-webui/node_modules/esbuild/lib/main.js:601:7)
-      at Socket.emit (node:events:518:28)
-      at addChunk (node:internal/streams/readable:559:12)
-      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
-      at Readable.push (node:internal/streams/readable:390:5)
-      at Pipe.onStreamRead (node:internal/stream_base_commons:190:23)
-12:57:28 PM [vite] (client) Pre-transform error: Transform failed with 3 errors:
-/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:835: ERROR: The symbol "inWebWorker" has already been declared
-/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:931: ERROR: The symbol "prevRefreshReg" has already been declared
-/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:950: ERROR: The symbol "prevRefreshSig" has already been declared
-  Plugin: vite:esbuild
-  File: /Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx:1:45
-  
-  The symbol "inWebWorker" has already been declared
-  1  |  import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s2 = $RefreshSig$();import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {if (!window.__vite_plugin_react_preamble_installed__) {throw new Error("@vitejs/plugin-react can't detect preamble. Something is wrong. " + "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201");}prevRefreshReg = window.$RefreshReg$;prevRefreshSig = window.$RefreshSig$;window.$RefreshReg$ = (type, id) => {RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id);};window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s = $RefreshSig$();import "bootstrap/dist/css/bootstrap.min.css";
-     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
-  2  |  import { Navigate, Route, Routes } from "react-router-dom";
-  3  |  import "./App.css";
-  
-  The symbol "prevRefreshReg" has already been declared
-  1  |  import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s2 = $RefreshSig$();import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {if (!window.__vite_plugin_react_preamble_installed__) {throw new Error("@vitejs/plugin-react can't detect preamble. Something is wrong. " + "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201");}prevRefreshReg = window.$RefreshReg$;prevRefreshSig = window.$RefreshSig$;window.$RefreshReg$ = (type, id) => {RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id);};window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s = $RefreshSig$();import "bootstrap/dist/css/bootstrap.min.css";
-     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
-  2  |  import { Navigate, Route, Routes } from "react-router-dom";
-  3  |  import "./App.css";
-  
-  The symbol "prevRefreshSig" has already been declared
-  1  |  import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {  if (!window.__vite_plugin_react_preamble_installed__) {    throw new Error(      "@vitejs/plugin-react can't detect preamble. Something is wrong. " +      "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201"    );  }  prevRefreshReg = window.$RefreshReg$;  prevRefreshSig = window.$RefreshSig$;  window.$RefreshReg$ = (type, id) => {    RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id)  };  window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s2 = $RefreshSig$();import RefreshRuntime from "/@react-refresh";const inWebWorker = typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;let prevRefreshReg;let prevRefreshSig;if (import.meta.hot && !inWebWorker) {if (!window.__vite_plugin_react_preamble_installed__) {throw new Error("@vitejs/plugin-react can't detect preamble. Something is wrong. " + "See https://github.com/vitejs/vite-plugin-react/pull/11#discussion_r430879201");}prevRefreshReg = window.$RefreshReg$;prevRefreshSig = window.$RefreshSig$;window.$RefreshReg$ = (type, id) => {RefreshRuntime.register(type, "/Users/MISSU3L/Desktop/vite-crsp-webui/src/App.tsx" + " " + id);};window.$RefreshSig$ = RefreshRuntime.createSignatureFunctionForTransform;}var _s = $RefreshSig$();import "bootstrap/dist/css/bootstrap.min.css";
-     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ^
-  2  |  import { Navigate, Route, Routes } from "react-router-dom";
-  3  |  import "./App.css";
-  
+HI I want to create a search component and I have the following hook 
 
-Could not open App.tsx in the editor.
-The editor process exited with an error: spawn code ENOENT ('code' command does not exist in 'PATH').
+
+export type QuerySuggestionResult = {
+  suggestQueries: (query: string) => void;
+  suggestions: string[];
+  currentSuggestion?: string;
+  nextSuggestion: () => void;
+  prevSuggestion: () => void;
+};
+
+export function useQuerySuggestions(): QuerySuggestionResult {
+  const { data: searchProvider } = useSearchProvider();
+  const [currentSuggestion, setCurrentSuggestion] = useState<string | undefined>(undefined);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const suggestQueries = useCallback(
+    (query: string) => {
+      if (searchProvider !== undefined) {
+        setSuggestions(searchProvider.suggestQueries(query));
+      }
+    },
+    //eslint-disable-next-line
+    [searchProvider]
+  );
+
+  const nextSuggestion = useCallback(() => {
+    if (currentIndex < suggestions.length - 1) {
+      const nextIndex = currentIndex + 1;
+      setCurrentIndex(nextIndex);
+      setCurrentSuggestion(suggestions[nextIndex]);
+    }
+  }, [currentIndex, suggestions]);
+
+  const prevSuggestion = useCallback(() => {
+    if (currentIndex > 0) {
+      const prevIndex = currentIndex - 1;
+      setCurrentIndex(prevIndex);
+      setCurrentSuggestion(suggestions[prevIndex]);
+    }
+  }, [currentIndex, suggestions]);
+
+  return {
+    suggestQueries,
+    suggestions,
+    currentSuggestion,
+    nextSuggestion,
+    prevSuggestion,
+  };
+}
+
+
+So there must be input where We have option to auto complete and also if we have more than one suggestions currentSuggestion should be shown and suggestions will be shown in the dropdown also 
+when the user press up the prevSuggestion will be called and down then nextSuggestion will be called 
+
+when this functions are called currentSuggestion will change
+
+
+now Suppose usertypes "set a p" then the currentSuggestion will be having "assword" and when user press tab it should say set a password 
+
+also the suggestion text should be grayed out 
+
+we are using Styled components and React-bootstrap 
+
+Also there should be modal (bootstrap) having a text field where we can search 
+
+
+
 
