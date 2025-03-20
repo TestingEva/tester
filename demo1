@@ -1,70 +1,102 @@
-HI I want to create a search component and I have the following hook 
+import styled from "styled-components";
+import { FormControl, Dropdown, Modal, Button } from "react-bootstrap";
+import { useState } from "react";
+import { useQuerySuggestions } from "./useQuerySuggestions";
 
+const SearchContainer = styled.div`
+  position: relative;
+  width: 300px;
+`;
 
-export type QuerySuggestionResult = {
-  suggestQueries: (query: string) => void;
-  suggestions: string[];
-  currentSuggestion?: string;
-  nextSuggestion: () => void;
-  prevSuggestion: () => void;
+const StyledInput = styled(FormControl)`
+  font-size: 16px;
+  padding: 8px;
+`;
+
+const SuggestionsDropdown = styled(Dropdown.Menu)`
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  position: absolute;
+  z-index: 1000;
+`;
+
+const SuggestionItem = styled(Dropdown.Item)<{ isActive: boolean }>`
+  background: ${({ isActive }) => (isActive ? "#ddd" : "white")};
+  color: ${({ isActive }) => (isActive ? "black" : "#666")};
+`;
+
+const AutocompleteText = styled.span`
+  color: gray;
+  position: absolute;
+  pointer-events: none;
+`;
+
+const SearchInput: React.FC = () => {
+  const { suggestQueries, suggestions, currentSuggestion, nextSuggestion, prevSuggestion } = useQuerySuggestions();
+  const [query, setQuery] = useState("");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    suggestQueries(value);
+    setShowDropdown(value.length > 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      nextSuggestion();
+    } else if (e.key === "ArrowUp") {
+      prevSuggestion();
+    } else if (e.key === "Tab" && currentSuggestion) {
+      e.preventDefault();
+      setQuery(query + currentSuggestion);
+    }
+  };
+
+  return (
+    <>
+      <SearchContainer>
+        <StyledInput
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Search..."
+        />
+        {currentSuggestion && <AutocompleteText>{query + currentSuggestion}</AutocompleteText>}
+        
+        {showDropdown && (
+          <SuggestionsDropdown show>
+            {suggestions.map((sugg, index) => (
+              <SuggestionItem key={sugg} isActive={sugg === currentSuggestion}>
+                {sugg}
+              </SuggestionItem>
+            ))}
+          </SuggestionsDropdown>
+        )}
+      </SearchContainer>
+
+      <Button variant="primary" onClick={() => setShowModal(true)}>Open Search</Button>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Search</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <StyledInput
+            type="text"
+            value={query}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Search..."
+          />
+        </Modal.Body>
+      </Modal>
+    </>
+  );
 };
 
-export function useQuerySuggestions(): QuerySuggestionResult {
-  const { data: searchProvider } = useSearchProvider();
-  const [currentSuggestion, setCurrentSuggestion] = useState<string | undefined>(undefined);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const suggestQueries = useCallback(
-    (query: string) => {
-      if (searchProvider !== undefined) {
-        setSuggestions(searchProvider.suggestQueries(query));
-      }
-    },
-    //eslint-disable-next-line
-    [searchProvider]
-  );
-
-  const nextSuggestion = useCallback(() => {
-    if (currentIndex < suggestions.length - 1) {
-      const nextIndex = currentIndex + 1;
-      setCurrentIndex(nextIndex);
-      setCurrentSuggestion(suggestions[nextIndex]);
-    }
-  }, [currentIndex, suggestions]);
-
-  const prevSuggestion = useCallback(() => {
-    if (currentIndex > 0) {
-      const prevIndex = currentIndex - 1;
-      setCurrentIndex(prevIndex);
-      setCurrentSuggestion(suggestions[prevIndex]);
-    }
-  }, [currentIndex, suggestions]);
-
-  return {
-    suggestQueries,
-    suggestions,
-    currentSuggestion,
-    nextSuggestion,
-    prevSuggestion,
-  };
-}
-
-
-So there must be input where We have option to auto complete and also if we have more than one suggestions currentSuggestion should be shown and suggestions will be shown in the dropdown also 
-when the user press up the prevSuggestion will be called and down then nextSuggestion will be called 
-
-when this functions are called currentSuggestion will change
-
-
-now Suppose usertypes "set a p" then the currentSuggestion will be having "assword" and when user press tab it should say set a password 
-
-also the suggestion text should be grayed out 
-
-we are using Styled components and React-bootstrap 
-
-Also there should be modal (bootstrap) having a text field where we can search 
-
-
-
-
+export default SearchInput;
