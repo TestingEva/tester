@@ -8,29 +8,28 @@ const SearchContainer = styled.div`
   width: 300px;
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+`;
+
 const StyledInput = styled(FormControl)`
   font-size: 16px;
   padding: 8px;
-`;
-
-const SuggestionsDropdown = styled(Dropdown.Menu)`
-  width: 100%;
-  max-height: 200px;
-  overflow-y: auto;
   position: absolute;
-  z-index: 1000;
-`;
-
-const SuggestionItem = styled(Dropdown.Item)<{ isActive: boolean }>`
-  background: ${({ isActive }) => (isActive ? "#ddd" : "white")};
-  color: ${({ isActive }) => (isActive ? "black" : "#666")};
+  background: transparent;
+  z-index: 2;
 `;
 
 const AutocompleteText = styled.span`
+  font-size: 16px;
+  padding: 8px;
   color: gray;
-  position: absolute;
   pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
 `;
+
 
 const SearchInput: React.FC = () => {
   const { suggestQueries, suggestions, currentSuggestion, nextSuggestion, prevSuggestion } = useQuerySuggestions();
@@ -59,23 +58,25 @@ const SearchInput: React.FC = () => {
   return (
     <>
       <SearchContainer>
-        <StyledInput
-          type="text"
-          value={query}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          placeholder="Search..."
-        />
-        {currentSuggestion && <AutocompleteText>{query + currentSuggestion}</AutocompleteText>}
-        
+        <InputWrapper>
+          <AutocompleteText>{query}{currentSuggestion ? currentSuggestion : ""}</AutocompleteText>
+          <StyledInput
+            type="text"
+            value={query}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Search..."
+          />
+        </InputWrapper>
+
         {showDropdown && (
-          <SuggestionsDropdown show>
-            {suggestions.map((sugg, index) => (
-              <SuggestionItem key={sugg} isActive={sugg === currentSuggestion}>
+          <Dropdown.Menu show style={{ width: "100%" }}>
+            {suggestions.map((sugg) => (
+              <Dropdown.Item key={sugg} active={sugg === currentSuggestion}>
                 {sugg}
-              </SuggestionItem>
+              </Dropdown.Item>
             ))}
-          </SuggestionsDropdown>
+          </Dropdown.Menu>
         )}
       </SearchContainer>
 
@@ -86,13 +87,16 @@ const SearchInput: React.FC = () => {
           <Modal.Title>Search</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <StyledInput
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Search..."
-          />
+          <InputWrapper>
+            <AutocompleteText>{query}{currentSuggestion ? currentSuggestion : ""}</AutocompleteText>
+            <StyledInput
+              type="text"
+              value={query}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Search..."
+            />
+          </InputWrapper>
         </Modal.Body>
       </Modal>
     </>
