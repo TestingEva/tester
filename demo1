@@ -1,19 +1,21 @@
-export const ResultRow = styled(Col).attrs({ className: "py-1" })`
-  min-height: 3rem;
-  border-bottom: 1px solid #d8dada;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-  
-  &:hover,
-  &:focus {
-    scale: 1.01;
-  }
-`;
+const Results: React.FC<Props> = ({ data, onRowClick }) => {
+  return (
+    <ResultsWrapper height={data.length ? `${Math.min(40, data.length * 5)}rem` : "14rem"}>
+      {data.map((resultItem) => (
+        <ResultRow key={resultItem.id} onClick={() => onRowClick(resultItem)}>
+          <ResultHeader className="b m-1">{resultItem.title}</ResultHeader>
+          <Col className="m-1">{resultItem.description}</Col>
+        </ResultRow>
+      ))}
+    </ResultsWrapper>
+  );
+};
+import styled from "styled-components";
 
-export const DefaultResult = styled(Col).attrs({ className: "h" })`
-  height: 14rem;
-  font-size: 1rem;
-  align-content: center;
-  text-align: center;
-  transition: height 0.3s ease-in-out;
+export const ResultsWrapper = styled.div<{ height: string }>`
+  width: 100%;
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: ${(props) => props.height};
+  opacity: ${(props) => (props.height === "14rem" ? "0" : "1")};
 `;
