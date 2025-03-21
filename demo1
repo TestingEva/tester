@@ -1,4 +1,128 @@
-const DefaultResults = () => {
+import React, { useEffect, useMemo, useState } from "react";
+import { Col, Container, Modal, Row } from "react-bootstrap";
+import { useQuerySuggestions, useSearch } from "../../../../domain/search/hooks";
+import { SearchResultDetail } from "../../../../domain/search/models";
+import { useNavigator } from "../../navigator/navigator";
+import { VZModalBody } from "../commonStyles";
+import { CloseableModalProps } from "../props";
+import {
+  AutocompleteText,
+  ClearButton,
+  DefaultResult,
+  HintText,
+  InputWrapper,
+  ResultHeader,
+  ResultRow,
+  SearchContainer,
+  StyledInput,
+} from "./styles";
+
+export const VZSearchModal: React.FC<CloseableModalProps> = (props) => {
+  const { suggestQueries, suggestions, currentSuggestion, nextSuggestion, prevSuggestion } = useQuerySuggestions();
+  const { invoke, data } = useSearch();
+  const [query, setQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResultDetail[]>([]);
+  const navigate = useNavigator();
+
+  useEffect(() => {
+    if (data !== undefined) {
+      setSearchResults((_) => data);
+    }
+  }, [data]);
+
+  useEffect(() => {
+    suggestQueries(query);
+    if (query.length > 5) {
+      invoke(query);
+    }
+  }, [invoke, query, suggestQueries]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "ArrowDown") {
+      nextSuggestion();
+    } else if (e.key === "ArrowUp") {
+      prevSuggestion();
+    } else if (e.key === "Tab" && currentSuggestion) {
+      e.preventDefault();
+      setQuery(query + currentSuggestion);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      setQuery(query + (currentSuggestion ?? ""));
+      invoke(query + (suggestions ?? ""));
+    }
+  };
+
+  const onClearClick = () => {
+    setQuery("");
+    setSearchResults([]);
+  };
+
+  const onResultClick = (e: SearchResultDetail) => {
+    navigate(e.routeType, { mode: e.contentMode, pathSuffix: e.routeParams });
+    if (props.onDismissed !== undefined) {
+      props.onDismissed();
+    }
+  };
+
+  return (
+    <Modal show={props.show} onHide={props.onDismissed} centered>
+      <VZModalBody style={{ minHeight: "15rem" }} className="">
+        <div className="hb py-2 mb-1" style={{ fontSize: "1rem" }}>
+          Search for features and actions
+        </div>
+        <Row>
+          <Row className="align-items-center pe-0">
+            <SearchContainer className="mb-3">
+              <InputWrapper className="mt-4">
+                <AutocompleteText>
+                  {query}
+                  <span style={{ opacity: 0.5 }}>{currentSuggestion ?? ""}</span>
+                </AutocompleteText>
+
+                <StyledInput
+                  type="text"
+                  value={query}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Enter your query here"
+                  autoFocus
+                />
+              </InputWrapper>
+            </SearchContainer>
+            <ClearButton className="col-auto" onClick={onClearClick}>
+              Clear
+            </ClearButton>
+          </Row>
+          <HintText>
+            Use the "tab" key to select a suggestion, or press "enter" to search. You may use the "up" and "down" arrow
+            keys to cycle through suggestions.
+          </HintText>
+        </Row>
+
+        {searchResults.length !== 0 ? (
+          <Results data={searchResults} onRowClick={onResultClick} />
+        ) : (
+          <DefaultResults onMessageClick={(e: string) => setQuery(e)} />
+        )}
+      </VZModalBody>
+    </Modal>
+  );
+};
+
+const defaultSearchData = [
+  "Change wifi password",
+  "Disable 6Ghz radio",
+  "Create a parental rule",
+  "Block or unblock a device",
+  "Change admin password",
+];
+
+const DefaultResults: React.FC<{ onMessageClick: (input: string) => void }> = ({ onMessageClick }) => {
   const randomMessage = useMemo(() => {
     return defaultSearchData[Math.floor(Math.random() * defaultSearchData.length)];
   }, []);
@@ -6,8 +130,116 @@ const DefaultResults = () => {
   return (
     <Row className="d-flex flex-1">
       <DefaultResult>
-        Need some ideas? <br /> Try searching for "{randomMessage}"
+        Need some ideas? <br /> Try searching for "
+        <span role="button" className="text-decoration-underline" onClick={() => onMessageClick(randomMessage)}>
+          {randomMessage}
+        </span>
+        "
       </DefaultResult>
     </Row>
   );
 };
+
+type Props = {
+  data: SearchResultDetail[];
+  onRowClick: (item: SearchResultDetail) => void;
+};
+
+const Results: React.FC<Props> = ({ data, onRowClick }) => {
+  return (
+    <Container
+      className="p-0 m-0 flex-1"
+      style={{
+        maxHeight: "40rem",
+        minHeight: "14rem",
+        overflow: "scroll",
+      }}
+    >
+      {data.map((resultItem) => (
+        <ResultRow key={resultItem.id} onClick={() => onRowClick(resultItem)}>
+          <ResultHeader className="b m-1">{resultItem.title}</ResultHeader>
+          <Col className="m-1">{resultItem.description}</Col>
+        </ResultRow>
+      ))}
+    </Container>
+  );
+};
+
+
+import { Col, FormControl } from "react-bootstrap";
+import styled from "styled-components";
+
+export const SearchContainer = styled(Col)`
+  position: relative;
+  width: 100%;
+`;
+
+export const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+`;
+
+export const StyledInput = styled(FormControl)`
+  font-size: 16px;
+  padding: 8px;
+  width: 100%;
+  background: transparent !important;
+  position: absolute;
+  z-index: 2;
+  caret-color: black;
+  color: transparent !important;
+  font-family: "vzHReg";
+`;
+
+export const AutocompleteText = styled.span`
+  font-size: 16px;
+  padding: 8px;
+  color: black;
+  position: absolute;
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+  pointer-events: none;
+  z-index: 1;
+  font-family: "vzHReg";
+`;
+
+export const HintText = styled(Col).attrs({ className: "my-3 t" })`
+  color: grey;
+  font-size: 12px;
+`;
+
+export const ClearButton = styled.button`
+  border: none;
+  background: no-repeat;
+  text-decoration: underline;
+  height: fit-content;
+  width: fit-content;
+  padding: 0;
+  margin: 0 0 0 12px;
+`;
+
+export const ResultRow = styled(Col).attrs({ className: "py-1" })`
+  min-height: 3rem;
+  border-bottom: 1px solid #d8dada;
+  cursor: pointer;
+  &:hover,
+  &:focus {
+    scale: 1.01;
+  }
+`;
+
+export const ResultHeader = styled(Col)`
+  font-size: 0.813rem;
+`;
+
+export const DefaultResult = styled(Col).attrs({ className: "h" })`
+  height: 14rem;
+  font-size: 1rem;
+  align-content: center;
+  text-align: center;
+`;
+
+I just want transition on the styling as if the height changes its now moving quickly i wamt it to take some ease-in 
