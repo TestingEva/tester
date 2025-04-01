@@ -1,21 +1,329 @@
-const Results: React.FC<Props> = ({ data, onRowClick }) => {
-  return (
-    <ResultsWrapper height={data.length ? `${Math.min(40, data.length * 5)}rem` : "14rem"}>
-      {data.map((resultItem) => (
-        <ResultRow key={resultItem.id} onClick={() => onRowClick(resultItem)}>
-          <ResultHeader className="b m-1">{resultItem.title}</ResultHeader>
-          <Col className="m-1">{resultItem.description}</Col>
-        </ResultRow>
-      ))}
-    </ResultsWrapper>
-  );
-};
-import styled from "styled-components";
+import React, { useMemo, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
-export const ResultsWrapper = styled.div<{ height: string }>`
-  width: 100%;
-  overflow: hidden;
-  transition: max-height 0.4s ease-in-out, opacity 0.3s ease-in-out;
-  max-height: ${(props) => props.height};
-  opacity: ${(props) => (props.height === "14rem" ? "0" : "1")};
-`;
+import { Modal } from 'react-bootstrap';
+import { RouterButton } from "../../../../common/button/RouterButton";
+import Footer from '../../../../common/footer/Footer';
+import { HeaderWithBody } from "../../../../common/header/Header";
+import VZLoader from '../../../../common/loader/Loader';
+import { qswConstant } from '../../../../constants/QuickSetupWizard';
+import { QSWFlowpage } from '../qsw-flow-page/QSWFlowPage';
+import { fetchQswRequest } from './Action';
+import "./AlwaysQSW.css";
+import { AlwaysQSWTable } from './always-qsw-table/AlwaysQSWTable';
+
+const AlwaysQSW = () => {
+
+    const apiData = useSelector((state) => {
+        return state.qsw.data
+    });
+
+    const [loadTable, setLoadTable] = useState(false);
+    const [tableData, setTableData] = useState([]);
+    const [showQSWModal, setShowQSWModal] = useState(false);
+    const dispatch = useDispatch();
+
+    const toggleQSWModal = () => { setShowQSWModal(e => !e); dispatch(fetchQswRequest()); }
+
+    useMemo(() => {
+        dispatch(fetchQswRequest());
+    }, [dispatch]);
+
+    useMemo(() => {
+        if (apiData && apiData?.QSWList) {
+            setTableData(apiData?.QSWList);
+            setLoadTable(true);
+        }
+    }, [apiData]);
+
+    return (
+        <>
+            <HeaderWithBody title={qswConstant?.title} breadcrumbData={qswConstant?.breadcrumbData} body={<RouterButton id="qswLaunchButton" label={qswConstant?.launch} onEvent={toggleQSWModal} />} lineMargin={"qsw-no-mar"} />
+            <div id='qsw-page' className='scroll-content-div qsw-always-page'>
+                <div className='flex-1'>
+                    <div id="qswInfoText" className='qsw-always-row '>{qswConstant?.desc}</div>
+                    <AlwaysQSWTable data={tableData} loadTable={loadTable} />
+                </div>
+                <Footer />
+            </div>
+            <Modal show={showQSWModal} onHide={setShowQSWModal} centered dialogClassName="br-0 qsw-modal-container" contentClassName='qsw-modal'>
+                <Modal.Body className='pos-rel qsw-modal-body'>
+                    <i className='icon icon-close qsw-icon-close' onClick={toggleQSWModal} />
+                    <QSWFlowpage inModal={true} />
+                </Modal.Body>
+            </Modal>
+            {!loadTable && <VZLoader />}
+        </>
+    )
+
+}
+
+export default AlwaysQSW
+
+
+import React, { useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
+import { useNavigate } from "react-router-dom";
+import { ButtonBG, RouterButton } from "../../../../common/button/RouterButton";
+import Footer from "../../../../common/footer/Footer";
+import VZLoader from "../../../../common/loader/Loader";
+import ApplyModal from "../../../../common/modal/apply-modal/ApplyModal";
+import ErrorModal from "../../../../common/modal/input-error-modal/ErrorModal";
+import CONFIG from "../../../../config/env.json";
+import { qswConstant } from "../../../../constants/QuickSetupWizard";
+import { wifiKeys } from "../../../../constants/WiFiMenu";
+import { fetchRequests } from "../../../../utils/FetchRequest";
+import { imageConverter } from "../../../../utils/ImageConverter";
+import { logUsageEvent } from "../../../../utils/Logger";
+import { SixGhzWarningModal } from "../../../wifi/primary-network-page/SixGhzWarningModal";
+import { fetchWifiQswRequest, updateQswValues, updateWifiQswValues } from "./Action";
+import { LabelTextField, NewWifiToggle, QswSavePageField } from "./QSWFlowPageComponents";
+import "./QSWFlowpage.css";
+
+
+export const QSWFlowpage = ({ model = "cr1000a", inModal = false, backFunctionality, endFlow, mainPageEvent, nameEvent, passEvent, restoreClickEvent, guestToggleEvent, guestNameEvent, guestPassEvent, guestShowPassToggle, guestRestoreClickEvent, sixGhzToggleEvent, sixGhzConfirmCloseEvent, sixGhzConfirmConfirmEvent, confirmationPageEvent, saveAsImageEvent, finalPageEvent, homeClickEvent, toggleShowPassToggle }) => {
+
+    const apiData = useSelector((state) => {
+        return state?.wifiQsw.data
+    });
+
+    const [loadPage, setLoadPage] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [initialValue, setInitialValue] = useState(qswConstant?.defaultState);
+    const [currentValue, setCurrentValue] = useState(qswConstant?.defaultState);
+    const [launchId, setLaunchId] = useState("");
+    const [noChange, setNoChange] = useState(true);
+    const [enableReset, setEnableReset] = useState(true);
+    const [showWifi6Modal, setShowWifi6Modal] = useState(false);
+    const [showErrorModal, setShowErrorModal] = useState(false);
+    const [errorBody, setErrorBody] = useState([]);
+    const [showApplyModal, setShowApplyModal] = useState(false);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        setEnableReset(JSON.stringify(currentValue?.wifi) !== JSON.stringify(initialValue?.wifi));
+        setNoChange(JSON.stringify(currentValue) === JSON.stringify(initialValue));
+    }, [currentValue, initialValue]);
+
+    useEffect(() => {
+        switch (currentPage) {
+            case 0:
+                logUsageEvent(mainPageEvent);
+                break;
+            case 1:
+                logUsageEvent(confirmationPageEvent);
+                break;
+            case 2:
+                logUsageEvent(finalPageEvent);
+                break;
+            default:
+                break;
+        }
+        // eslint-disable-next-line
+    }, [currentPage])
+
+    const goBack = () => setCurrentPage(e => --e);
+
+    const goForward = () => setCurrentPage(e => ++e);
+
+    const resetWifi = () => {
+        setCurrentValue({ ...currentValue, wifi: { ...initialValue?.wifi } });
+        logUsageEvent(restoreClickEvent)
+    }
+
+    const resetGuest = () => {
+        setCurrentValue({ ...currentValue, guest: { ...currentValue?.guest, ssid: initialValue?.guest?.ssid } });
+        logUsageEvent(guestRestoreClickEvent)
+    }
+
+    const toggleWiFi6Modal = () => setShowWifi6Modal(e => !e);
+
+    const toggleErrorModal = () => setShowErrorModal(e => !e);
+
+    const handleChanges = (value, type, id) => setCurrentValue({ ...currentValue, [type]: { ...currentValue?.[type], [id]: value } });
+
+    const checkAndContinue = () => {
+        let tempErrorBody = [];
+        if (currentValue?.wifi?.ssid?.length < 1 || currentValue?.wifi?.ssid?.length > 32) tempErrorBody.push(qswConstant?.errors?.[0]);
+        if (currentValue?.wifi?.key?.length < 8 || currentValue?.wifi?.key?.length > 63) tempErrorBody.push(qswConstant?.errors?.[1]);
+        if (currentValue?.guest?.enabled) {
+            if (currentValue?.guest?.ssid?.length === 0 || currentValue?.guest?.ssid > 32) tempErrorBody.push(qswConstant?.errors?.[2]);
+            if (currentValue?.guest?.key?.length === 0) tempErrorBody.push(qswConstant?.errors?.[3]);
+            if ((currentValue?.guest?.key?.length >= 1 && currentValue?.guest?.key?.length < 8) || currentValue?.guest?.key?.length > 63) tempErrorBody.push(qswConstant?.errors[4]);
+        }
+
+        if (tempErrorBody?.length) {
+            setErrorBody(tempErrorBody);
+            toggleErrorModal()
+        }
+        else {
+            goForward();
+        }
+    }
+
+    const saveChanges = () => {
+        // const requestBody = {
+        //     [wifiKeys?.PRIMARY_24]: { ...currentValue?.wifi },
+        //     [wifiKeys?.PRIMARY_5]: { ...currentValue?.wifi },
+        //     [wifiKeys?.GUEST]: { ...currentValue?.guest },
+        //     [wifiKeys?.PRIMARY_6]: Object.keys(currentValue?.g6)?.length ? { ...currentValue?.g6 } : undefined
+        // }
+
+        dispatch(updateQswValues({ launchId: launchId }));
+        dispatch(updateWifiQswValues({ id: wifiKeys?.PRIMARY_24, body: { ...currentValue?.wifi } }));
+        const guestWifiPayload = { ...currentValue.guest, key: undefined }
+        if (currentValue.guest.enabled) {
+            guestWifiPayload.key = currentValue.guest.key
+        }
+        JSON.stringify(initialValue?.guest) !== JSON.stringify(currentValue?.guest) && dispatch(updateWifiQswValues({ id: wifiKeys?.GUEST, body: guestWifiPayload }));
+        currentValue?.g6 && dispatch(updateWifiQswValues({ id: wifiKeys?.PRIMARY_6, body: { ...currentValue?.g6 } }));
+
+        setShowApplyModal(true);
+        goForward();
+    }
+
+    useMemo(() => {
+        dispatch(fetchWifiQswRequest());
+    }, [dispatch])
+
+    useMemo(() => {
+
+        const setValues = () => {
+
+            let tempData = {};
+
+            apiData?.wifiData?.wifiList?.forEach(val => {
+                if (val?.wifiId === wifiKeys?.PRIMARY_24) {
+                    tempData = { ...tempData, wifi: {} };
+                    tempData.wifi.ssid = val?.ssid;
+                    tempData.wifi.key = val?.key;
+                }
+
+                if (val?.wifiId === wifiKeys?.GUEST) {
+                    tempData = { ...tempData, guest: {} };
+                    tempData.guest.enabled = val?.enabled;
+                    tempData.guest.ssid = val?.ssid;
+                    tempData.guest.key = inModal ? val?.key : "";
+                }
+
+                if (val?.wifiId === wifiKeys?.PRIMARY_6) {
+                    tempData = { ...tempData, g6: {} };
+                    tempData.g6.enabled = val?.enabled;
+                }
+            });
+
+            setCurrentValue(tempData);
+            setInitialValue(tempData);
+        }
+
+        if (apiData && apiData?.wifiData?.wifiList && apiData?.wifiData?.wifiList?.length) {
+            fetchRequests({ url: CONFIG?.QSW_UPDATE_URL }).then(res => {
+                setLaunchId(res?.launchId);
+            })
+            setLoadPage(true);
+            setValues();
+        }
+        // eslint-disable-next-line
+    }, [apiData])
+
+    const firstPage = () => {
+
+        return (
+            <>
+                <div className="qsw-flow-header hb">{qswConstant?.changeWifiName}</div>
+                <LabelTextField label={qswConstant?.wName} type={'wifi'} id={'ssid'} value={currentValue?.wifi?.ssid} setValue={handleChanges} placeholder={"Enter new SSID"} eventLabel={nameEvent} />
+                <LabelTextField label={qswConstant?.wPass} type={'wifi'} id={'key'} isPass={true} value={currentValue?.wifi?.key} setValue={handleChanges} placeholder={"Enter new password"} eventLabel={passEvent} toggleShowPassEvent={toggleShowPassToggle} />
+                <div className="reset-box">{enableReset && <div className="reset-pass-option" onClick={resetWifi}>{qswConstant?.restore}</div>}</div>
+                <NewWifiToggle label={qswConstant?.gWifi} value={currentValue?.guest?.enabled} type={'guest'} id={'enabled'} setValue={handleChanges} eventLabel={guestToggleEvent} />
+                {
+                    currentValue?.guest?.enabled && <>
+                        <LabelTextField label={qswConstant?.gWName} type={'guest'} id={'ssid'} value={currentValue?.guest?.ssid} setValue={handleChanges} placeholder={"Enter new SSID"} eventLabel={guestNameEvent} />
+                        {currentValue?.guest?.ssid !== initialValue?.guest?.ssid && <div onClick={resetGuest} className="reset-pass-option">{qswConstant?.restore}</div>}
+                        <LabelTextField label={qswConstant?.gWPass} type={'guest'} id={'key'} value={currentValue?.guest?.key} setValue={handleChanges} isPass={true} isError={currentValue?.guest?.key.length < 8} placeholder={"Enter new password"} eventLabel={guestPassEvent} toggleShowPassEvent={guestShowPassToggle} />
+                        <div className="qsw-minimum">{qswConstant?.minPass}</div>
+                    </>
+                }
+                {initialValue?.g6 && <NewWifiToggle label={qswConstant?.["6GW"]} value={currentValue?.g6?.enabled} type={'g6'} id={'enabled'} setValue={() => { !currentValue?.g6?.enabled ? toggleWiFi6Modal() : handleChanges(false, 'g6', 'enabled') }} eventLabel={sixGhzToggleEvent} />}
+                <hr />
+                <div className={` ${!inModal ? 'qsw-final-line' : "qsw-final-line-2"}`}>
+                    {!inModal && <div className="qsw-back" onClick={backFunctionality}>{qswConstant?.back}</div>}
+                    <RouterButton label={qswConstant?.cont} onEvent={checkAndContinue} />
+                </div>
+            </>
+        )
+    };
+
+    const secondPage = () => {
+
+        return (
+            <>
+                <div className="qsw-flow-header hb">{qswConstant?.applyChanges}</div>
+                <div className="qsw-save-row hb">
+                    <div>{qswConstant?.wifiInfo}</div>
+                    <ButtonBG label={qswConstant?.save} className="qsw-save-button" onEvent={() => imageConverter(qswConstant?.downloadQswId, qswConstant?.downloadImageName)} eventLabel={saveAsImageEvent} />
+                </div>
+                <QswSavePageField label={qswConstant?.wName} values={[currentValue?.wifi?.ssid]} />
+                <QswSavePageField label={qswConstant?.wPass} values={[currentValue?.wifi?.key]} />
+                {currentValue?.g6 && currentValue?.g6?.enabled && <QswSavePageField label={qswConstant?.security} values={qswConstant?.securityOptions} />}
+                <QswSavePageField label={qswConstant?.gWifi} values={currentValue?.guest?.enabled ? qswConstant?.on : qswConstant?.off} type={2} />
+                {
+                    currentValue?.guest?.enabled && <>
+                        <QswSavePageField label={qswConstant?.gWName} values={[currentValue?.guest?.ssid]} />
+                        <QswSavePageField label={qswConstant?.gWPass} values={[currentValue?.guest?.key]} />
+                    </>
+                }
+                <div className={"qsw-final-line qsw-page-2-final"}>
+                    <div className="qsw-back" onClick={goBack}>{qswConstant?.back}</div>
+                    {!noChange ? <RouterButton label={qswConstant?.apply} onEvent={saveChanges} /> : <RouterButton label={qswConstant?.skip} onEvent={() => { goForward(); dispatch(updateQswValues({ launchId: launchId })) }} />}
+                </div>
+                {noChange && <div className="qsw-final-line-2"><div className="qsw-no-update">{qswConstant?.noUpdate}</div></div>}
+            </>
+        )
+    }
+
+    const finalPage = () => {
+
+        return (
+            <>
+                <div className="qsw-flow-header hb">{qswConstant?.allSetUp}</div>
+                <RouterButton label={qswConstant?.gotoNetwork} className="qsw-goto-button eds-button" onEvent={() => { inModal ? navigate(qswConstant?.pathToHome) : endFlow() }} eventLabel={homeClickEvent} />
+            </>
+        )
+    }
+
+    const LoadPage = () => {
+        return (
+            <>
+                <div id={qswConstant?.downloadQswId} className={`${inModal ? "qsw-flow-page-container-modal" : "qsw-flow-page-container-full"}`}>
+                    <div className={`qsw-flow-page-side-col ${inModal ? "qsw-flow-left-col-2" : "qsw-flow-left-col"}`}><img className={currentPage === 2 ? "qsw-left-img-margin-2" : "qsw-left-img-margin-1"} src={require(`../../../../images/${model}/${currentPage === 2 ? "RouterFront.png" : "VZRouterLogin.png"}`)} alt={"Router Details"} /></div>
+                    <div className="qsw-flow-page-side-col qsw-flow-right-col">
+                        <div className="qsw-flow-right-col flex-1">
+                            {currentPage === 0 && firstPage()}
+                            {currentPage === 1 && secondPage()}
+                            {currentPage === 2 && finalPage()}
+                        </div>
+                        {!inModal && <Footer />}
+                    </div>
+                </div>
+                <div className="top-modal"><SixGhzWarningModal show={showWifi6Modal} onHide={() => { toggleWiFi6Modal(); logUsageEvent(sixGhzConfirmCloseEvent) }} submit={() => { handleChanges(true, 'g6', 'enabled'); toggleWiFi6Modal(); logUsageEvent(sixGhzConfirmConfirmEvent) }} cancel={() => { toggleWiFi6Modal(); logUsageEvent(sixGhzConfirmCloseEvent) }} /></div>
+                {showWifi6Modal && <div className="top-modal-bg" />}
+                <ErrorModal show={showErrorModal} onHide={toggleErrorModal} body={errorBody} />
+                <ApplyModal show={showApplyModal} setShowModal={setShowApplyModal} />
+            </ >
+        )
+    }
+
+    return loadPage ? LoadPage() : <div className="qsw-vz-load-container"><VZLoader /></div>
+
+}
+
+
+For some reason my update Qsw API is getting called twice it should ideally called once
+
+ QSW_UPDATE_URL
+
+
+
+
