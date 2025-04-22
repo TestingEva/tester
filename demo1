@@ -1,10 +1,13 @@
 /**
+ * Continuously polls a given API endpoint until a success status is received or a maximum number of attempts is reached.
  *
- * @param endpoint - polling Api endpoint
- * @param sleepDuration - sleep timeout required
- * @param request - <T> which represents the payload
+ * @template T - The type of the request payload.
+ * @param {string} endpoint - The API endpoint to poll.
+ * @param {number} sleepDuration - The total duration (in milliseconds) over which polling should occur.
+ * @param {T} request - The payload to send with each polling request.
+ * @returns {Promise<void>} A promise that resolves once polling completes or the maximum number of attempts is exhausted.
  */
-export async function intiatePolling<T>(endpoint: string, sleepDuration: number, request: T): Promise<void> {
+export async function initiatePolling<T>(endpoint: string, sleepDuration: number, request: T): Promise<void> {
   let pollingStatus = false;
   let maxAttempts = 20;
   const sleepTime = sleepDuration / 20;
@@ -15,6 +18,3 @@ export async function intiatePolling<T>(endpoint: string, sleepDuration: number,
     await sleep(sleepTime);
   } while (!pollingStatus && maxAttempts > 0);
 }
-
-
-Please write the description properly 
