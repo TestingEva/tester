@@ -1,20 +1,231 @@
-/**
- * Continuously polls a given API endpoint until a success status is received or a maximum number of attempts is reached.
- *
- * @template T - The type of the request payload.
- * @param {string} endpoint - The API endpoint to poll.
- * @param {number} sleepDuration - The total duration (in milliseconds) over which polling should occur.
- * @param {T} request - The payload to send with each polling request.
- * @returns {Promise<void>} A promise that resolves once polling completes or the maximum number of attempts is exhausted.
- */
-export async function initiatePolling<T>(endpoint: string, sleepDuration: number, request: T): Promise<void> {
-  let pollingStatus = false;
-  let maxAttempts = 20;
-  const sleepTime = sleepDuration / 20;
-  do {
-    const status = await getPollingStatusApi(endpoint, request);
-    pollingStatus ||= status;
-    maxAttempts--;
-    await sleep(sleepTime);
-  } while (!pollingStatus && maxAttempts > 0);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Router GUI Simulator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app"></div>
+  
+  <script src="index.ts" type="module"></script>
+</body>
+</html>
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f2f5;
 }
+
+header {
+  background-color: #4a90e2;
+  color: white;
+  padding: 1rem;
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.container {
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.router-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.router-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+.router-card img {
+  max-width: 100%;
+  height: 150px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+}
+
+button {
+  margin-top: 1.5rem;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #357ab8;
+}
+
+.option-group {
+  margin-bottom: 1.5rem;
+}
+
+.option-group label {
+  margin-right: 1rem;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.6rem;
+  margin-top: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+interface RouterInfo {
+  name: string;
+  image: string;
+  model: string;
+}
+
+const routers: RouterInfo[] = [
+  { name: "Router A", image: "router1.png", model: "Model-AX10" },
+  { name: "Router B", image: "router2.png", model: "Model-BX20" },
+  { name: "Router C", image: "router3.png", model: "Model-CX30" },
+  { name: "Router D", image: "router4.png", model: "Model-DX40" },
+  { name: "Router E", image: "router5.png", model: "Model-EX50" },
+  { name: "Router F", image: "router6.png", model: "Model-FX60" },
+];
+
+const app = document.getElementById('app') as HTMLElement;
+
+// Routing
+function loadPage() {
+  if (location.hash === '#setup') {
+    renderSetupPage();
+  } else {
+    renderSelectionPage();
+  }
+}
+
+// Render Router Selection Page
+function renderSelectionPage() {
+  app.innerHTML = `
+    <header>GUI Simulator List</header>
+    <div class="container">
+      ${routers.map((router, index) => `
+        <div class="router-card" data-index="${index}">
+          <img src="${router.image}" alt="${router.name}">
+          <h3>${router.name}</h3>
+          <p>${router.model}</p>
+        </div>
+      `).join('')}
+    </div>
+    <div style="text-align:center;">
+      <button id="proceed" disabled>Proceed</button>
+    </div>
+  `;
+
+  const cards = document.querySelectorAll('.router-card');
+  let selectedIndex: number | null = null;
+
+  cards.forEach(card => {
+    card.addEventListener('click', () => {
+      cards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      selectedIndex = parseInt(card.getAttribute('data-index') || '0');
+      (document.getElementById('proceed') as HTMLButtonElement).disabled = false;
+    });
+  });
+
+  (document.getElementById('proceed') as HTMLButtonElement).addEventListener('click', () => {
+    if (selectedIndex !== null) {
+      localStorage.setItem('selectedRouter', JSON.stringify(routers[selectedIndex]));
+      location.hash = '#setup';
+    }
+  });
+}
+
+// Render Setup Page
+function renderSetupPage() {
+  const selectedRouter = JSON.parse(localStorage.getItem('selectedRouter') || '{}') as RouterInfo;
+  
+  if (!selectedRouter.name) {
+    location.hash = '';
+    return;
+  }
+
+  app.innerHTML = `
+    <header>${selectedRouter.model} Quick Setup</header>
+    <div class="container" style="display:block;">
+      
+      <div class="option-group">
+        <label>Profile Mode:</label><br/>
+        <label><input type="radio" name="profile" value="FiosHome" checked> FiosHome</label>
+        <label><input type="radio" name="profile" value="FiosBusiness"> FiosBusiness</label>
+        <label><input type="radio" name="profile" value="FWAHome"> FWA Home</label>
+        <label><input type="radio" name="profile" value="FWABusiness"> FWA Business</label>
+      </div>
+
+      <div class="option-group">
+        <label>Enable QSW:</label><br/>
+        <label><input type="radio" name="qsw" value="true" checked> True</label>
+        <label><input type="radio" name="qsw" value="false"> False</label>
+      </div>
+
+      <div class="option-group">
+        <label>Enable Speed Test:</label><br/>
+        <label><input type="radio" name="speed" value="true" checked> True</label>
+        <label><input type="radio" name="speed" value="false"> False</label>
+      </div>
+
+      <div class="option-group">
+        <label>Password:</label><br/>
+        <input type="text" id="passwordInput" placeholder="Enter Password">
+      </div>
+
+      <div style="text-align:center;">
+        <button id="finishBtn">Finish</button>
+      </div>
+
+    </div>
+  `;
+
+  (document.getElementById('finishBtn') as HTMLButtonElement).addEventListener('click', () => {
+    const profile = (document.querySelector('input[name="profile"]:checked') as HTMLInputElement).value;
+    const qsw = (document.querySelector('input[name="qsw"]:checked') as HTMLInputElement).value;
+    const speed = (document.querySelector('input[name="speed"]:checked') as HTMLInputElement).value;
+    const password = (document.getElementById('passwordInput') as HTMLInputElement).value;
+
+    console.log({
+      profileMode: profile,
+      enableQSW: qsw === 'true',
+      enableSpeedTest: speed === 'true',
+      password,
+    });
+
+    alert("Setup Completed!");
+    location.hash = '';
+  });
+}
+
+window.addEventListener('hashchange', loadPage);
+window.addEventListener('load', loadPage);
