@@ -1,1 +1,248 @@
-Failed to load module script: Expected a JavaScript module script but the server responded with a MIME type of "video/mp2t". Strict MIME type checking is enforced for module scripts per HTML spec.
+// Data for routers
+const routers = [
+  {
+    name: "Router 1",
+    model: "Model A",
+    image: "router1.png",
+  },
+  {
+    name: "Router 2",
+    model: "Model B",
+    image: "router2.png",
+  },
+  {
+    name: "Router 3",
+    model: "Model C",
+    image: "router3.png",
+  },
+  {
+    name: "Router 4",
+    model: "Model D",
+    image: "router4.png",
+  },
+  {
+    name: "Router 5",
+    model: "Model E",
+    image: "router5.png",
+  },
+  {
+    name: "Router 6",
+    model: "Model F",
+    image: "router6.png",
+  },
+];
+
+// Keep track of selected router
+let selectedRouter = null;
+
+// Page initialization
+function init() {
+  renderRouterSelection();
+}
+
+function renderRouterSelection() {
+  const app = document.getElementById("app");
+  if (!app) return;
+
+  app.innerHTML = `
+    <header class="header">GUI Simulator List</header>
+    <div class="router-list">
+      ${routers.map((router, index) => `
+        <div class="router-card" data-index="${index}">
+          <img src="${router.image}" alt="${router.name}">
+          <h3>${router.name}</h3>
+          <p>${router.model}</p>
+        </div>
+      `).join("")}
+    </div>
+    <button id="proceed-btn" disabled>Proceed</button>
+  `;
+
+  const routerCards = document.querySelectorAll(".router-card");
+  routerCards.forEach(card => {
+    card.addEventListener("click", () => {
+      routerCards.forEach(c => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const index = card.getAttribute("data-index");
+      selectedRouter = routers[Number(index)];
+      document.getElementById("proceed-btn").disabled = false;
+    });
+  });
+
+  const proceedBtn = document.getElementById("proceed-btn");
+  proceedBtn.addEventListener("click", renderSetupPage);
+}
+
+function renderSetupPage() {
+  const app = document.getElementById("app");
+  if (!app || !selectedRouter) return;
+
+  app.innerHTML = `
+    <header class="header">${selectedRouter.name} Quick Setup</header>
+    <div class="setup-form">
+      <div class="setup-group">
+        <label>Profile Mode</label>
+        <div class="options">
+          <button class="profile-btn selected">FiosHome</button>
+          <button class="profile-btn">FiosBusiness</button>
+          <button class="profile-btn">FWA Home</button>
+          <button class="profile-btn">FWA Business</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <label>Enable QSW</label>
+        <div class="options">
+          <button class="toggle-btn selected" data-true="true">True</button>
+          <button class="toggle-btn" data-true="false">False</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <label>Enable Speed Test</label>
+        <div class="options">
+          <button class="toggle-btn selected" data-true="true">True</button>
+          <button class="toggle-btn" data-true="false">False</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <label>Password</label>
+        <input type="text" id="password-input" placeholder="Enter password">
+      </div>
+
+      <button id="finish-btn">Finish</button>
+    </div>
+  `;
+
+  const profileButtons = document.querySelectorAll(".profile-btn");
+  profileButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      profileButtons.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+  });
+
+  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  toggleButtons.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const group = btn.parentElement;
+      if (!group) return;
+      const buttonsInGroup = group.querySelectorAll(".toggle-btn");
+      buttonsInGroup.forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+  });
+
+  document.getElementById("finish-btn").addEventListener("click", () => {
+    alert("Setup Complete!");
+  });
+}
+
+// Start the app
+document.addEventListener("DOMContentLoaded", init);
+
+
+
+
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f2f2f2;
+}
+
+.header {
+  background: #4CAF50;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.router-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 2rem;
+  gap: 1rem;
+}
+
+.router-card {
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  width: 150px;
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.router-card img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.router-card:hover {
+  transform: scale(1.05);
+}
+
+.router-card.selected {
+  border: 2px solid #4CAF50;
+}
+
+#proceed-btn, #finish-btn {
+  display: block;
+  margin: 2rem auto;
+  padding: 0.8rem 2rem;
+  font-size: 1rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#proceed-btn:disabled {
+  background: grey;
+  cursor: not-allowed;
+}
+
+.setup-form {
+  padding: 2rem;
+}
+
+.setup-group {
+  margin-bottom: 2rem;
+}
+
+.options {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.profile-btn, .toggle-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.profile-btn.selected, .toggle-btn.selected {
+  background: #4CAF50;
+  color: white;
+  border: 1px solid #4CAF50;
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
