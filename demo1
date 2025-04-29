@@ -1,110 +1,153 @@
-body {
-  background: #f2f2f2;
-  font-family: Arial, sans-serif;
-  margin: 0;
+const routers = [
+  {
+    name: "Verizon Router",
+    model: "CR1000A",
+    image: "./images/cr1000a.png",
+  },
+  {
+    name: "Verizon Router",
+    model: "CR1000B",
+    image: "./images/cr1000a.png",
+  },
+  {
+    name: "Verizon Internet Access Point - Router",
+    model: "CHR30A-R",
+    image: "./images/chr30a.png",
+  },
+  {
+    name: "Verizon Internet Access Point - Extender",
+    model: "CHR30A-E",
+    image: "./images/chr30a.png",
+  },
+  {
+    name: "Verizon Internet Gateway",
+    model: "WNC-CR200A",
+    image: "./images/wnc_cr200a.png",
+  },
+  {
+    name: "Verizon Extender",
+    model: "CE1000A",
+    image: "./images/ce1000a.png",
+  },
+];
+
+let selectedRouter = null;
+let selectedProfileMode = "Fios Home";
+const availableProfileMode = ["Fios Home", "Fios Business", "FWA Home", "FWA Business"];
+let qswEnableStatus = false;
+let speedTestEnabled = true;
+
+function init() {
+  renderRouterSelection();
 }
 
-.header {
-  padding: 1rem;
-  text-align: center;
-  font-size: 1.5rem;
+function renderRouterSelection() {
+  const app = document.getElementById("temp-root");
+  if (!app) return;
+
+  app.innerHTML = `
+    <header class="header">GUI Simulator List</header>
+    <div class="router-list">
+      ${routers
+        .map(
+          (router, index) => `
+        <div class="router-card" data-index="${index}">
+          <img src="${router.image}" alt="${router.name}">
+          <h4>${router.name}</h4>
+          <p>${router.model}</p>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+    <button id="proceed-btn" disabled>Proceed</button>
+  `;
+
+  const routerCards = document.querySelectorAll(".router-card");
+  routerCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      routerCards.forEach((c) => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const index = card.getAttribute("data-index");
+      selectedRouter = routers[Number(index)];
+      document.getElementById("proceed-btn").disabled = false;
+    });
+  });
+
+  const proceedBtn = document.getElementById("proceed-btn");
+  proceedBtn.addEventListener("click", renderSetupPage);
 }
 
-.router-list {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 2rem;
-  gap: 1rem;
+function setConfigStore(key, value) {
+  localStorage.setItem(key, value);
 }
 
-.router-card {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  width: 150px;
-  text-align: center;
-  cursor: pointer;
-  transition: transform 0.3s;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+function renderSetupPage() {
+  const app = document.getElementById("temp-root");
+  if (!app || !selectedRouter) return;
+
+  //Setting up the modal in the config storage
+  setConfigStore("modelName", selectedRouter.model);
+
+  app.innerHTML = `
+    <header class="header">${selectedRouter.name} Quick Setup</header>
+    <div class="setup-form">
+      <div class="setup-group">
+        <label class="setup-label">Profile Mode</label>
+        <div class="options">
+            ${availableProfileMode
+              .map(
+                (mode) =>
+                  `<button class="profile-btn ${selectedProfileMode === mode ? "selected" : ""}">${mode}</button>`
+              )
+              .join("")}
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <label class="setup-label">Enable QSW</label>
+        <div class="options">
+          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-true="true">True</button>
+          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-true="false">False</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <label class="setup-label">Enable Speed Test</label>
+        <div class="options">
+          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-true="true">True</button>
+          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-true="false">False</button>
+        </div>
+      </div>
+
+      <div class="setup-group">
+        <label class="setup-label">Password</label>
+        <input type="text" id="password-input" placeholder="Enter password">
+      </div>
+        <div class="setup-desc">
+            Attention! This password will be used to login the Simulator GUI
+        </div>
+
+      <button id="finish-btn">Finish</button>
+    </div>
+  `;
+
+  const profileButtons = document.querySelectorAll(".profile-btn");
+  profileButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {});
+  });
+
+  const toggleButtons = document.querySelectorAll(".toggle-btn");
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {});
+  });
+
+  document.getElementById("finish-btn").addEventListener("click", () => {
+    alert("Setup Complete!");
+  });
 }
 
-.router-card img {
-  width: 100px;
-  object-fit: contain;
-  min-height: 150px;
-}
+document.addEventListener("DOMContentLoaded", init);
 
-.router-card:hover {
-  transform: scale(1.05);
-}
 
-.router-card.selected {
-  border: 2px solid #000000;
-}
-
-#proceed-btn,
-#finish-btn {
-  display: block;
-  margin: 2rem auto;
-  padding: 0.8rem 2rem;
-  font-size: 1rem;
-  background: #000000;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-#proceed-btn:disabled {
-  background: grey;
-  cursor: not-allowed;
-}
-
-.setup-form {
-  padding: 2rem;
-  display: grid;
-  gap: 2rem;
-}
-
-.setup-group {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-}
-
-.options {
-  display: flex;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.profile-btn,
-.toggle-btn {
-  padding: 0.5rem 1rem;
-  border: 1px solid #ccc;
-  background: white;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.3s, color 0.3s;
-}
-
-.profile-btn.selected,
-.toggle-btn.selected {
-  background: #000000;
-  color: white;
-  border: 1px solid #000000;
-}
-
-input[type="text"] {
-  width: 100%;
-  padding: 0.8rem;
-  font-size: 1rem;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-.topbar-gui {
-  height: 70px;
-  border-bottom: 1px solid #d8dada;
-}
+Please make this dynamic on click update the variables 
