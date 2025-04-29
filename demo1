@@ -2,7 +2,6 @@ function renderSetupPage() {
   const app = document.getElementById("temp-root");
   if (!app || !selectedRouter) return;
 
-  // Save selected model to localStorage
   setConfigStore("modelName", selectedRouter.model);
 
   app.innerHTML = `
@@ -14,7 +13,7 @@ function renderSetupPage() {
           ${availableProfileMode
             .map(
               (mode) =>
-                `<button class="profile-btn ${selectedProfileMode === mode ? "selected" : ""}" data-mode="${mode}">${mode}</button>`
+                `<button class="profile-btn" data-mode="${mode}" aria-pressed="${selectedProfileMode === mode}">${mode}</button>`
             )
             .join("")}
         </div>
@@ -23,16 +22,16 @@ function renderSetupPage() {
       <div class="setup-group">
         <label class="setup-label">Enable QSW</label>
         <div class="options" id="qsw-options">
-          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-value="true">True</button>
-          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-value="false">False</button>
+          <button class="toggle-btn" data-value="true" aria-pressed="${qswEnableStatus}">True</button>
+          <button class="toggle-btn" data-value="false" aria-pressed="${!qswEnableStatus}">False</button>
         </div>
       </div>
 
       <div class="setup-group">
         <label class="setup-label">Enable Speed Test</label>
         <div class="options" id="speedtest-options">
-          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-value="true">True</button>
-          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-value="false">False</button>
+          <button class="toggle-btn" data-value="true" aria-pressed="${speedTestEnabled}">True</button>
+          <button class="toggle-btn" data-value="false" aria-pressed="${!speedTestEnabled}">False</button>
         </div>
       </div>
 
@@ -48,49 +47,30 @@ function renderSetupPage() {
     </div>
   `;
 
-  // Profile mode toggle
-  document.getElementById("profile-options").addEventListener("click", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("profile-btn")) return;
+  // Generic handler to reduce DOM reads/writes
+  const setupToggleHandler = (parentId, stateKey, parse = (v) => v) => {
+    document.getElementById(parentId).addEventListener("click", (e) => {
+      const target = e.target.closest("button");
+      if (!target) return;
 
-    const group = target.parentElement;
-    group.querySelector(".selected")?.classList.remove("selected");
-    target.classList.add("selected");
+      const group = target.parentElement;
+      const selected = group.querySelector('[aria-pressed="true"]');
+      if (selected === target) return; // already selected
 
-    selectedProfileMode = target.dataset.mode;
-  });
+      selected?.setAttribute("aria-pressed", "false");
+      target.setAttribute("aria-pressed", "true");
 
-  // QSW toggle
-  document.getElementById("qsw-options").addEventListener("click", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("toggle-btn")) return;
+      window[stateKey] = parse(target.dataset.value || target.dataset.mode);
+    });
+  };
 
-    const group = target.parentElement;
-    group.querySelector(".selected")?.classList.remove("selected");
-    target.classList.add("selected");
+  setupToggleHandler("profile-options", "selectedProfileMode", (v) => v);
+  setupToggleHandler("qsw-options", "qswEnableStatus", (v) => v === "true");
+  setupToggleHandler("speedtest-options", "speedTestEnabled", (v) => v === "true");
 
-    qswEnableStatus = target.dataset.value === "true";
-  });
-
-  // Speed test toggle
-  document.getElementById("speedtest-options").addEventListener("click", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("toggle-btn")) return;
-
-    const group = target.parentElement;
-    group.querySelector(".selected")?.classList.remove("selected");
-    target.classList.add("selected");
-
-    speedTestEnabled = target.dataset.value === "true";
-  });
-
-  // Finish button
   document.getElementById("finish-btn").addEventListener("click", () => {
     const password = document.getElementById("password-input").value.trim();
-    if (!password) {
-      alert("Please enter a password before proceeding.");
-      return;
-    }
+    if (!password) return alert("Please enter a password.");
 
     setConfigStore("password", password);
     setConfigStore("profileMode", selectedProfileMode);
