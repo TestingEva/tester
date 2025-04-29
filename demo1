@@ -1,92 +1,8 @@
-const routers = [
-  {
-    name: "Verizon Router",
-    model: "CR1000A",
-    image: "./images/cr1000a.png",
-  },
-  {
-    name: "Verizon Router",
-    model: "CR1000B",
-    image: "./images/cr1000a.png",
-  },
-  {
-    name: "Verizon Internet Access Point - Router",
-    model: "CHR30A-R",
-    image: "./images/chr30a.png",
-  },
-  {
-    name: "Verizon Internet Access Point - Extender",
-    model: "CHR30A-E",
-    image: "./images/chr30a.png",
-  },
-  {
-    name: "Verizon Internet Gateway",
-    model: "WNC-CR200A",
-    image: "./images/wnc_cr200a.png",
-  },
-  {
-    name: "Verizon Extender",
-    model: "CE1000A",
-    image: "./images/ce1000a.png",
-  },
-];
-
-let selectedRouter = null;
-let selectedProfileMode = "Fios Home";
-const availableProfileMode = ["Fios Home", "Fios Business", "FWA Home", "FWA Business"];
-let qswEnableStatus = false;
-let speedTestEnabled = true;
-
-function init() {
-  renderRouterSelection();
-}
-
-function renderRouterSelection() {
-  const app = document.getElementById("temp-root");
-  if (!app) return;
-
-  app.innerHTML = `
-    <header class="header">GUI Simulator List</header>
-    <div class="router-list">
-      ${routers
-        .map(
-          (router, index) => `
-        <div class="router-card" data-index="${index}">
-          <img src="${router.image}" alt="${router.name}">
-          <h4>${router.name}</h4>
-          <p>${router.model}</p>
-        </div>
-      `
-        )
-        .join("")}
-    </div>
-    <button id="proceed-btn" disabled>Proceed</button>
-  `;
-
-  const routerCards = document.querySelectorAll(".router-card");
-  routerCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      routerCards.forEach((c) => c.classList.remove("selected"));
-      card.classList.add("selected");
-      const index = card.getAttribute("data-index");
-      selectedRouter = routers[Number(index)];
-      document.getElementById("proceed-btn").disabled = false;
-    });
-  });
-
-  const proceedBtn = document.getElementById("proceed-btn");
-  proceedBtn.addEventListener("click", renderSetupPage);
-}
-
-function setConfigStore(key, value) {
-  localStorage.setItem(key, value);
-}
-
 function renderSetupPage() {
   const app = document.getElementById("temp-root");
   if (!app || !selectedRouter) return;
 
-  //Setting up the modal in the config storage
+  // Save selected model
   setConfigStore("modelName", selectedRouter.model);
 
   app.innerHTML = `
@@ -94,29 +10,29 @@ function renderSetupPage() {
     <div class="setup-form">
       <div class="setup-group">
         <label class="setup-label">Profile Mode</label>
-        <div class="options">
-            ${availableProfileMode
-              .map(
-                (mode) =>
-                  `<button class="profile-btn ${selectedProfileMode === mode ? "selected" : ""}">${mode}</button>`
-              )
-              .join("")}
+        <div class="options" id="profile-mode-options">
+          ${availableProfileMode
+            .map(
+              (mode) =>
+                `<button class="profile-btn ${selectedProfileMode === mode ? "selected" : ""}" data-mode="${mode}">${mode}</button>`
+            )
+            .join("")}
         </div>
       </div>
 
       <div class="setup-group">
         <label class="setup-label">Enable QSW</label>
-        <div class="options">
-          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-true="true">True</button>
-          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-true="false">False</button>
+        <div class="options" id="qsw-options">
+          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-target="qsw" data-value="true">True</button>
+          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-target="qsw" data-value="false">False</button>
         </div>
       </div>
 
       <div class="setup-group">
         <label class="setup-label">Enable Speed Test</label>
-        <div class="options">
-          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-true="true">True</button>
-          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-true="false">False</button>
+        <div class="options" id="speedtest-options">
+          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-target="speedtest" data-value="true">True</button>
+          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-target="speedtest" data-value="false">False</button>
         </div>
       </div>
 
@@ -124,30 +40,44 @@ function renderSetupPage() {
         <label class="setup-label">Password</label>
         <input type="text" id="password-input" placeholder="Enter password">
       </div>
-        <div class="setup-desc">
-            Attention! This password will be used to login the Simulator GUI
-        </div>
+      <div class="setup-desc">
+        Attention! This password will be used to login the Simulator GUI
+      </div>
 
       <button id="finish-btn">Finish</button>
     </div>
   `;
 
-  const profileButtons = document.querySelectorAll(".profile-btn");
-  profileButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {});
+  // Profile mode selection
+  document.querySelectorAll(".profile-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      // Update variable
+      selectedProfileMode = btn.getAttribute("data-mode");
+
+      // Update UI
+      document.querySelectorAll(".profile-btn").forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
   });
 
-  const toggleButtons = document.querySelectorAll(".toggle-btn");
-  toggleButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {});
+  // Toggle QSW and Speed Test
+  document.querySelectorAll(".toggle-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.getAttribute("data-target");
+      const value = btn.getAttribute("data-value") === "true";
+
+      if (target === "qsw") qswEnableStatus = value;
+      else if (target === "speedtest") speedTestEnabled = value;
+
+      // Update UI for the specific toggle group
+      const groupId = target === "qsw" ? "qsw-options" : "speedtest-options";
+      document.querySelectorAll(`#${groupId} .toggle-btn`).forEach((b) => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
   });
 
   document.getElementById("finish-btn").addEventListener("click", () => {
-    alert("Setup Complete!");
+    const password = document.getElementById("password-input").value;
+    alert(`Setup Complete!\nModel: ${selectedRouter.model}\nMode: ${selectedProfileMode}\nQSW: ${qswEnableStatus}\nSpeed Test: ${speedTestEnabled}\nPassword: ${password}`);
   });
 }
-
-document.addEventListener("DOMContentLoaded", init);
-
-
-Please make this dynamic on click update the variables 
