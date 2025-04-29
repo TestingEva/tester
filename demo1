@@ -1,3 +1,97 @@
+const routers = [
+  {
+    name: "Verizon Router",
+    model: "CR1000A",
+    image: "./images/cr1000a.png",
+  },
+  {
+    name: "Verizon Router",
+    model: "CR1000B",
+    image: "./images/cr1000a.png",
+  },
+  {
+    name: "Verizon Internet Access Point - Router",
+    model: "CHR30A-R",
+    image: "./images/chr30a.png",
+  },
+  {
+    name: "Verizon Internet Access Point - Extender",
+    model: "CHR30A-E",
+    image: "./images/chr30a.png",
+  },
+  {
+    name: "Verizon Internet Gateway",
+    model: "WNC-CR200A",
+    image: "./images/wnc_cr200a.png",
+  },
+  {
+    name: "Verizon Extender",
+    model: "CE1000A",
+    image: "./images/ce1000a.png",
+  },
+];
+
+let selectedRouter = null;
+let selectedProfileMode = "Fios Home";
+const availableProfileMode = ["Fios Home", "Fios Business", "FWA Home", "FWA Business"];
+let qswEnableStatus = false;
+let speedTestEnabled = true;
+
+/**
+ * Intializes and pushes the HTML content to a spectified node
+ */
+function init() {
+  renderRouterSelection();
+}
+
+/**
+ * @returns HTML element tree for setup
+ */
+function renderRouterSelection() {
+  const app = document.getElementById("temp-root");
+  if (!app) return;
+
+  app.innerHTML = `
+    <header class="header">GUI Simulator List</header>
+    <div class="router-list">
+      ${routers
+        .map(
+          (router, index) => `
+        <div class="router-card" data-index="${index}">
+          <img src="${router.image}" alt="${router.name}">
+          <h4>${router.name}</h4>
+          <p>${router.model}</p>
+        </div>
+      `
+        )
+        .join("")}
+    </div>
+    <button id="proceed-btn" disabled>Proceed</button>
+  `;
+
+  const routerCards = document.querySelectorAll(".router-card");
+  routerCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      routerCards.forEach((c) => c.classList.remove("selected"));
+      card.classList.add("selected");
+      const index = card.getAttribute("data-index");
+      selectedRouter = routers[Number(index)];
+      document.getElementById("proceed-btn").disabled = false;
+    });
+  });
+
+  const proceedBtn = document.getElementById("proceed-btn");
+  proceedBtn.addEventListener("click", renderSetupPage);
+}
+
+/**
+ * @param {string} key : Key for local storage
+ * @param {string} value : value for local storage
+ */
+function setConfigStore(key, value) {
+  localStorage.setItem(key, value);
+}
+
 function renderSetupPage() {
   const app = document.getElementById("temp-root");
   if (!app || !selectedRouter) return;
@@ -13,7 +107,9 @@ function renderSetupPage() {
           ${availableProfileMode
             .map(
               (mode) =>
-                `<button class="profile-btn" data-mode="${mode}" aria-pressed="${selectedProfileMode === mode}">${mode}</button>`
+                `<button class="profile-btn ${
+                  selectedProfileMode === mode ? "selected" : ""
+                }" data-mode="${mode}">${mode}</button>`
             )
             .join("")}
         </div>
@@ -22,16 +118,16 @@ function renderSetupPage() {
       <div class="setup-group">
         <label class="setup-label">Enable QSW</label>
         <div class="options" id="qsw-options">
-          <button class="toggle-btn" data-value="true" aria-pressed="${qswEnableStatus}">True</button>
-          <button class="toggle-btn" data-value="false" aria-pressed="${!qswEnableStatus}">False</button>
+          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-value="true">True</button>
+          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-value="false">False</button>
         </div>
       </div>
 
       <div class="setup-group">
         <label class="setup-label">Enable Speed Test</label>
         <div class="options" id="speedtest-options">
-          <button class="toggle-btn" data-value="true" aria-pressed="${speedTestEnabled}">True</button>
-          <button class="toggle-btn" data-value="false" aria-pressed="${!speedTestEnabled}">False</button>
+          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-value="true">True</button>
+          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-value="false">False</button>
         </div>
       </div>
 
@@ -47,36 +143,48 @@ function renderSetupPage() {
     </div>
   `;
 
-  // Generic handler to reduce DOM reads/writes
-  const setupToggleHandler = (parentId, stateKey, parse = (v) => v) => {
-    document.getElementById(parentId).addEventListener("click", (e) => {
-      const target = e.target.closest("button");
-      if (!target) return;
+  document.getElementById("profile-options").addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("profile-btn")) return;
 
-      const group = target.parentElement;
-      const selected = group.querySelector('[aria-pressed="true"]');
-      if (selected === target) return; // already selected
+    const group = target.parentElement;
+    group.querySelector(".selected")?.classList.remove("selected");
+    target.classList.add("selected");
 
-      selected?.setAttribute("aria-pressed", "false");
-      target.setAttribute("aria-pressed", "true");
+    selectedProfileMode = target.dataset.mode;
+  });
 
-      window[stateKey] = parse(target.dataset.value || target.dataset.mode);
-    });
-  };
+  document.getElementById("qsw-options").addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("toggle-btn")) return;
 
-  setupToggleHandler("profile-options", "selectedProfileMode", (v) => v);
-  setupToggleHandler("qsw-options", "qswEnableStatus", (v) => v === "true");
-  setupToggleHandler("speedtest-options", "speedTestEnabled", (v) => v === "true");
+    const group = target.parentElement;
+    group.querySelector(".selected")?.classList.remove("selected");
+    target.classList.add("selected");
+
+    qswEnableStatus = target.dataset.value === "true";
+  });
+
+  document.getElementById("speedtest-options").addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("toggle-btn")) return;
+
+    const group = target.parentElement;
+    group.querySelector(".selected")?.classList.remove("selected");
+    target.classList.add("selected");
+
+    speedTestEnabled = target.dataset.value === "true";
+  });
 
   document.getElementById("finish-btn").addEventListener("click", () => {
     const password = document.getElementById("password-input").value.trim();
-    if (!password) return alert("Please enter a password.");
-
     setConfigStore("password", password);
-    setConfigStore("profileMode", selectedProfileMode);
+    setConfigStore("profileMode", selectedProfileMode.replace(/\s+/g, ""));
     setConfigStore("qswEnabled", qswEnableStatus);
     setConfigStore("speedTestEnabled", speedTestEnabled);
-
     alert("Setup Complete!");
+    window.location.href = "https://www.google.com";
   });
 }
+
+document.addEventListener("DOMContentLoaded", init);
