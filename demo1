@@ -2,7 +2,7 @@ function renderSetupPage() {
   const app = document.getElementById("temp-root");
   if (!app || !selectedRouter) return;
 
-  // Save selected model
+  // Save selected model to localStorage
   setConfigStore("modelName", selectedRouter.model);
 
   app.innerHTML = `
@@ -10,7 +10,7 @@ function renderSetupPage() {
     <div class="setup-form">
       <div class="setup-group">
         <label class="setup-label">Profile Mode</label>
-        <div class="options" id="profile-mode-options">
+        <div class="options" id="profile-options">
           ${availableProfileMode
             .map(
               (mode) =>
@@ -23,16 +23,16 @@ function renderSetupPage() {
       <div class="setup-group">
         <label class="setup-label">Enable QSW</label>
         <div class="options" id="qsw-options">
-          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-target="qsw" data-value="true">True</button>
-          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-target="qsw" data-value="false">False</button>
+          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-value="true">True</button>
+          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-value="false">False</button>
         </div>
       </div>
 
       <div class="setup-group">
         <label class="setup-label">Enable Speed Test</label>
         <div class="options" id="speedtest-options">
-          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-target="speedtest" data-value="true">True</button>
-          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-target="speedtest" data-value="false">False</button>
+          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-value="true">True</button>
+          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-value="false">False</button>
         </div>
       </div>
 
@@ -48,36 +48,55 @@ function renderSetupPage() {
     </div>
   `;
 
-  // Profile mode selection
-  document.querySelectorAll(".profile-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      // Update variable
-      selectedProfileMode = btn.getAttribute("data-mode");
+  // Profile mode toggle
+  document.getElementById("profile-options").addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("profile-btn")) return;
 
-      // Update UI
-      document.querySelectorAll(".profile-btn").forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-    });
+    const group = target.parentElement;
+    group.querySelector(".selected")?.classList.remove("selected");
+    target.classList.add("selected");
+
+    selectedProfileMode = target.dataset.mode;
   });
 
-  // Toggle QSW and Speed Test
-  document.querySelectorAll(".toggle-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const target = btn.getAttribute("data-target");
-      const value = btn.getAttribute("data-value") === "true";
+  // QSW toggle
+  document.getElementById("qsw-options").addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("toggle-btn")) return;
 
-      if (target === "qsw") qswEnableStatus = value;
-      else if (target === "speedtest") speedTestEnabled = value;
+    const group = target.parentElement;
+    group.querySelector(".selected")?.classList.remove("selected");
+    target.classList.add("selected");
 
-      // Update UI for the specific toggle group
-      const groupId = target === "qsw" ? "qsw-options" : "speedtest-options";
-      document.querySelectorAll(`#${groupId} .toggle-btn`).forEach((b) => b.classList.remove("selected"));
-      btn.classList.add("selected");
-    });
+    qswEnableStatus = target.dataset.value === "true";
   });
 
+  // Speed test toggle
+  document.getElementById("speedtest-options").addEventListener("click", (e) => {
+    const target = e.target;
+    if (!target.classList.contains("toggle-btn")) return;
+
+    const group = target.parentElement;
+    group.querySelector(".selected")?.classList.remove("selected");
+    target.classList.add("selected");
+
+    speedTestEnabled = target.dataset.value === "true";
+  });
+
+  // Finish button
   document.getElementById("finish-btn").addEventListener("click", () => {
-    const password = document.getElementById("password-input").value;
-    alert(`Setup Complete!\nModel: ${selectedRouter.model}\nMode: ${selectedProfileMode}\nQSW: ${qswEnableStatus}\nSpeed Test: ${speedTestEnabled}\nPassword: ${password}`);
+    const password = document.getElementById("password-input").value.trim();
+    if (!password) {
+      alert("Please enter a password before proceeding.");
+      return;
+    }
+
+    setConfigStore("password", password);
+    setConfigStore("profileMode", selectedProfileMode);
+    setConfigStore("qswEnabled", qswEnableStatus);
+    setConfigStore("speedTestEnabled", speedTestEnabled);
+
+    alert("Setup Complete!");
   });
 }
