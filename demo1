@@ -1,397 +1,53 @@
-const routers = [
-  {
-    name: "CHR2fA",
-    model: "CR1000A",
-    image: "./images/cr1000a.png",
-  },
-  {
-    name: "CHR2fB",
-    model: "CR1000B",
-    image: "./images/cr1000a.png",
-  },
-  {
-    name: "WIFI 7 - Router",
-    model: "CHR30A-R",
-    image: "./images/chr30a.png",
-  },
-  {
-    name: "WIFI 7 - Extender",
-    model: "CHR30A-E",
-    image: "./images/chr30a.png",
-  },
-  {
-    name: "FWA Titan 3",
-    model: "WNC-CR200A",
-    image: "./images/wnc_cr200a.png",
-  },
-  {
-    name: "CHR2tte",
-    model: "CE1000A",
-    image: "./images/ce1000a.png",
-  },
-];
+<div class="setup-group">
+  <label class="setup-label">
+    <input type="checkbox" id="qsw-checkbox" ${qswEnableStatus ? "checked" : ""} class="custom-checkbox">
+    Enable QSW
+  </label>
+</div>
 
-function convertLocalProfileModeToString(data) {
-  switch (data) {
-    case "FiosHome":
-      return "Fios Home";
-    case "FiosBusiness":
-      return "Fios Business";
-    case "FWAHome":
-      return "FWA Home";
-    case "FWABusiness":
-      return "FWA Business";
-    default:
-      return undefined;
-  }
+<div class="setup-group">
+  <label class="setup-label">
+    <input type="checkbox" id="speedtest-checkbox" ${speedTestEnabled ? "checked" : ""} class="custom-checkbox">
+    Enable Speed Test
+  </label>
+</div>
+
+
+/* Hide the default checkbox */
+.custom-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid black;
+  border-radius: 4px; /* Makes square edges slightly rounded */
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
 }
 
-function convertLocalBooleanToBoolean(data) {
-  switch (data) {
-    case "true":
-      return true;
-    case "false":
-      return false;
-    default:
-      return undefined;
-  }
+/* Checkbox checked state */
+.custom-checkbox:checked {
+  background-color: black;
+  border: 2px solid black;
 }
 
-let selectedRouter = null;
-let selectedProfileMode = convertLocalProfileModeToString(localStorage.getItem("profileMode")) ?? "Fios Home";
-const availableProfileMode = ["Fios Home", "Fios Business", "FWA Home", "FWA Business"];
-let qswEnableStatus = convertLocalBooleanToBoolean(localStorage.getItem("qswEnabled")) ?? false;
-let speedTestEnabled = convertLocalBooleanToBoolean(localStorage.getItem("speedTestEnabled")) ?? true;
-
-/**
- * Intializes and pushes the HTML content to a spectified node
- */
-function init() {
-  renderRouterSelection();
-}
-
-/**
- * @returns HTML element tree for setup
- */
-function renderRouterSelection() {
-  const app = document.getElementById("temp-root");
-  if (!app) return;
-
-  app.innerHTML = `
-    <header class="header">GUI Simulator List</header>
-    <div class="router-list">
-      ${routers
-        .map(
-          (router, index) => `
-        <div class="router-card" data-index="${index}">
-          <img src="${router.image}" alt="${router.name}">
-          <h4>${router.name}</h4>
-          <p>${router.model}</p>
-        </div>
-      `
-        )
-        .join("")}
-    </div>
-    <button id="proceed-btn" disabled>Proceed</button>
-  `;
-
-  const routerCards = document.querySelectorAll(".router-card");
-  routerCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      routerCards.forEach((c) => c.classList.remove("selected"));
-      card.classList.add("selected");
-      const index = card.getAttribute("data-index");
-      selectedRouter = routers[Number(index)];
-      document.getElementById("proceed-btn").disabled = false;
-    });
-  });
-
-  const proceedBtn = document.getElementById("proceed-btn");
-  proceedBtn.addEventListener("click", renderSetupPage);
-}
-
-/**
- * @param {string} key : Key for local storage
- * @param {string} value : value for local storage
- */
-function setConfigStore(key, value) {
-  localStorage.setItem(key, value);
-}
-
-function renderSetupPage() {
-  const app = document.getElementById("temp-root");
-  if (!app || !selectedRouter) return;
-
-  setConfigStore("modelName", selectedRouter.model);
-
-  app.innerHTML = `
-    <header class="header">${selectedRouter.name} Quick Setup</header>
-    <div class="setup-form">
-      <div class="setup-group">
-        <label class="setup-label">Profile Mode</label>
-        <div class="options" id="profile-options">
-          ${availableProfileMode
-            .map(
-              (mode) =>
-                `<button class="profile-btn ${
-                  selectedProfileMode === mode ? "selected" : ""
-                }" data-mode="${mode}">${mode}</button>`
-            )
-            .join("")}
-        </div>
-      </div>
-
-      <div class="setup-group">
-        <label class="setup-label">Enable QSW</label>
-        <div class="options" id="qsw-options">
-          <button class="toggle-btn ${qswEnableStatus ? "selected" : ""}" data-value="true">True</button>
-          <button class="toggle-btn ${!qswEnableStatus ? "selected" : ""}" data-value="false">False</button>
-        </div>
-      </div>
-
-      <div class="setup-group">
-        <label class="setup-label">Enable Speed Test</label>
-        <div class="options" id="speedtest-options">
-          <button class="toggle-btn ${speedTestEnabled ? "selected" : ""}" data-value="true">True</button>
-          <button class="toggle-btn ${!speedTestEnabled ? "selected" : ""}" data-value="false">False</button>
-        </div>
-      </div>
-
-      <div class="setup-group">
-        <label class="setup-label">Password</label>
-        <input type="text" id="password-input" placeholder="Enter password">
-      </div>
-      <div class="setup-desc">
-         This password will be used in the login flow of Simulator.
-      </div>
-
-     <div class="finish-btn-container"> <button id="back-btn">Back</button>
-      <button id="finish-btn">Finish</button></div>
-    </div>
-  `;
-
-  document.getElementById("profile-options").addEventListener("click", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("profile-btn")) return;
-
-    const group = target.parentElement;
-    group.querySelector(".selected")?.classList.remove("selected");
-    target.classList.add("selected");
-
-    selectedProfileMode = target.dataset.mode;
-  });
-
-  document.getElementById("qsw-options").addEventListener("click", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("toggle-btn")) return;
-
-    const group = target.parentElement;
-    group.querySelector(".selected")?.classList.remove("selected");
-    target.classList.add("selected");
-
-    qswEnableStatus = target.dataset.value === "true";
-  });
-
-  document.getElementById("speedtest-options").addEventListener("click", (e) => {
-    const target = e.target;
-    if (!target.classList.contains("toggle-btn")) return;
-
-    const group = target.parentElement;
-    group.querySelector(".selected")?.classList.remove("selected");
-    target.classList.add("selected");
-
-    speedTestEnabled = target.dataset.value === "true";
-  });
-
-  document.getElementById("back-btn").addEventListener("click", () => {
-    renderRouterSelection();
-  });
-
-  document.getElementById("finish-btn").addEventListener("click", () => {
-    const password = document.getElementById("password-input").value.trim();
-    setConfigStore("password", password);
-    setConfigStore("profileMode", selectedProfileMode.replace(/\s+/g, ""));
-    setConfigStore("qswEnabled", qswEnableStatus);
-    setConfigStore("speedTestEnabled", speedTestEnabled);
-    alert("Setup Complete!");
-    window.location.href = "simulator.html";
-  });
-}
-
-document.addEventListener("DOMContentLoaded", init);
-
-
-@font-face {
-  font-family: "vzReg";
-  src: url("./fonts/VerizonNHGeTX-Regular.woff") format("woff");
-}
-
-@font-face {
-  font-family: "vzBold";
-  src: url("./fonts/VerizonNHGeTX-Bold.woff") format("woff");
-}
-
-@font-face {
-  font-family: "vzHReg";
-  src: url("./fonts/VerizonNHGeDS-Regular.woff") format("woff");
-}
-
-@font-face {
-  font-family: "vzHBold";
-  src: url("./fonts/VerizonNHGeDS-Bold.woff") format("woff");
-}
-
-body {
-  background: #f2f2f2;
-  font-family: "vzReg", sans-serif;
-}
-
-.simulator {
-  margin: 0;
-
-  .header {
-    padding: 1rem;
-    text-align: center;
-    font-size: 1.75rem;
-    font-family: "vzBold", sans-serif;
-  }
-
-  .router-list {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    margin: 2rem;
-    gap: 1rem;
-  }
-
-  .router-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    width: 150px;
-    text-align: center;
-    cursor: pointer;
-    transition: transform 0.3s;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-
-  .router-card img {
-    width: 100px;
-    object-fit: contain;
-    min-height: 150px;
-    scale: 1.5;
-  }
-
-  .router-card:hover {
-    transform: scale(1.05);
-  }
-
-  .router-card.selected {
-    border: 2px solid #000000;
-    scale: 1.05;
-  }
-
-  .finish-btn-container {
-    display: flex;
-    place-content: center;
-    gap: 2rem;
-  }
-
-  #proceed-btn,
-  #finish-btn,
-  #back-btn {
-    display: block;
-    margin: 2rem auto;
-    padding: 0.8rem 2rem;
-    font-size: 1rem;
-    background: #000000;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .finish-btn-container button:first-child {
-    background: #d8dada !important;
-    color: black !important;
-    margin: auto 0 !important;
-  }
-  .finish-btn-container button:last-child {
-    margin: auto 0 !important;
-  }
-
-  #proceed-btn:disabled {
-    background: grey;
-    cursor: not-allowed;
-  }
-
-  .setup-form {
-    padding: 2rem;
-    display: grid;
-    gap: 2rem;
-    justify-content: center;
-  }
-
-  .setup-group {
-    display: flex;
-    align-items: baseline;
-    gap: 1rem;
-  }
-
-  .setup-label {
-    width: 150px;
-  }
-
-  .options {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-  }
-
-  .profile-btn,
-  .toggle-btn {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background 0.3s, color 0.3s;
-  }
-
-  .profile-btn.selected,
-  .toggle-btn.selected {
-    background: #000000;
-    color: white;
-    border: 1px solid #000000;
-  }
-
-  input[type="text"] {
-    width: 70%;
-    padding: 0.8rem;
-    font-size: 1rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-  }
-
-  .topbar-gui {
-    height: 70px;
-    border-bottom: 1px solid #d8dada;
-  }
-
-  .setup-desc {
-    margin-top: -27px;
-    padding-left: 170px;
-    color: #868989;
-    font-size: 0.9rem;
-  }
-}
-
-.topbar-gui {
-  height: 70px;
-  border-bottom: 1px solid #d8dada;
+/* White tick inside checkbox when checked */
+.custom-checkbox:checked::after {
+  content: "✔";
+  font-size: 16px;
+  color: white;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: bold;
 }
 
 
-there is new requirement instead of showing true and false buttons now we should have a checkbox 
+document.getElementById("qsw-checkbox").addEventListener("change", (e) => {
+  qswEnableStatus = e.target.checked;
+});
 
-some styling detail of the checkbox is It should have square structure checked tick should be of color white and background black 
+document.getElementById("speedtest-checkbox").addEventListener("change", (e) => {
+  speedTestEnabled = e.target.checked;
+});
