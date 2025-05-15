@@ -1,73 +1,22 @@
-export async function updateQswDetails(updateDetails: UpdateQswDetails): Promise<void> {
-  const payload: UpdateWifiBandProps[] = [];
+function isValidSubnetMask(mask: string): boolean {
+  const octets = mask.split(".");
 
-  if (
-    updateDetails.primaryWifi !== undefined &&
-    hasAtleastOneDefinedProp({ ...updateDetails.primaryWifi, radioType: undefined })
-  ) {
-    payload.push({
-      band: updateDetails.primaryWifi.radioType,
-      category: WifiCategory.Primary,
-      ssid: updateDetails.primaryWifi.ssid,
-      password: updateDetails.primaryWifi.password,
-    });
-  }
+  // Must have exactly 4 octets
+  if (octets.length !== 4) return false;
 
-  if (
-    updateDetails.sixGhz !== undefined &&
-    hasAtleastOneDefinedProp({ ...updateDetails.sixGhz, radioType: undefined })
-  ) {
-    payload.push({
-      band: updateDetails.sixGhz.radioType,
-      category: WifiCategory.Primary,
-      enabled: updateDetails.sixGhz.enabled,
-    });
-  }
+  const binaryMask = octets.map(octet => {
+    const num = Number(octet);
+    // Each octet must be a valid number between 0 and 255
+    if (isNaN(num) || num < 0 || num > 255) return null;
+    return num.toString(2).padStart(8, "0");
+  });
 
-  await finishQswProcess(updateDetails.qswSessionId);
+  if (binaryMask.includes(null)) return false;
 
-  let p1: Promise<void>;
-  let p2: Promise<void>;
-
-  if (payload.length > 0) {
-    p1 = updateWifiPageDetails(convertQswUpdateWifiBandToRequest(payload, WifiCategory.Primary));
-  }
-
-  const guestPayload: UpdateWifiBandProps[] = [];
-  if (
-    updateDetails.guestWifi !== undefined &&
-    hasAtleastOneDefinedProp({ ...updateDetails.guestWifi, radioType: undefined })
-  ) {
-    guestPayload.push({
-      band: updateDetails.guestWifi.radioType,
-      category: WifiCategory.Guest,
-      ssid: updateDetails.guestWifi.ssid,
-      password: updateDetails.guestWifi.password,
-      enabled: updateDetails.guestWifi.enabled,
-    });
-    guestPayload.push({
-      band:
-        updateDetails.guestWifi.radioType === RadioType.TwoPointFourGhz ? RadioType.FiveGhz : RadioType.TwoPointFourGhz,
-      category: WifiCategory.Guest,
-      enabled: updateDetails.guestWifi.enabled,
-    });
-  }
-
-  if (
-    updateDetails.sixGhz !== undefined &&
-    hasAtleastOneDefinedProp({ ...updateDetails.sixGhz, radioType: undefined })
-  ) {
-    guestPayload.push({
-      band: RadioType.SixGhz,
-      category: WifiCategory.Guest,
-      enabled: updateDetails.sixGhz.enabled,
-    });
-  }
-  if (guestPayload.length > 0) {
-    p2 =  updateWifiPageDetails(convertQswUpdateWifiBandToRequest(guestPayload, WifiCategory.Guest));
-  }
-  Promise.all([p1,p2])
+  const binaryString = binaryMask.join("");
+  
+  // Check for the first occurrence of '0' and ensure no '1' appears after it
+  const firstZeroIndex = binaryString.indexOf("0");
+  if (firstZeroIndex === -1) return true; // All ones, valid
+  return !binaryString.slice(firstZeroIndex).includes("1");
 }
-
-
-I want to make parellel calls of both p1 and p2 please help
