@@ -1,27 +1,16 @@
-import { useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getSpeedTestResult } from "your/api";
-import { asyncHookData } from "your/utils";
-import { SpeedTestResultInfo, SpeedTestType } from "./models";
-import { AsyncHookData } from "./types";
-
 export function useSpeedTestResult(refetch: boolean): AsyncHookData<SpeedTestResultInfo | null> {
   const callCountRef = useRef(0);
-
   const query = useQuery({
-    queryKey: ["KEY_SPEED_TEST_RESULT"],
+    queryKey: [KEY_SPEED_TEST_RESULT],
     queryFn: async () => {
-      if (callCountRef.current > 0 && callCountRef.current >= 60) {
-        throw new Error("Speed test polling limit exceeded (60)");
-      }
       callCountRef.current++;
-      const result = await getSpeedTestResult();
+      const result = await getSpeedTestResult(callCountRef.current, MAX_ATTEMPTS);
       if (result?.currentTestType === SpeedTestType.Completed) {
         callCountRef.current = 0;
       }
       return result;
     },
-    refetchInterval: refetch && callCountRef.current < 60 ? 1000 : false,
+    refetchInterval: refetch && callCountRef.current < MAX_ATTEMPTS ? 1000 : false,
   });
 
   useEffect(() => {
@@ -29,6 +18,8 @@ export function useSpeedTestResult(refetch: boolean): AsyncHookData<SpeedTestRes
       callCountRef.current = 0;
     }
   }, [refetch]);
-
   return asyncHookData(query);
 }
+
+Please add documentation for the same
+
