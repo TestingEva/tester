@@ -1,5 +1,21 @@
+/**
+ * Custom hook to fetch and monitor the result of an ongoing speed test.
+ *
+ * - On first render, it triggers an initial request to check the current speed test status.
+ * - If the test is still in progress (i.e., not `Completed`), it continues to poll the result every second.
+ * - Polling is capped at `MAX_ATTEMPTS` to prevent infinite network calls.
+ * - If the test completes at any point, the polling is automatically stopped and call count is reset.
+ *
+ * @param refetch - A boolean flag indicating whether polling should be active.
+ *                  It should remain `true` until the test is completed.
+ * @returns `AsyncHookData` object containing the latest `SpeedTestResultInfo` or null.
+ *
+ * @example
+ * const { data, isLoading, error } = useSpeedTestResult(true);
+ */
 export function useSpeedTestResult(refetch: boolean): AsyncHookData<SpeedTestResultInfo | null> {
   const callCountRef = useRef(0);
+
   const query = useQuery({
     queryKey: [KEY_SPEED_TEST_RESULT],
     queryFn: async () => {
@@ -18,8 +34,6 @@ export function useSpeedTestResult(refetch: boolean): AsyncHookData<SpeedTestRes
       callCountRef.current = 0;
     }
   }, [refetch]);
+
   return asyncHookData(query);
 }
-
-Please add documentation for the same
-
