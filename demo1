@@ -1,201 +1,34 @@
-import { createContext, useCallback, useContext, useRef, useState } from "react";
-import {
-  cancelPing as cancelPingFn,
-  getPingResult as getPingResultFn,
-  getPingStatus as getPingStatusFn,
-  startPing as startPingFn,
-} from "../../data/tr181/tr181";
-import { sleep } from "../../data/utils";
-import { useDeepEqualState } from "../../ui/utils";
-import { IpVersion } from "../misc/models";
-import { SerialTaskExecutor, Task, TaskContext } from "../task";
-import { DiagnosticsPingParams, DiagnosticsResult, PingManager, PingStatus } from "./models";
+import { useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getSpeedTestResult } from "your/api";
+import { asyncHookData } from "your/utils";
+import { SpeedTestResultInfo, SpeedTestType } from "./models";
+import { AsyncHookData } from "./types";
 
-type PingStateAndResult = {
-  status: PingStatus;
-  result?: DiagnosticsResult;
-};
-
-type PingManagerDependencies = {
-  cancelPing: () => Promise<void>;
-  startPing: (params: DiagnosticsPingParams) => Promise<void>;
-  getPingStatus: () => Promise<PingStatus>;
-  getPingResult: () => Promise<DiagnosticsResult>;
-};
-
-const PingManagerContext = createContext<PingManagerDependencies | undefined>(undefined);
-
-export const PingManagerProvider = PingManagerContext.Provider;
-
-export const usePingManagerDependencies = (): PingManagerDependencies | undefined => {
-  return useContext(PingManagerContext);
-};
-
-export function usePingManager(): PingManager {
-  const {
-    cancelPing = cancelPingFn,
-    startPing = startPingFn,
-    getPingStatus = getPingStatusFn,
-    getPingResult = getPingResultFn,
-  } = usePingManagerDependencies() ?? {};
-
-  const executor = useRef(new SerialTaskExecutor());
-  const [taskObj, setTaskObj] = useState<{ v4PingTask?: Task; v6PingTask?: Task }>({});
-  const [ipv4PingState, setIpv4PingState] = useDeepEqualState<PingStateAndResult>({ status: PingStatus.Idle });
-  const [ipv6PingState, setIpv6PingState] = useDeepEqualState<PingStateAndResult>({ status: PingStatus.Idle });
-  const [isError, setIsError] = useState(false);
-
-  const setPingState = useRef((status: PingStatus, result: DiagnosticsResult | undefined, ipVersion: IpVersion) => {
-    ipVersion === IpVersion.Four ? setIpv4PingState({ status, result }) : setIpv6PingState({ status, result });
-  });
-
-  const processPingRequest = useRef(async (params: DiagnosticsPingParams, context: TaskContext) => {
-    try {
-      await cancelPing(); //precautiously cancel ongoing ping
-      await startPing(params);
-      let status = PingStatus.Idle;
-      setPingState.current(status, undefined, params.ipVersion);
-      do {
-        status = await getPingStatus();
-        let result: DiagnosticsResult | undefined = undefined;
-        switch (status) {
-          case PingStatus.Idle: //probably canceled
-            setPingState.current(status, result, params.ipVersion);
-            break;
-          case PingStatus.TestFailed:
-            result = await getPingResult();
-            setPingState.current(status, result, params.ipVersion);
-            break;
-          case PingStatus.TestSucceeded:
-            result = await getPingResult();
-            if (result.lossPercentage > 0 && result.lossPercentage < 100) {
-              setPingState.current(PingStatus.PacketLoss, result, params.ipVersion);
-            } else if (result.lossPercentage === 100) {
-              setPingState.current(PingStatus.TestFailed, result, params.ipVersion);
-            } else {
-              setPingState.current(status, result, params.ipVersion);
-            }
-            break;
-          case PingStatus.Testing:
-            setPingState.current(status, undefined, params.ipVersion);
-            await sleep(1000);
-            if (context.getIsCancelled()) {
-              await cancelPing();
-            }
-            break;
-        }
-      } while (status === PingStatus.Testing);
-    } catch (error) {
-      setIsError(true);
-    }
-  });
-
-  const onStartPing = useCallback(
-    (params: DiagnosticsPingParams) => {
-      const ipVersion = params.ipVersion;
-      let { v4PingTask, v6PingTask } = taskObj;
-
-      if (v4PingTask !== undefined && v4PingTask.getStatus() !== "running") {
-        v4PingTask.cancel(); // in case the task is idle
-        v4PingTask = undefined;
-      } else if (v6PingTask !== undefined && v6PingTask.getStatus() !== "running") {
-        v6PingTask.cancel(); // in case the task is idle
-        v6PingTask = undefined;
-      }
-
-      if (ipVersion === IpVersion.Four && v4PingTask === undefined) {
-        const task = new Task((ctx) => processPingRequest.current(params, ctx));
-        executor.current.submit(task);
-        v4PingTask = task;
-        setIpv4PingState({ status: PingStatus.Testing });
-      } else if (ipVersion === IpVersion.Six && v6PingTask === undefined) {
-        const task = new Task((ctx) => processPingRequest.current(params, ctx));
-        executor.current.submit(task);
-        v6PingTask = task;
-        setIpv6PingState({ status: PingStatus.Testing });
-      }
-      setTaskObj({ v4PingTask, v6PingTask });
-    },
-    //eslint-disable-next-line
-    [taskObj]
-  );
-
-  const onCancelPing = useCallback(
-    (ipVersion: IpVersion) => {
-      let { v4PingTask, v6PingTask } = taskObj;
-      if (ipVersion === IpVersion.Four && v4PingTask !== undefined) {
-        v4PingTask.cancel();
-        setIpv4PingState({ status: PingStatus.Idle });
-      } else if (ipVersion === IpVersion.Six && v6PingTask !== undefined) {
-        v6PingTask.cancel();
-        setIpv6PingState({ status: PingStatus.Idle });
-      }
-    },
-    //eslint-disable-next-line
-    [taskObj]
-  );
-
-  return {
-    ipv4PingStatus: ipv4PingState.status,
-    ipv4PingResult: ipv4PingState.result,
-    ipv6PingStatus: ipv6PingState.status,
-    ipv6PingResult: ipv6PingState.result,
-    onStartPing,
-    onCancelPing,
-    isError,
-  };
-}
-
-
-
-This is a demo for your reference
-
-
-
-Now below is problem statement 
 export function useSpeedTestResult(refetch: boolean): AsyncHookData<SpeedTestResultInfo | null> {
+  const callCountRef = useRef(0);
+
   const query = useQuery({
-    queryKey: [KEY_SPEED_TEST_RESULT],
-    queryFn: getSpeedTestResult,
-    refetchInterval: refetch ? 1000 : false,
+    queryKey: ["KEY_SPEED_TEST_RESULT"],
+    queryFn: async () => {
+      if (callCountRef.current > 0 && callCountRef.current >= 60) {
+        throw new Error("Speed test polling limit exceeded (60)");
+      }
+      callCountRef.current++;
+      const result = await getSpeedTestResult();
+      if (result?.currentTestType === SpeedTestType.Completed) {
+        callCountRef.current = 0;
+      }
+      return result;
+    },
+    refetchInterval: refetch && callCountRef.current < 60 ? 1000 : false,
   });
+
+  useEffect(() => {
+    if (!refetch) {
+      callCountRef.current = 0;
+    }
+  }, [refetch]);
+
   return asyncHookData(query);
 }
-
-export function useIntiateSpeedTest(): LazyAsyncHookData<void | string, void> {
-  const mut = useMutation({
-    mutationKey: ["initiateSpeedTest"],
-    mutationFn: initiateSpeedTest,
-  });
-  return lazyAsyncHookData(mut);
-}
-
-This are the two hooks and I want to limit the infinte speed test call to 60 only 
-
-if its beyond 60 hooks should throw an error
-
-export type SpeedTestHistoryInfo = {
-  isExtender: boolean;
-  download: DataSize;
-  upload: DataSize;
-  latencyMs: number;
-  date: Dayjs;
-};
-
-export enum SpeedTestType {
-  Download,
-  Upload,
-  Latency,
-  Completed,
-}
-
-export type SpeedTestResultInfo = {
-  currentTestType: SpeedTestType;
-  ipAddress?: string;
-  download?: DataSize;
-  upload?: DataSize;
-  latencyMs?: number;
-};
-
-
-remember refetch is true till the status is not Completed 
