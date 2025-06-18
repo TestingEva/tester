@@ -1,39 +1,20 @@
-/**
- * Custom hook to fetch and monitor the result of an ongoing speed test.
- *
- * - On first render, it triggers an initial request to check the current speed test status.
- * - If the test is still in progress (i.e., not `Completed`), it continues to poll the result every second.
- * - Polling is capped at `MAX_ATTEMPTS` to prevent infinite network calls.
- * - If the test completes at any point, the polling is automatically stopped and call count is reset.
- *
- * @param refetch - A boolean flag indicating whether polling should be active.
- *                  It should remain `true` until the test is completed.
- * @returns `AsyncHookData` object containing the latest `SpeedTestResultInfo` or null.
- *
- * @example
- * const { data, isLoading, error } = useSpeedTestResult(true);
- */
-export function useSpeedTestResult(refetch: boolean): AsyncHookData<SpeedTestResultInfo | null> {
-  const callCountRef = useRef(0);
+Hi 
+I need your help in developing a function called as zodCatcher
 
-  const query = useQuery({
-    queryKey: [KEY_SPEED_TEST_RESULT],
-    queryFn: async () => {
-      callCountRef.current++;
-      const result = await getSpeedTestResult(callCountRef.current, MAX_ATTEMPTS);
-      if (result?.currentTestType === SpeedTestType.Completed) {
-        callCountRef.current = 0;
-      }
-      return result;
-    },
-    refetchInterval: refetch && callCountRef.current < MAX_ATTEMPTS ? 1000 : false,
-  });
+This function will take schema and default value and will assign the default value if there is some schema failure 
 
-  useEffect(() => {
-    if (!refetch) {
-      callCountRef.current = 0;
-    }
-  }, [refetch]);
+For example, 
 
-  return asyncHookData(query);
-}
+export const UpnpResponseSchema = z.object({
+  enabled: z.boolean(),
+  autoCleanEnabled: z.boolean(),
+});
+
+Suppose i have the above schema
+
+export const UpnpResponseSchema = z.object({
+  enabled: zodCatcher(z.boolean(),true),
+  autoCleanEnabled: zodCatcher(z.boolean(),true),
+});
+
+This is just a example make it such that it can take a generic type and do the thinfs 
