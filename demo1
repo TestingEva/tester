@@ -1,20 +1,28 @@
-Hi 
-I need your help in developing a function called as zodCatcher
+import { z, ZodTypeAny } from "zod";
 
-This function will take schema and default value and will assign the default value if there is some schema failure 
-
-For example, 
-
-export const UpnpResponseSchema = z.object({
-  enabled: z.boolean(),
-  autoCleanEnabled: z.boolean(),
-});
-
-Suppose i have the above schema
-
-export const UpnpResponseSchema = z.object({
-  enabled: zodCatcher(z.boolean(),true),
-  autoCleanEnabled: zodCatcher(z.boolean(),true),
-});
-
-This is just a example make it such that it can take a generic type and do the thinfs 
+/**
+ * A utility to catch schema parsing errors and apply a default value.
+ * Logs the expected schema and the received invalid value.
+ *
+ * @param schema - The Zod schema to validate against
+ * @param defaultValue - The default value to return if validation fails
+ */
+export function zodCatcher<T extends ZodTypeAny>(
+  schema: T,
+  defaultValue: z.infer<T>
+): z.ZodType<z.infer<T>> {
+  return z.preprocess((input) => {
+    const result = schema.safeParse(input);
+    if (result.success) {
+      return result.data;
+    } else {
+      console.warn(
+        "[zodCatcher] Validation failed.",
+        "\nExpected schema:", schema.toString?.() ?? "[Schema]",
+        "\nReceived value:", input,
+        "\nUsing default value:", defaultValue
+      );
+      return defaultValue;
+    }
+  }, schema);
+}
