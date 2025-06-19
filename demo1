@@ -183,9 +183,35 @@ universal_pnp.ts:17 Uncaught ReferenceError: Cannot access 'environment' before 
 
 and environment is already assigned in util.ts
 
-export let environment = "Prod"
+export let environment = stringToEnvironment(process.env.REACT_APP_ENV);
 
 const allowZodCatcher = true;
+
+
+this is universal_pnp.ts
+import { UpnpInfo } from "../../domain/universal-pnp/models";
+import { sleep } from "../utils";
+import { getUpnpApi, updateUpnpApi } from "./api";
+import { UpnpApiResponse } from "./models";
+
+export async function getUpnpStatus(): Promise<UpnpInfo> {
+  const upnpResponse = await getUpnpApi();
+  return {
+    upnpEnabled: upnpResponse.enabled,
+    autoCleanOldUpnpEnabled: upnpResponse.autoCleanEnabled,
+  };
+}
+
+export async function updateUpnpStatus(upnpData: UpnpApiResponse): Promise<void> {
+  await updateUpnpApi(upnpData);
+  await sleep(5_000);
+}
+
+
+
+This thing was working till now when I just added the console it is failing to a extent saying the response failed 
+
+I cant make changes to the existing code base, I just want to make my zodCatcher implementation work 
 
 
 how to fix this issue 
