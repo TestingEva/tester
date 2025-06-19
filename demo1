@@ -1,28 +1,191 @@
-import { z, ZodTypeAny } from "zod";
-
-/**
- * A utility to catch schema parsing errors and apply a default value.
- * Logs the expected schema and the received invalid value.
- *
- * @param schema - The Zod schema to validate against
- * @param defaultValue - The default value to return if validation fails
- */
-export function zodCatcher<T extends ZodTypeAny>(
-  schema: T,
-  defaultValue: z.infer<T>
-): z.ZodType<z.infer<T>> {
+export function zodCatcher<T extends ZodTypeAny>(schema: T, defaultValue: z.infer<T>): z.ZodType<z.infer<T>> {
   return z.preprocess((input) => {
+    if (!allowZodCatcher) {
+      return input;
+    }
     const result = schema.safeParse(input);
+
     if (result.success) {
       return result.data;
     } else {
-      console.warn(
-        "[zodCatcher] Validation failed.",
-        "\nExpected schema:", schema.toString?.() ?? "[Schema]",
-        "\nReceived value:", input,
-        "\nUsing default value:", defaultValue
-      );
+      logger.e("Validation Error", `returning default value ${defaultValue}`, result.error);
       return defaultValue;
     }
   }, schema);
 }
+
+Here is a funciton which I have created.
+
+
+export const UpnpResponseSchema = z.object({
+  enabled: zodCatcher(z.boolean(), true),
+  autoCleanEnabled: z.boolean(),
+});
+it is used here 
+
+
+Now below is logging done - 
+
+export class PlatformLogger extends Logger {
+  private store = new LocalStorageStore();
+  private consoleLogger = new ConsoleLogger();
+
+  private errorLogStore = new ObjectStore<string>(
+    this.store,
+    {
+      keyPrefix: "ewL",
+      sizeThresholdBytes: 1024 * 3,
+      countThreshold: 1,
+      timeThresholdMs: 1000 * 20,
+    },
+    this.flushLogs.bind(this)
+  );
+
+  private logStore = new ObjectStore<string>(
+    this.store,
+    {
+      keyPrefix: "oL",
+      sizeThresholdBytes: 1024 * 10,
+      countThreshold: 10,
+      timeThresholdMs: 1000 * 60,
+    },
+    this.flushLogs.bind(this)
+  );
+
+  private async flushLogs(entries: string[], _type: "Size" | "Count" | "Time"): Promise<boolean> {
+    try {
+      await sendLogsApi(entries);
+      return true;
+    } catch (_) {
+      //swallow
+      return false;
+    }
+  }
+
+  async log(tag: string, level: LogLevel, message: string, timestamp: Date): Promise<void> {
+    this.consoleLogger.log(tag, level, message, timestamp); //Temporary delegation to console logger
+
+    const levelStr = logLevelToString(level);
+    const logMessage = `${timestamp.toISOString()} [${levelStr}] ${tag} ${message}`;
+    if (level === LogLevel.Error || level === LogLevel.Warn) {
+      await this.errorLogStore.add(logMessage);
+    } else {
+      await this.logStore.add(logMessage);
+    }
+  }
+
+  async logEvent(name: string, timestamp: Date, params?: any): Promise<void> {
+    this.consoleLogger.logEvent(name, timestamp, params); //Temporary delegation to console logger
+  }
+}
+
+export const logger = environment === "Prod" ? new PlatformLogger() : new ConsoleLogger();
+
+
+import { LogLevel, Logger } from "./logger";
+
+export class ConsoleLogger extends Logger {
+  async log(tag: string, level: LogLevel, message: string, timestamp: Date): Promise<void> {
+    console.log(`${LogLevel[level]} ${tag} : ${message}`);
+  }
+  async logEvent(name: string, timestamp: Date, params?: any): Promise<void> {
+    console.log(`${name} ${params !== undefined ? JSON.stringify(params) : ""}`);
+  }
+}
+
+export class NoOpLogger extends Logger {
+  async log(tag: string, level: LogLevel, message: string, timestamp: Date): Promise<void> {
+    // do nothing
+  }
+  async logEvent(name: string, timestamp: Date, params?: any): Promise<void> {
+    // do nothing
+  }
+}
+
+
+export enum LogLevel {
+  Verbose,
+  Debug,
+  Info,
+  Warn,
+  Error,
+}
+
+export abstract class Logger {
+  abstract log(tag: string, level: LogLevel, message: string, timestamp: Date): Promise<void>;
+
+  abstract logEvent(name: string, timestamp: Date, params?: any): Promise<void>;
+
+  /**
+   * Log a verbose message
+   * @param tag the category of this log
+   */
+  v(tag: string, message: string, error?: Error): Promise<void> {
+    return this.log(tag, LogLevel.Verbose, error ? `${message} - ${error.toString()}` : message, new Date());
+  }
+
+  /**
+   * Log a debug message
+   * @param tag the category of this log
+   */
+  d(tag: string, message: string, error?: Error): Promise<void> {
+    return this.log(tag, LogLevel.Debug, error ? `${message} - ${error.toString()}` : message, new Date());
+  }
+
+  /**
+   * Log a information message
+   * @param tag the category of this log
+   */
+  i(tag: string, message: string, error?: Error): Promise<void> {
+    return this.log(tag, LogLevel.Info, error ? `${message} - ${error.toString()}` : message, new Date());
+  }
+
+  /**
+   * Log a warning message
+   * @param tag the category of this log
+   */
+  w(tag: string, message: string, error?: Error): Promise<void> {
+    return this.log(tag, LogLevel.Warn, error ? `${message} - ${error.toString()}` : message, new Date());
+  }
+
+  /**
+   * Log an error message
+   * @param tag the category of this log
+   */
+  e(tag: string, message: string, error?: Error): Promise<void> {
+    return this.log(tag, LogLevel.Error, error ? `${message} - ${error.toString()}` : message, new Date());
+  }
+
+  /**
+   * Log an event
+   * @param name the name of this event
+   * @param params optional params for this event
+   */
+  event(name: string, params?: any): Promise<void> {
+    return this.logEvent(name, new Date(), params);
+  }
+}
+
+
+Okay when i tried to use the logger i am getting  the following error - 
+
+universal_pnp.ts:17 Uncaught ReferenceError: Cannot access 'environment' before initialization
+    at Module.environment (universal_pnp.ts:17:1)
+    at ./src/data/storage/key_value_store.ts (key_value_store.ts:129:1)
+    at options.factory (react refresh:6:1)
+    at __webpack_require__ (bootstrap:22:1)
+    at fn (hot module replacement:61:1)
+    at ./src/data/http/http_client_impl.ts (http_client.ts:32:1)
+    at options.factory (react refresh:6:1)
+    at __webpack_require__ (bootstrap:22:1)
+    at fn (hot module replacement:61:1)
+    at ./src/data/logger/api.ts (schemas.ts:34:1)
+
+and environment is already assigned in util.ts
+
+export let environment = "Prod"
+
+const allowZodCatcher = true;
+
+
+how to fix this issue 
